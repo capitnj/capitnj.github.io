@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapItNJ — Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="home.html" class="wordmark">CapItNJ</a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="explore.html">Explore</a>
+      <a href="profile.html" class="active">Profile</a>
+      <a href="matches.html">Matches</a>
+      <a href="improve.html">Improve</a>
+      <button id="logout-btn">Log out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <p class="eyebrow">Your profile</p>
+    <h1>Tell us about you</h1>
+    <p class="subtitle" id="greeting">&nbsp;</p>
+
+    <form id="profile-form" style="max-width:460px">
+
+      <p class="form-section-title">Academics</p>
+      <div class="field">
+        <label for="gpa">GPA (unweighted, 0.0–4.0)</label>
+        <input type="number" id="gpa" min="0" max="4" step="0.01" placeholder="e.g. 3.4" required>
+      </div>
+      <div class="field">
+        <label for="test-score">SAT / ACT score <span class="hint-inline">(optional — SAT scale, ACT×40 is fine too)</span></label>
+        <input type="number" id="test-score" min="400" max="1600" placeholder="e.g. 1280 — leave blank if you haven't tested">
+      </div>
+      <div class="field">
+        <label for="major">What do you think you want to study? <span class="hint-inline">(optional)</span></label>
+        <input type="text" id="major" placeholder="e.g. Computer Science, undecided, etc.">
+      </div>
+      <div class="field">
+        <label for="extracurricular">Biggest extracurricular focus <span class="hint-inline">(optional)</span></label>
+        <select id="extracurricular">
+          <option value="" selected>Prefer not to say</option>
+          <option value="stem">STEM / robotics / coding</option>
+          <option value="arts">Arts, music, or theater</option>
+          <option value="sports">Athletics</option>
+          <option value="service">Community service / volunteering</option>
+          <option value="leadership">Student government / leadership</option>
+          <option value="work">Part-time work / family responsibilities</option>
+        </select>
+      </div>
+
+      <p class="form-section-title">Budget &amp; location</p>
+      <div class="field">
+        <label for="budget">What can your family realistically pay per year?</label>
+        <select id="budget" required>
+          <option value="" disabled selected>Select a range</option>
+          <option value="low">Under $15,000 / yr — I'll need significant aid</option>
+          <option value="mid">$15,000–$30,000 / yr — some aid needed</option>
+          <option value="high">$30,000+ / yr — can cover more out of pocket</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="distance">How far from home are you willing to go?</label>
+        <select id="distance" required>
+          <option value="" disabled selected>Select a range</option>
+          <option value="local">Near home — under an hour</option>
+          <option value="regional">Outside NJ, nearby states are fine</option>
+          <option value="far">Anywhere in the US is fine</option>
+          <option value="international">Open to studying out of the country</option>
+        </select>
+      </div>
+
+      <p class="form-section-title">Preferences</p>
+      <div class="field">
+        <label for="college-type">Public, private, or no preference?</label>
+        <select id="college-type" required>
+          <option value="" disabled selected>Select a preference</option>
+          <option value="either">No preference</option>
+          <option value="public">Public only</option>
+          <option value="private">Private only</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="size-pref">Campus size</label>
+        <select id="size-pref">
+          <option value="either" selected>No preference</option>
+          <option value="small">Small — under 5,000 students</option>
+          <option value="medium">Medium — 5,000–15,000 students</option>
+          <option value="large">Large — 15,000+ students</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="setting-pref">Campus setting</label>
+        <select id="setting-pref">
+          <option value="either" selected>No preference</option>
+          <option value="urban">Urban — in a city</option>
+          <option value="suburban">Suburban</option>
+          <option value="rural">Rural / college town</option>
+        </select>
+      </div>
+
+      <p class="form-section-title">Background</p>
+      <div class="field">
+        <label for="first-gen">Would you be the first in your family to attend college in the US? <span class="hint-inline">(optional — helps surface first-gen resources)</span></label>
+        <select id="first-gen">
+          <option value="" selected>Prefer not to say</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
+      </div>
+
+      <p class="error" id="error-msg"></p>
+      <button type="submit" class="btn" id="save-btn">Save profile</button>
+      <span class="hint" id="saved-msg" style="display:inline-block;margin-left:12px"></span>
+    </form>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-init.js"></script>
+<script>
+  let currentUser = null;
+
+  requireAuth(async (user) => {
+    currentUser = user;
+    document.getElementById('greeting').textContent = `Signed in as ${user.email}`;
+
+    const doc = await db.collection('users').doc(user.uid).get();
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.gpa) document.getElementById('gpa').value = data.gpa;
+      if (data.budget) document.getElementById('budget').value = data.budget;
+      if (data.distance) document.getElementById('distance').value = data.distance;
+      if (data.testScore) document.getElementById('test-score').value = data.testScore;
+      if (data.typePref) document.getElementById('college-type').value = data.typePref;
+      if (data.sizePref) document.getElementById('size-pref').value = data.sizePref;
+      if (data.settingPref) document.getElementById('setting-pref').value = data.settingPref;
+      if (data.major) document.getElementById('major').value = data.major;
+      if (data.extracurricular) document.getElementById('extracurricular').value = data.extracurricular;
+      if (data.firstGen) document.getElementById('first-gen').value = data.firstGen;
+    }
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', logOut);
+
+  document.getElementById('profile-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorMsg = document.getElementById('error-msg');
+    const savedMsg = document.getElementById('saved-msg');
+    errorMsg.textContent = "";
+    savedMsg.textContent = "";
+
+    const gpa = parseFloat(document.getElementById('gpa').value);
+    const budget = document.getElementById('budget').value;
+    const distance = document.getElementById('distance').value;
+    const testScoreRaw = document.getElementById('test-score').value;
+    const testScore = testScoreRaw ? parseInt(testScoreRaw, 10) : null;
+    const typePref = document.getElementById('college-type').value;
+    const sizePref = document.getElementById('size-pref').value;
+    const settingPref = document.getElementById('setting-pref').value;
+    const major = document.getElementById('major').value.trim();
+    const extracurricular = document.getElementById('extracurricular').value;
+    const firstGen = document.getElementById('first-gen').value;
+
+    if (Number.isNaN(gpa) || gpa < 0 || gpa > 4) {
+      errorMsg.textContent = "Enter a GPA between 0.0 and 4.0.";
+      return;
+    }
+
+    try {
+      await db.collection('users').doc(currentUser.uid).set(
+        { gpa, budget, distance, testScore, typePref, sizePref, settingPref, major, extracurricular, firstGen },
+        { merge: true }
+      );
+      savedMsg.textContent = "Saved.";
+    } catch (err) {
+      errorMsg.textContent = "Couldn't save — try again.";
+    }
+  });
+</script>
+</body>
+</html>

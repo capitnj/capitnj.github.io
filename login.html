@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapItNJ — Log In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-card">
+    <a href="home.html" class="auth-wordmark" style="text-decoration:none;color:inherit">CapItNJ</a>
+
+    <h1 id="form-title">Log in</h1>
+    <p class="subtitle" id="form-subtitle">Find colleges you can actually afford.</p>
+
+    <form id="auth-form">
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" required autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" required autocomplete="current-password" minlength="6">
+      </div>
+      <p class="error" id="error-msg"></p>
+      <button type="submit" class="btn" id="submit-btn" style="width:100%">Log in</button>
+    </form>
+
+    <p class="auth-toggle">
+      <span id="toggle-text">Don't have an account?</span>
+      <button class="link-btn" id="toggle-btn" type="button">Sign up</button>
+    </p>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-init.js"></script>
+<script>
+  let mode = "login"; // or "signup"
+
+  const form = document.getElementById('auth-form');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const errorMsg = document.getElementById('error-msg');
+  const toggleBtn = document.getElementById('toggle-btn');
+  const toggleText = document.getElementById('toggle-text');
+  const formTitle = document.getElementById('form-title');
+  const formSubtitle = document.getElementById('form-subtitle');
+  const submitBtn = document.getElementById('submit-btn');
+
+  // If already logged in, skip straight to profile.
+  auth.onAuthStateChanged((user) => {
+    if (user) window.location.href = "profile.html";
+  });
+
+  toggleBtn.addEventListener('click', () => {
+    mode = mode === "login" ? "signup" : "login";
+    errorMsg.textContent = "";
+    if (mode === "signup") {
+      formTitle.textContent = "Create your account";
+      formSubtitle.textContent = "Takes less than a minute.";
+      submitBtn.textContent = "Sign up";
+      toggleText.textContent = "Already have an account?";
+      toggleBtn.textContent = "Log in";
+    } else {
+      formTitle.textContent = "Log in";
+      formSubtitle.textContent = "Find colleges you can actually afford.";
+      submitBtn.textContent = "Log in";
+      toggleText.textContent = "Don't have an account?";
+      toggleBtn.textContent = "Sign up";
+    }
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.textContent = "";
+    submitBtn.disabled = true;
+
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
+
+    try {
+      if (mode === "signup") {
+        const cred = await auth.createUserWithEmailAndPassword(email, password);
+        await db.collection('users').doc(cred.user.uid).set({
+          email,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } else {
+        await auth.signInWithEmailAndPassword(email, password);
+      }
+      window.location.href = "profile.html";
+    } catch (err) {
+      errorMsg.textContent = friendlyError(err.code);
+      submitBtn.disabled = false;
+    }
+  });
+
+  function friendlyError(code) {
+    switch (code) {
+      case 'auth/email-already-in-use': return "That email already has an account — try logging in instead.";
+      case 'auth/invalid-email': return "That email doesn't look right.";
+      case 'auth/weak-password': return "Password needs to be at least 6 characters.";
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential': return "Email or password is incorrect.";
+      default: return "Something went wrong — try again.";
+    }
+  }
+</script>
+</body>
+</html>

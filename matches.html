@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapItNJ — Matches</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="home.html" class="wordmark">CapItNJ</a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="explore.html">Explore</a>
+      <a href="profile.html">Profile</a>
+      <a href="matches.html" class="active">Matches</a>
+      <a href="improve.html">Improve</a>
+      <button id="logout-btn">Log out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <p class="eyebrow">Your matches</p>
+    <h1>Ranked for you</h1>
+    <p class="subtitle">Based on the profile you saved — grouped by how they fit your life, not just a single ranked list.</p>
+
+    <div id="no-profile" class="empty-state" style="display:none">
+      You haven't filled out your profile yet. <a href="profile.html" style="text-decoration:underline">Go to Profile</a> to add your GPA, budget, and distance.
+    </div>
+
+    <div id="results-groups"></div>
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-init.js"></script>
+<script src="data.js"></script>
+<script src="matching.js"></script>
+<script>
+  document.getElementById('logout-btn').addEventListener('click', logOut);
+
+  requireAuth(async (user) => {
+    const doc = await db.collection('users').doc(user.uid).get();
+    const data = doc.exists ? doc.data() : null;
+
+    if (!data || !data.gpa || !data.budget || !data.distance || !data.typePref) {
+      document.getElementById('no-profile').style.display = 'block';
+      return;
+    }
+
+    const matches = matchColleges({
+      gpa: data.gpa,
+      budget: data.budget,
+      distance: data.distance,
+      typePref: data.typePref,
+      sizePref: data.sizePref || 'either',
+      settingPref: data.settingPref || 'either',
+      testScore: data.testScore || null,
+    });
+
+    renderGroups(matches, data.budget);
+  });
+
+  function cardHtml(m, budget) {
+    return `
+      <div class="result-card">
+        <div class="result-top">
+          <div>
+            <div class="result-name">${m.college.name}</div>
+            <div class="result-meta">${m.college.type} · ${m.college.size} · ${m.college.setting} · ${m.college.state}, ${m.college.country} · avg GPA ${m.college.avgGPA.toFixed(2)}</div>
+          </div>
+          <div style="text-align:right">
+            <div class="result-price-label">Est. net price / yr</div>
+            <div class="result-price">${formatCurrency(m.netPrice)}</div>
+          </div>
+        </div>
+        <div class="result-tip">${tipFor(m, budget)}</div>
+      </div>
+    `;
+  }
+
+  function sectionHtml(title, subtitle, items, budget) {
+    if (items.length === 0) return '';
+    const cards = items.map((m) => cardHtml(m, budget)).join('');
+    return `
+      <section class="result-section">
+        <div class="result-section-head">
+          <h2>${title}</h2>
+          <p>${subtitle}</p>
+        </div>
+        ${cards}
+      </section>
+    `;
+  }
+
+  function renderGroups(matches, budget) {
+    const wrap = document.getElementById('results-groups');
+    wrap.innerHTML = '';
+
+    if (matches.length === 0) {
+      wrap.innerHTML = `<div class="empty-state">No matches with your current profile — try widening your budget or distance range on your Profile page.</div>`;
+      return;
+    }
+
+    const groups = groupMatches(matches);
+    let html = '';
+    html += sectionHtml('Near Home', 'Close enough to come home on weekends.', groups.nearHome, budget);
+    html += sectionHtml('Best for Your Budget', 'The lowest estimated net price across every distance you\'re open to.', groups.bestBudget, budget);
+    html += sectionHtml('Outside NJ', 'Elsewhere in the US, within the range you set.', groups.elsewhereUS, budget);
+    html += sectionHtml('Out of Country', 'International options you said you\'re open to.', groups.international, budget);
+
+    wrap.innerHTML = html || `<div class="empty-state">No matches with your current profile — try widening your budget or distance range on your Profile page.</div>`;
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapItNJ — Explore Colleges</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="home.html" class="wordmark">CapItNJ</a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="explore.html" class="active">Explore</a>
+      <a href="login.html">Log in</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <p class="eyebrow">Browse the database</p>
+    <h1>Every school in CapItNJ</h1>
+    <p class="subtitle">No profile needed — filter freely, or <a href="login.html" style="text-decoration:underline">log in</a> to get a ranked, personalized list instead.</p>
+
+    <div class="explore-controls">
+      <input type="text" id="search" placeholder="Search by name, state, or country…">
+      <select id="filter-region">
+        <option value="all">All regions</option>
+        <option value="local">Near home (NJ)</option>
+        <option value="regional">Nearby states</option>
+        <option value="far">Elsewhere in the US</option>
+        <option value="international">Out of country</option>
+      </select>
+      <select id="filter-type">
+        <option value="all">Public + Private</option>
+        <option value="public">Public only</option>
+        <option value="private">Private only</option>
+      </select>
+    </div>
+
+    <p class="explore-count" id="result-count"></p>
+    <div id="explore-list"></div>
+  </div>
+</main>
+
+<script src="data.js"></script>
+<script>
+  const REGION_LABEL = { local: "Near home", regional: "Nearby state", far: "Elsewhere in US", international: "Out of country" };
+
+  function render() {
+    const q = document.getElementById('search').value.trim().toLowerCase();
+    const region = document.getElementById('filter-region').value;
+    const type = document.getElementById('filter-type').value;
+
+    const filtered = COLLEGES.filter((c) => {
+      const matchesQuery = !q || c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q) || c.country.toLowerCase().includes(q);
+      const matchesRegion = region === 'all' || c.distanceTier === region;
+      const matchesType = type === 'all' || c.type.toLowerCase() === type;
+      return matchesQuery && matchesRegion && matchesType;
+    });
+
+    document.getElementById('result-count').textContent = `${filtered.length} school${filtered.length === 1 ? '' : 's'}`;
+
+    const list = document.getElementById('explore-list');
+    list.innerHTML = filtered.map((c) => `
+      <div class="explore-row">
+        <div>
+          <div class="explore-row-name">${c.name}</div>
+          <div class="explore-row-meta">${c.type} · ${c.size} · ${c.setting} · ${c.state}, ${c.country}</div>
+        </div>
+        <div class="explore-row-tag">${REGION_LABEL[c.distanceTier]}</div>
+      </div>
+    `).join('') || `<div class="empty-state">No schools match those filters.</div>`;
+  }
+
+  document.getElementById('search').addEventListener('input', render);
+  document.getElementById('filter-region').addEventListener('change', render);
+  document.getElementById('filter-type').addEventListener('change', render);
+  render();
+</script>
+</body>
+</html>
