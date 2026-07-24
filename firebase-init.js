@@ -12,13 +12,16 @@ const firebaseConfig = {
   measurementId: "G-TGSCVHMGQZ"
 };
 
-firebase.initializeApp(firebaseConfig);
+import { initializeApp } from "https://gstatic.com";
+import { getAuth } from "https://gstatic.com";
+import { getFirestore } from "https://gstatic.com";
 
-const auth = firebase.auth();
-const db = firebase.firestore();
+// Initialize Firebase services cleanly
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 // Redirects to login.html if nobody is signed in.
-// Call this at the top of any page that requires a logged-in user.
 function requireAuth(onReady) {
   auth.onAuthStateChanged((user) => {
     if (!user) {
@@ -29,7 +32,7 @@ function requireAuth(onReady) {
   });
 }
 
-async function logOut() {
-  await auth.signOut();
-  window.location.href = "login.html";
-}
+// Make these available to your other files if needed
+window.auth = auth;
+window.db = db;
+window.requireAuth = requireAuth;
