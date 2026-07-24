@@ -141,6 +141,50 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+// Grab elements for the reset action
+  const sendResetBtn = document.getElementById("send-reset-btn");
+  const resetEmailInput = document.getElementById("reset-email");
+  const resetMessage = document.getElementById("reset-message");
+
+  if (sendResetBtn && resetEmailInput && resetMessage) {
+    sendResetBtn.addEventListener("click", async () => {
+      const email = resetEmailInput.value.trim();
+
+      if (!email) {
+        resetMessage.style.display = "block";
+        resetMessage.style.color = "red";
+        resetMessage.textContent = "Please enter an email address first.";
+        return;
+      }
+
+      sendResetBtn.textContent = "Sending...";
+      sendResetBtn.disabled = true;
+
+      try {
+        const { sendPasswordResetEmail } = await import("https://gstatic.com");
+        await sendPasswordResetEmail(window.auth, email);
+        
+        resetMessage.style.display = "block";
+        resetMessage.style.color = "green";
+        resetMessage.textContent = "Success! Check your email inbox for your magic link.";
+        resetEmailInput.value = ""; 
+      } catch (error) {
+        resetMessage.style.display = "block";
+        resetMessage.style.color = "red";
+        
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+          resetMessage.textContent = "We couldn't find an account matching that email.";
+        } else if (error.code === 'auth/invalid-email') {
+          resetMessage.textContent = "That email address doesn't look right.";
+        } else {
+          resetMessage.textContent = "Error: " + error.message;
+        }
+      } finally {
+        sendResetBtn.textContent = "Send reset link";
+        sendResetBtn.disabled = false;
+      }
+    });
+  }
 });
 </script>
 <!-- POPUP MODAL (Hidden by default) -->
