@@ -1,198 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CapItNJ — Profile</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapItNJ — My Profile</title>
+    <!-- Custom styling -->
+    <link rel="stylesheet" href="style.css"> 
+    <!-- Load modular initialization script first -->
+    <script type="module" src="firebase-init.js"></script>
 </head>
 <body>
+    <header>
+        <div class="logo">CapItNJ</div>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="explore.html">Explore</a>
+            <a href="profile.html" class="active">Profile</a>
+            <a href="matches.html">Matches</a>
+            <a href="mylist.html">My List</a>
+            <a href="improve.html">Improve</a>
+            <button id="logout-btn" style="display:none;">Log Out</button>
+        </nav>
+    </header>
 
-<header class="nav">
-  <div class="nav-inner">
-    <a href="index.html" class="wordmark">CapItNJ</a>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="explore.html">Explore</a>
-      <a href="profile.html" class="active">Profile</a>
-      <a href="matches.html">Matches</a>
-      <a href="improve.html">Improve</a>
-      <a href="mylist.html">My List</a>
-      <button id="logout-btn">Log out</button>
-    </div>
-  </div>
-</header>
+    <main class="profile-container">
+        <h1>Your Profile</h1>
+        <div id="loading">Loading your profile data...</div>
+        
+        <div id="profile-content" style="display: none;">
+            <div class="profile-card">
+                <h2>Account Details</h2>
+                <p><strong>Name:</strong> <span id="user-name">N/A</span></p>
+                <p><strong>Email:</strong> <span id="user-email">N/A</span></p>
+            </div>
 
-<main>
-  <div class="wrap">
-    <p class="eyebrow">Your profile</p>
-    <h1 id="greeting-heading">Tell us about you</h1>
-    <p class="subtitle" id="greeting">&nbsp;</p>
+            <div class="profile-card">
+                <h2>College Preferences</h2>
+                <form id="preferences-form">
+                    <label for="max-tuition">Maximum Annual Tuition ($):</label>
+                    <input type="number" id="max-tuition" placeholder="e.g., 20000">
 
-    <form id="profile-form" style="max-width:460px">
+                    <label for="preferred-location">Preferred Location:</label>
+                    <select id="preferred-location">
+                        <option value="any">No Preference</option>
+                        <option value="north-nj">North Jersey</option>
+                        <option value="central-nj">Central Jersey</option>
+                        <option value="south-nj">South Jersey</option>
+                        <option value="out-of-state">Out of State</option>
+                    </select>
 
-      <p class="form-section-title">Academics</p>
-      <div class="field">
-        <label for="gpa">GPA (unweighted, 0.0–4.0)</label>
-        <input type="number" id="gpa" min="0" max="4" step="0.01" placeholder="e.g. 3.4" required>
-      </div>
-      <div class="field">
-        <label for="test-score">SAT / ACT score <span class="hint-inline">(optional — SAT scale, ACT×40 is fine too)</span></label>
-        <input type="number" id="test-score" min="400" max="1600" placeholder="e.g. 1280 — leave blank if you haven't tested">
-      </div>
-      <div class="field">
-        <label for="major">What do you think you want to study? <span class="hint-inline">(optional)</span></label>
-        <input type="text" id="major" placeholder="e.g. Computer Science, undecided, etc.">
-      </div>
-      <div class="field">
-        <label for="extracurricular">Biggest extracurricular focus <span class="hint-inline">(optional)</span></label>
-        <select id="extracurricular">
-          <option value="" selected>Prefer not to say</option>
-          <option value="stem">STEM / robotics / coding</option>
-          <option value="arts">Arts, music, or theater</option>
-          <option value="sports">Athletics</option>
-          <option value="service">Community service / volunteering</option>
-          <option value="leadership">Student government / leadership</option>
-          <option value="work">Part-time work / family responsibilities</option>
-        </select>
-      </div>
+                    <button type="submit">Save Preferences</button>
+                </form>
+                <p id="status-message" class="status-msg"></p>
+            </div>
+        </div>
+    </main>
 
-      <p class="form-section-title">Budget &amp; location</p>
-      <div class="field">
-        <label for="budget">What can your family realistically pay per year?</label>
-        <select id="budget" required>
-          <option value="" disabled selected>Select a range</option>
-          <option value="low">Under $15,000 / yr — I'll need significant aid</option>
-          <option value="mid">$15,000–$30,000 / yr — some aid needed</option>
-          <option value="high">$30,000+ / yr — can cover more out of pocket</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="distance">How far from home are you willing to go?</label>
-        <select id="distance" required>
-          <option value="" disabled selected>Select a range</option>
-          <option value="local">Near home — under an hour</option>
-          <option value="regional">Outside NJ, nearby states are fine</option>
-          <option value="far">Anywhere in the US is fine</option>
-          <option value="international">Open to studying out of the country</option>
-        </select>
-      </div>
+    <script type="module">
+        // Wait until firebase-init.js assigns window variables
+        window.addEventListener('load', () => {
+            const { requireAuth, logOut, db, firestoreFns } = window;
+            const { doc, getDoc, setDoc } = firestoreFns;
 
-      <p class="form-section-title">Preferences</p>
-      <div class="field">
-        <label for="college-type">Public, private, or no preference?</label>
-        <select id="college-type" required>
-          <option value="" disabled selected>Select a preference</option>
-          <option value="either">No preference</option>
-          <option value="public">Public only</option>
-          <option value="private">Private only</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="size-pref">Campus size</label>
-        <select id="size-pref">
-          <option value="either" selected>No preference</option>
-          <option value="small">Small — under 5,000 students</option>
-          <option value="medium">Medium — 5,000–15,000 students</option>
-          <option value="large">Large — 15,000+ students</option>
-        </select>
-      </div>
-      <div class="field">
-        <label for="setting-pref">Campus setting</label>
-        <select id="setting-pref">
-          <option value="either" selected>No preference</option>
-          <option value="urban">Urban — in a city</option>
-          <option value="suburban">Suburban</option>
-          <option value="rural">Rural / college town</option>
-        </select>
-      </div>
+            // Secure the page: Only allow logged-in users
+            requireAuth(async (user) => {
+                // UI Elements
+                const loadingEl = document.getElementById('loading');
+                const contentEl = document.getElementById('profile-content');
+                const logoutBtn = document.getElementById('logout-btn');
+                const nameEl = document.getElementById('user-name');
+                const emailEl = document.getElementById('user-email');
+                const tuitionInput = document.getElementById('max-tuition');
+                const locationSelect = document.getElementById('preferred-location');
+                const prefForm = document.getElementById('preferences-form');
+                const statusMsg = document.getElementById('status-message');
 
-      <p class="form-section-title">Background</p>
-      <div class="field">
-        <label for="first-gen">Would you be the first in your family to attend college in the US? <span class="hint-inline">(optional — helps surface first-gen resources)</span></label>
-        <select id="first-gen">
-          <option value="" selected>Prefer not to say</option>
-          <option value="yes">Yes</option>
-          <option value="no">No</option>
-        </select>
-      </div>
+                // Reveal UI components
+                loadingEl.style.display = 'none';
+                contentEl.style.display = 'block';
+                logoutBtn.style.display = 'inline-block';
 
-      <p class="error" id="error-msg"></p>
-      <button type="submit" class="btn" id="save-btn">Save profile</button>
+                // Display base authentication data
+                nameEl.textContent = user.displayName || "CapItNJ User";
+                emailEl.textContent = user.email;
 
-      <div id="matching-loader" style="display: none; margin-top: 15px; color: #27ae60; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500;">⚡ Connecting to U.S. Dept of Education...</div>
-      <span class="hint" id="saved-msg" style="display:inline-block;margin-left:12px"></span>
-    </form>
-  </div>
-</main>
+                // Bind logout functionality
+                logoutBtn.addEventListener('click', logOut);
 
-<script type="module" src="firebase-init.js"></script>
-<script type="module">
-  const { doc, getDoc, setDoc } = window.firestoreFns;
-  const db = window.db;
-  let currentUser = null;
+                // Fetch extra profile data from Firestore
+                const userDocRef = doc(db, "users", user.uid);
+                try {
+                    const docSnap = await getDoc(userDocRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        if (data.maxTuition) tuitionInput.value = data.maxTuition;
+                        if (data.preferredLocation) locationSelect.value = data.preferredLocation;
+                    }
+                } catch (error) {
+                    console.error("Error fetching profile document:", error);
+                }
 
-  window.requireAuth(async (user) => {
-    currentUser = user;
-    const name = user.displayName || sessionStorage.getItem("capitnj_name") || user.email;
-    document.getElementById('greeting').textContent = `Hi, ${name}`;
+                // Save updated preferences to Firestore
+                prefForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    statusMsg.textContent = "Saving...";
+                    statusMsg.className = "status-msg";
 
-    const snap = await getDoc(doc(db, 'users', user.uid));
-    if (snap.exists()) {
-      const data = snap.data();
-      if (data.gpa) document.getElementById('gpa').value = data.gpa;
-      if (data.budget) document.getElementById('budget').value = data.budget;
-      if (data.distance) document.getElementById('distance').value = data.distance;
-      if (data.testScore) document.getElementById('test-score').value = data.testScore;
-      if (data.typePref) document.getElementById('college-type').value = data.typePref;
-      if (data.sizePref) document.getElementById('size-pref').value = data.sizePref;
-      if (data.settingPref) document.getElementById('setting-pref').value = data.settingPref;
-      if (data.major) document.getElementById('major').value = data.major;
-      if (data.extracurricular) document.getElementById('extracurricular').value = data.extracurricular;
-      if (data.firstGen) document.getElementById('first-gen').value = data.firstGen;
-    }
-  });
+                    try {
+                        await setDoc(userDocRef, {
+                            maxTuition: tuitionInput.value,
+                            preferredLocation: locationSelect.value,
+                            email: user.email,
+                            updatedAt: new Date().toISOString()
+                        }, { merge: true });
 
-  document.getElementById('logout-btn').addEventListener('click', window.logOut);
-
-  document.getElementById('profile-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const errorMsg = document.getElementById('error-msg');
-    const savedMsg = document.getElementById('saved-msg');
-    errorMsg.textContent = "";
-    savedMsg.textContent = "";
-
-    const gpa = parseFloat(document.getElementById('gpa').value);
-    const budget = document.getElementById('budget').value;
-    const distance = document.getElementById('distance').value;
-    const testScoreRaw = document.getElementById('test-score').value;
-    const testScore = testScoreRaw ? parseInt(testScoreRaw, 10) : null;
-    const typePref = document.getElementById('college-type').value;
-    const sizePref = document.getElementById('size-pref').value;
-    const settingPref = document.getElementById('setting-pref').value;
-    const major = document.getElementById('major').value.trim();
-    const extracurricular = document.getElementById('extracurricular').value;
-    const firstGen = document.getElementById('first-gen').value;
-
-    if (Number.isNaN(gpa) || gpa < 0 || gpa > 4) {
-      errorMsg.textContent = "Enter a GPA between 0.0 and 4.0.";
-      return;
-    }
-
-    try {
-      await setDoc(doc(db, 'users', currentUser.uid),
-        { gpa, budget, distance, testScore, typePref, sizePref, settingPref, major, extracurricular, firstGen },
-        { merge: true }
-      );
-      savedMsg.textContent = "Saved.";
-    } catch (err) {
-      errorMsg.textContent = "Couldn't save — try again.";
-    }
-  });
-</script>
-<script src="matching.js"></script>
-
-</body>
-</html>
+                        statusMsg.textContent = "Preferences saved successfully!";
+                        statusMsg.className = "status-msg success";
+                    } catch (error) {
+                        console.error("Error saving preferences:", error);
+                        statusMsg.textContent = "Failed to save preferences. Try again.";
+                        statusMsg.className = "status-msg error";
+                    }
+                });
+            });
+        });
+    </script>
