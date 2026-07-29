@@ -1,3 +1,72 @@
+Got it — the real issue is that your login.html/profile.html load the old "compat" Firebase SDK while firebase-init.js uses the newer "modular" SDK. Those two styles can't be mixed — that mismatch is what's breaking everything, on top of the broken URLs. I'm rewriting all three files to consistently use the modular SDK. Here's exactly what to paste into each:
+
+📄 firebase-init.js — select all, delete, paste this:
+javascript
+// Firebase project: CapItNJ
+// This file initializes Firebase using the config from your project.
+// Safe to be public — these are client identifiers, not secret keys.
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  updateProfile,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
+  authDomain: "capitnj-73a53.firebaseapp.com",
+  projectId: "capitnj-73a53",
+  storageBucket: "capitnj-73a53.firebasestorage.app",
+  messagingSenderId: "1019609008991",
+  appId: "1:1019609008991:web:5f19dca479b475d221c4ea",
+  measurementId: "G-TGSCVHMGQZ"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+function requireAuth(onReady) {
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      window.location.href = "login.html";
+    } else {
+      onReady(user);
+    }
+  });
+}
+
+function logOut() {
+  signOut(auth).then(() => {
+    window.location.href = "login.html";
+  });
+}
+
+window.auth = auth;
+window.db = db;
+window.requireAuth = requireAuth;
+window.logOut = logOut;
+window.firebaseAuthFns = {
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  updateProfile
+};
+window.firestoreFns = { doc, getDoc, setDoc };
+📄 login.html — select all, delete, paste this:
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -42,7 +111,7 @@
         <label for="email-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Email Address</label>
         <input type="email" id="email-input" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
       </div>
-      
+
       <div class="field" style="margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
           <label for="password-input" style="font-weight: 500; font-size: 14px;">Password</label>
@@ -55,19 +124,24 @@
     </form>
 
     <p style="margin-top: 24px; text-align: center; font-size: 14px; color: #555;">
-      <span id="toggle-text">Don't have an account?</span> 
+      <span id="toggle-text">Don't have an account?</span>
       <button type="button" id="toggle-btn" style="background: none; border: none; color: #111; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0; margin-left: 4px; font-family: inherit;">Sign up</button>
     </p>
   </div>
 </main>
 
-<!-- Firebase SDKs (compat version, matches firebase.auth() usage below) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="firebase-init.js"></script>
+<!-- IMPORTANT: type="module" is required — do not remove -->
+<script type="module" src="firebase-init.js"></script>
 
-<script>
-  const auth = firebase.auth();
+<script type="module">
+  const auth = window.auth;
+  const {
+    onAuthStateChanged,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    updateProfile
+  } = window.firebaseAuthFns;
 
   const toggleBtn = document.getElementById('toggle-btn');
   const toggleText = document.getElementById('toggle-text');
@@ -79,113 +153,101 @@
   const passwordField = document.getElementById("password-input");
   const nameField = document.getElementById("name-input");
   const nameFieldWrap = document.getElementById("name-field");
-  const loginForm = document.getElementById("login-form");
   let mode = "login";
 
-  // Only auto-redirect existing sessions AWAY from this page — not during
-  // the submit flow itself (that redirect happens explicitly below).
-  auth.onAuthStateChanged((user) => {
+  onAuthStateChanged(auth, (user) => {
     if (user && !submitBtn.disabled) {
-      window.location.href = "home.html";
+      window.location.href = "profile.html";
     }
   });
 
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => {
-      mode = mode === "login" ? "signup" : "login";
-      if (errorMsg) { errorMsg.style.display = "none"; errorMsg.textContent = ""; }
+  toggleBtn.addEventListener('click', () => {
+    mode = mode === "login" ? "signup" : "login";
+    errorMsg.style.display = "none";
+    errorMsg.textContent = "";
+
+    if (mode === "signup") {
+      formTitle.textContent = "Create your account";
+      formSubtitle.textContent = "Takes less than a minute.";
+      submitBtn.textContent = "Sign up";
+      toggleText.textContent = "Already have an account?";
+      toggleBtn.textContent = "Log in";
+      nameFieldWrap.style.display = "block";
+    } else {
+      formTitle.textContent = "Log in";
+      formSubtitle.textContent = "Find colleges you can actually afford.";
+      submitBtn.textContent = "Log in";
+      toggleText.textContent = "Don't have an account?";
+      toggleBtn.textContent = "Sign up";
+      nameFieldWrap.style.display = "none";
+    }
+  });
+
+  submitBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    errorMsg.textContent = "";
+    errorMsg.style.display = "none";
+
+    const email = emailField.value.trim();
+    const password = passwordField.value;
+    const name = nameField.value.trim();
+
+    if (!email || !password) {
+      errorMsg.style.display = "block";
+      errorMsg.textContent = "❌ Please complete all required inputs.";
+      return;
+    }
+    if (mode === "signup" && !name) {
+      errorMsg.style.display = "block";
+      errorMsg.textContent = "❌ Please enter your name.";
+      return;
+    }
+
+    try {
+      submitBtn.textContent = "Processing...";
+      submitBtn.disabled = true;
 
       if (mode === "signup") {
-        if (formTitle) formTitle.textContent = "Create your account";
-        if (formSubtitle) formSubtitle.textContent = "Takes less than a minute.";
-        if (submitBtn) submitBtn.textContent = "Sign up";
-        if (toggleText) toggleText.textContent = "Already have an account?";
-        if (toggleBtn) toggleBtn.textContent = "Log in";
-        if (nameFieldWrap) nameFieldWrap.style.display = "block";
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: name });
+        sessionStorage.setItem("capitnj_name", name);
       } else {
-        if (formTitle) formTitle.textContent = "Log in";
-        if (formSubtitle) formSubtitle.textContent = "Find colleges you can actually afford.";
-        if (submitBtn) submitBtn.textContent = "Log in";
-        if (toggleText) toggleText.textContent = "Don't have an account?";
-        if (toggleBtn) toggleBtn.textContent = "Sign up";
-        if (nameFieldWrap) nameFieldWrap.style.display = "none";
-      }
-    });
-  }
-
-  if (submitBtn) {
-    submitBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      if (!errorMsg || !emailField || !passwordField) return;
-
-      errorMsg.textContent = "";
-      errorMsg.style.display = "none";
-
-      const email = emailField.value.trim();
-      const password = passwordField.value;
-      const name = nameField ? nameField.value.trim() : "";
-
-      if (!email || !password) {
-        errorMsg.style.display = "block";
-        errorMsg.textContent = "❌ Please complete all required inputs.";
-        return;
-      }
-
-      if (mode === "signup" && !name) {
-        errorMsg.style.display = "block";
-        errorMsg.textContent = "❌ Please enter your name.";
-        return;
-      }
-
-      try {
-        submitBtn.textContent = "Processing...";
-        submitBtn.disabled = true;
-
-        if (mode === "signup") {
-          const cred = await auth.createUserWithEmailAndPassword(email, password);
-          await cred.user.updateProfile({ displayName: name });
-        } else {
-          await auth.signInWithEmailAndPassword(email, password);
-        }
-
-        // Store the name so home.html can greet the user immediately,
-        // even before Firebase's auth state has fully refreshed.
-        const displayName = auth.currentUser && auth.currentUser.displayName;
-        if (displayName) {
-          sessionStorage.setItem("capitnj_name", displayName);
-        }
-
-        window.location.href = "home.html";
-      } catch (error) {
-        console.error("Firebase Auth Fail:", error.code);
-        errorMsg.style.display = "block";
-        submitBtn.disabled = false;
-        submitBtn.textContent = mode === "signup" ? "Sign up" : "Log in";
-
-        switch (error.code) {
-          case "auth/invalid-email":
-            errorMsg.textContent = "❌ The format of this email address is invalid.";
-            break;
-          case "auth/weak-password":
-            errorMsg.textContent = "❌ Password is too weak. Make it at least 6 characters.";
-            break;
-          case "auth/email-already-in-use":
-            errorMsg.textContent = "❌ This email is already registered to an account.";
-            break;
-          case "auth/wrong-password":
-          case "auth/user-not-found":
-          case "auth/invalid-credential":
-            errorMsg.textContent = "❌ Account not found, or your email/password is incorrect.";
-            break;
-          case "auth/too-many-requests":
-            errorMsg.textContent = "⚠️ Account locked temporarily due to too many failed attempts.";
-            break;
-          default:
-            errorMsg.textContent = `❌ Authentication error: ${error.message}`;
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        if (cred.user.displayName) {
+          sessionStorage.setItem("capitnj_name", cred.user.displayName);
         }
       }
-    });
-  }
+
+      window.location.href = "profile.html";
+    } catch (error) {
+      console.error("Firebase Auth Fail:", error.code);
+      errorMsg.style.display = "block";
+      submitBtn.disabled = false;
+      submitBtn.textContent = mode === "signup" ? "Sign up" : "Log in";
+
+      switch (error.code) {
+        case "auth/invalid-email":
+          errorMsg.textContent = "❌ The format of this email address is invalid.";
+          break;
+        case "auth/weak-password":
+          errorMsg.textContent = "❌ Password is too weak. Make it at least 6 characters.";
+          break;
+        case "auth/email-already-in-use":
+          errorMsg.textContent = "❌ This email is already registered to an account.";
+          break;
+        case "auth/wrong-password":
+        case "auth/user-not-found":
+        case "auth/invalid-credential":
+          errorMsg.textContent = "❌ Account not found, or your email/password is incorrect.";
+          break;
+        case "auth/too-many-requests":
+          errorMsg.textContent = "⚠️ Account locked temporarily due to too many failed attempts.";
+          break;
+        default:
+          errorMsg.textContent = `❌ Authentication error: ${error.message}`;
+      }
+    }
+  });
 
   const openResetModalBtn = document.getElementById("open-reset-modal-btn");
   const sendResetBtn = document.getElementById("send-reset-btn");
@@ -194,64 +256,51 @@
   const modal = document.getElementById("reset-modal");
   const closeModal = document.getElementById("close-modal");
 
-  if (openResetModalBtn && modal) {
-    openResetModalBtn.addEventListener("click", () => { modal.style.display = "flex"; });
-  }
+  openResetModalBtn.addEventListener("click", () => { modal.style.display = "flex"; });
+  closeModal.addEventListener("click", () => { modal.style.display = "none"; resetMessage.style.display = "none"; });
+  window.addEventListener("click", (e) => { if (e.target === modal) { modal.style.display = "none"; resetMessage.style.display = "none"; } });
 
-  if (closeModal && modal) {
-    closeModal.addEventListener("click", () => { modal.style.display = "none"; if (resetMessage) resetMessage.style.display = "none"; });
-    window.addEventListener("click", (e) => { if (e.target === modal) { modal.style.display = "none"; if (resetMessage) resetMessage.style.display = "none"; } });
-  }
+  sendResetBtn.addEventListener("click", async () => {
+    const email = resetEmailInput.value.trim();
+    if (!email) {
+      resetMessage.style.display = "block";
+      resetMessage.style.color = "#ef4444";
+      resetMessage.textContent = "Please enter an email address.";
+      return;
+    }
 
-  if (sendResetBtn && resetEmailInput && resetMessage) {
-    sendResetBtn.addEventListener("click", async () => {
-      const email = resetEmailInput.value.trim();
+    sendResetBtn.textContent = "Sending...";
+    sendResetBtn.disabled = true;
 
-      if (!email) {
-        resetMessage.style.display = "block";
-        resetMessage.style.color = "#ef4444";
-        resetMessage.textContent = "Please enter an email address.";
-        return;
+    try {
+      await sendPasswordResetEmail(auth, email);
+      resetMessage.style.display = "block";
+      resetMessage.style.color = "#27ae60";
+      resetMessage.textContent = "Success! A password reset link was sent to your email.";
+      resetEmailInput.value = "";
+    } catch (error) {
+      resetMessage.style.display = "block";
+      resetMessage.style.color = "#ef4444";
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+        resetMessage.textContent = "No account found with that email.";
+      } else {
+        resetMessage.textContent = "Error: " + error.message;
       }
-
-      sendResetBtn.textContent = "Sending...";
-      sendResetBtn.disabled = true;
-
-      try {
-        await auth.sendPasswordResetEmail(email);
-        resetMessage.style.display = "block";
-        resetMessage.style.color = "#27ae60";
-        resetMessage.textContent = "Success! A password reset link was sent to your email.";
-        resetEmailInput.value = ""; 
-      } catch (error) {
-        resetMessage.style.display = "block";
-        resetMessage.style.color = "#ef4444";
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-          resetMessage.textContent = "No account found with that email.";
-        } else {
-          resetMessage.textContent = "Error: " + error.message;
-        }
-      } finally {
-        sendResetBtn.textContent = "Send reset link";
-        sendResetBtn.disabled = false;
-      }
-    });
-  }
+    } finally {
+      sendResetBtn.textContent = "Send reset link";
+      sendResetBtn.disabled = false;
+    }
+  });
 </script>
 
-<!-- POPUP PASSWORD RESET MODAL -->
 <div id="reset-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
   <div style="background: white; padding: 2.5rem 2rem; border-radius: 12px; width: 90%; max-width: 400px; position: relative; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
     <button id="close-modal" type="button" style="position: absolute; top: 12px; right: 14px; background: none; border: none; font-size: 20px; line-height: 1; cursor: pointer; color: #999;">&times;</button>
-
     <h2 style="font-family: 'Fraunces', serif; font-size: 22px; margin-bottom: 8px;">Reset your password</h2>
     <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Enter your email and we'll send you a link to reset your password.</p>
-
     <label for="reset-email" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Email Address</label>
     <input type="email" id="reset-email" placeholder="you@example.com" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 16px;">
-
     <button type="button" id="send-reset-btn" style="width: 100%; padding: 12px; font-weight: 600; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px;">Send reset link</button>
-
     <p id="reset-message" style="display: none; margin-top: 14px; font-size: 13px; text-align: center;"></p>
   </div>
 </div>

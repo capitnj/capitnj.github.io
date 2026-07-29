@@ -2,6 +2,23 @@
 // This file initializes Firebase using the config from your project.
 // Safe to be public — these are client identifiers, not secret keys.
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  updateProfile,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
   authDomain: "capitnj-73a53.firebaseapp.com",
@@ -12,18 +29,12 @@ const firebaseConfig = {
   measurementId: "G-TGSCVHMGQZ"
 };
 
-import { initializeApp } from "https://gstatic.com";
-import { getAuth } from "https://gstatic.com";
-import { getFirestore } from "https://gstatic.com";
-
-// Initialize Firebase services cleanly
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Redirects to login.html if nobody is signed in.
 function requireAuth(onReady) {
-  auth.onAuthStateChanged((user) => {
+  onAuthStateChanged(auth, (user) => {
     if (!user) {
       window.location.href = "login.html";
     } else {
@@ -32,7 +43,21 @@ function requireAuth(onReady) {
   });
 }
 
-// Make these available to your other files if needed
+function logOut() {
+  signOut(auth).then(() => {
+    window.location.href = "login.html";
+  });
+}
+
 window.auth = auth;
 window.db = db;
 window.requireAuth = requireAuth;
+window.logOut = logOut;
+window.firebaseAuthFns = {
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  updateProfile
+};
+window.firestoreFns = { doc, getDoc, setDoc };

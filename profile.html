@@ -128,24 +128,20 @@
   </div>
 </main>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="firebase-init.js"></script>
-<script>
+<script type="module" src="firebase-init.js"></script>
+<script type="module">
+  const { doc, getDoc, setDoc } = window.firestoreFns;
+  const db = window.db;
   let currentUser = null;
 
-  requireAuth(async (user) => {
+  window.requireAuth(async (user) => {
     currentUser = user;
-
-    // Prefer the Firebase displayName set at signup; fall back to the name
-    // stashed at login time, then to the email if neither is available.
     const name = user.displayName || sessionStorage.getItem("capitnj_name") || user.email;
     document.getElementById('greeting').textContent = `Hi, ${name}`;
 
-    const doc = await db.collection('users').doc(user.uid).get();
-    if (doc.exists) {
-      const data = doc.data();
+    const snap = await getDoc(doc(db, 'users', user.uid));
+    if (snap.exists()) {
+      const data = snap.data();
       if (data.gpa) document.getElementById('gpa').value = data.gpa;
       if (data.budget) document.getElementById('budget').value = data.budget;
       if (data.distance) document.getElementById('distance').value = data.distance;
@@ -159,7 +155,7 @@
     }
   });
 
-  document.getElementById('logout-btn').addEventListener('click', logOut);
+  document.getElementById('logout-btn').addEventListener('click', window.logOut);
 
   document.getElementById('profile-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -186,7 +182,7 @@
     }
 
     try {
-      await db.collection('users').doc(currentUser.uid).set(
+      await setDoc(doc(db, 'users', currentUser.uid),
         { gpa, budget, distance, testScore, typePref, sizePref, settingPref, major, extracurricular, firstGen },
         { merge: true }
       );
