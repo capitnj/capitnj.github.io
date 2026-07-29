@@ -33,6 +33,17 @@
                     <label for="name-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Full Name</label>
                     <input type="text" id="name-input" placeholder="Jane Doe" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
                 </div>
+                <div class="field" id="role-field" style="margin-bottom: 18px; display: none;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">I am a...</label>
+                    <div style="display: flex; gap: 10px;">
+                        <label style="flex: 1; display: flex; align-items: center; gap: 6px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                            <input type="radio" name="role" value="student" checked> Student
+                        </label>
+                        <label style="flex: 1; display: flex; align-items: center; gap: 6px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; font-size: 14px;">
+                            <input type="radio" name="role" value="parent"> Parent
+                        </label>
+                    </div>
+                </div>
                 <div class="field" style="margin-bottom: 18px;">
                     <label for="email-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Email Address</label>
                     <input type="email" id="email-input" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
@@ -72,7 +83,9 @@
         }
         const firebase = await window.capitnjFirebase.ready;
         const auth = firebase.auth;
+        const db = firebase.db;
         const { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } = firebase.authFns;
+        const { doc, setDoc } = firebase.firestoreFns;
 
         const toggleBtn = document.getElementById("toggle-btn");
         const toggleText = document.getElementById("toggle-text");
@@ -84,6 +97,8 @@
         const passwordField = document.getElementById("password-input");
         const nameField = document.getElementById("name-input");
         const nameFieldWrap = document.getElementById("name-field");
+        const roleFieldWrap = document.getElementById("role-field");
+        const openResetModalBtn = document.getElementById("open-reset-modal-btn");
         let mode = "login";
 
         onAuthStateChanged(auth, (user) => {
@@ -103,6 +118,8 @@
                 toggleText.textContent = "Already have an account?";
                 toggleBtn.textContent = "Log in";
                 nameFieldWrap.style.display = "block";
+                roleFieldWrap.style.display = "block";
+                openResetModalBtn.style.display = "none";
             } else {
                 formTitle.textContent = "Log in";
                 formSubtitle.textContent = "Find colleges you can actually afford.";
@@ -110,6 +127,8 @@
                 toggleText.textContent = "Don't have an account?";
                 toggleBtn.textContent = "Sign up";
                 nameFieldWrap.style.display = "none";
+                roleFieldWrap.style.display = "none";
+                openResetModalBtn.style.display = "inline";
             }
         });
 
@@ -120,6 +139,7 @@
             const email = emailField.value.trim();
             const password = passwordField.value;
             const name = nameField.value.trim();
+            const role = document.querySelector('input[name="role"]:checked')?.value || "student";
 
             if (!email || !password) {
                 errorMsg.style.display = "block";
@@ -139,7 +159,13 @@
                 if (mode === "signup") {
                     const cred = await createUserWithEmailAndPassword(auth, email, password);
                     await updateProfile(cred.user, { displayName: name });
+                    await setDoc(doc(db, "users", cred.user.uid), {
+                        name: name,
+                        role: role,
+                        email: email
+                    });
                     sessionStorage.setItem("capitnj_name", name);
+                    sessionStorage.setItem("capitnj_role", role);
                 } else {
                     const cred = await signInWithEmailAndPassword(auth, email, password);
                     if (cred.user.displayName) {
@@ -163,7 +189,6 @@
             }
         });
 
-        const openResetModalBtn = document.getElementById("open-reset-modal-btn");
         const sendResetBtn = document.getElementById("send-reset-btn");
         const resetEmailInput = document.getElementById("reset-email");
         const resetMessage = document.getElementById("reset-message");
@@ -197,7 +222,7 @@
                 await sendPasswordResetEmail(auth, email);
                 resetMessage.style.display = "block";
                 resetMessage.style.color = "#16a34a";
-                resetMessage.textContent = "✅ Reset link sent. Check your inbox.";
+                resetMessage.textContent = "✅ Reset link sent. Check your inbox — and your spam folder, just in case.";
             } catch (error) {
                 resetMessage.style.display = "block";
                 resetMessage.style.color = "#ef4444";
