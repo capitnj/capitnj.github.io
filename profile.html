@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CapItNJ — My Profile</title>
-    <!-- Custom styling -->
-    <link rel="stylesheet" href="style.css"> 
-    <!-- Load modular initialization script first -->
+    <link rel="stylesheet" href="style.css">
     <script type="module" src="firebase-init.js"></script>
 </head>
 <body>
@@ -26,7 +24,7 @@
     <main class="profile-container">
         <h1>Your Profile</h1>
         <div id="loading">Loading your profile data...</div>
-        
+
         <div id="profile-content" style="display: none;">
             <div class="profile-card">
                 <h2>Account Details</h2>
@@ -57,71 +55,69 @@
     </main>
 
     <script type="module">
-        // Wait until firebase-init.js assigns window variables
-        window.addEventListener('load', () => {
-            const { requireAuth, logOut, db, firestoreFns } = window;
-            const { doc, getDoc, setDoc } = firestoreFns;
+        if (!window.capitnjFirebase?.ready) {
+            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
+        }
 
-            // Secure the page: Only allow logged-in users
-            requireAuth(async (user) => {
-                // UI Elements
-                const loadingEl = document.getElementById('loading');
-                const contentEl = document.getElementById('profile-content');
-                const logoutBtn = document.getElementById('logout-btn');
-                const nameEl = document.getElementById('user-name');
-                const emailEl = document.getElementById('user-email');
-                const tuitionInput = document.getElementById('max-tuition');
-                const locationSelect = document.getElementById('preferred-location');
-                const prefForm = document.getElementById('preferences-form');
-                const statusMsg = document.getElementById('status-message');
+        const firebase = await window.capitnjFirebase.ready;
+        const { requireAuth, logOut } = firebase;
+        const { doc, getDoc, setDoc } = firebase.firestoreFns;
+        const db = firebase.db;
 
-                // Reveal UI components
-                loadingEl.style.display = 'none';
-                contentEl.style.display = 'block';
-                logoutBtn.style.display = 'inline-block';
+        const loadingEl = document.getElementById("loading");
+        const contentEl = document.getElementById("profile-content");
+        const logoutBtn = document.getElementById("logout-btn");
+        const nameEl = document.getElementById("user-name");
+        const emailEl = document.getElementById("user-email");
+        const tuitionInput = document.getElementById("max-tuition");
+        const locationSelect = document.getElementById("preferred-location");
+        const prefForm = document.getElementById("preferences-form");
+        const statusMsg = document.getElementById("status-message");
 
-                // Display base authentication data
-                nameEl.textContent = user.displayName || "CapItNJ User";
-                emailEl.textContent = user.email;
+        logoutBtn.addEventListener("click", () => logOut());
 
-                // Bind logout functionality
-                logoutBtn.addEventListener('click', logOut);
+        requireAuth(async (user) => {
+            loadingEl.style.display = "none";
+            contentEl.style.display = "block";
+            logoutBtn.style.display = "inline-block";
+            nameEl.textContent = user.displayName || "CapItNJ User";
+            emailEl.textContent = user.email;
 
-                // Fetch extra profile data from Firestore
-                const userDocRef = doc(db, "users", user.uid);
-                try {
-                    const docSnap = await getDoc(userDocRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        if (data.maxTuition) tuitionInput.value = data.maxTuition;
-                        if (data.preferredLocation) locationSelect.value = data.preferredLocation;
-                    }
-                } catch (error) {
-                    console.error("Error fetching profile document:", error);
+            const userDocRef = doc(db, "users", user.uid);
+
+            try {
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.maxTuition) tuitionInput.value = data.maxTuition;
+                    if (data.preferredLocation) locationSelect.value = data.preferredLocation;
                 }
+            } catch (error) {
+                console.error("Error fetching profile document:", error);
+            }
 
-                // Save updated preferences to Firestore
-                prefForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    statusMsg.textContent = "Saving...";
-                    statusMsg.className = "status-msg";
+            prefForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+                statusMsg.textContent = "Saving...";
+                statusMsg.className = "status-msg";
 
-                    try {
-                        await setDoc(userDocRef, {
-                            maxTuition: tuitionInput.value,
-                            preferredLocation: locationSelect.value,
-                            email: user.email,
-                            updatedAt: new Date().toISOString()
-                        }, { merge: true });
+                try {
+                    await setDoc(userDocRef, {
+                        maxTuition: tuitionInput.value,
+                        preferredLocation: locationSelect.value,
+                        email: user.email,
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
 
-                        statusMsg.textContent = "Preferences saved successfully!";
-                        statusMsg.className = "status-msg success";
-                    } catch (error) {
-                        console.error("Error saving preferences:", error);
-                        statusMsg.textContent = "Failed to save preferences. Try again.";
-                        statusMsg.className = "status-msg error";
-                    }
-                });
+                    statusMsg.textContent = "Preferences saved successfully!";
+                    statusMsg.className = "status-msg success";
+                } catch (error) {
+                    console.error("Error saving preferences:", error);
+                    statusMsg.textContent = "Failed to save preferences. Try again.";
+                    statusMsg.className = "status-msg error";
+                }
             });
         });
     </script>
+</body>
+</html>

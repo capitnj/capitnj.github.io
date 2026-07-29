@@ -1,6 +1,5 @@
 // Firebase project: CapItNJ
-// This file initializes Firebase using the config from your project.
-// Safe to be public — these are client identifiers, not secret keys.
+// This file initializes Firebase once and exposes the shared instances globally.
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -29,35 +28,78 @@ const firebaseConfig = {
   measurementId: "G-TGSCVHMGQZ"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-function requireAuth(onReady) {
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      window.location.href = "login.html";
-    } else {
-      onReady(user);
-    }
-  });
-}
-
-function logOut() {
-  signOut(auth).then(() => {
-    window.location.href = "login.html";
-  });
-}
-
-window.auth = auth;
-window.db = db;
-window.requireAuth = requireAuth;
-window.logOut = logOut;
-window.firebaseAuthFns = {
-  onAuthStateChanged,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  sendPasswordResetEmail,
-  updateProfile
+const firebaseState = {
+  app: null,
+  auth: null,
+  db: null,
+  ready: null,
+  requireAuth: null,
+  logOut: null,
+  authFns: null,
+  firestoreFns: null
 };
-window.firestoreFns = { doc, getDoc, setDoc };
+
+window.capitnjFirebase = firebaseState;
+
+async function initializeFirebase() {
+  if (firebaseState.auth) {
+    return firebaseState;
+  }
+
+  if (firebaseState.ready) {
+    return firebaseState.ready;
+  }
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  const requireAuth = (onReady) => {
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.replace("login.html");
+        return;
+      }
+      onReady(user);
+    });
+  };
+
+  const logOut = () => {
+    signOut(auth)
+      .then(() => window.location.replace("login.html"))
+      .catch(() => window.location.replace("login.html"));
+  };
+
+  const authFns = {
+    onAuthStateChanged,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    sendPasswordResetEmail,
+    updateProfile
+  };
+
+  const firestoreFns = { doc, getDoc, setDoc };
+
+  firebaseState.app = app;
+  firebaseState.auth = auth;
+  firebaseState.db = db;
+  firebaseState.requireAuth = requireAuth;
+  firebaseState.logOut = logOut;
+  firebaseState.authFns = authFns;
+  firebaseState.firestoreFns = firestoreFns;
+
+  window.auth = auth;
+  window.db = db;
+  window.requireAuth = requireAuth;
+  window.logOut = logOut;
+  window.firebaseAuthFns = authFns;
+  window.firestoreFns = firestoreFns;
+
+  window.dispatchEvent(new Event("firebase-ready"));
+  return firebaseState;
+}
+
+firebaseState.ready = initializeFirebase();
+window.capitnjFirebase = firebaseState;
+
+export { initializeFirebase };
