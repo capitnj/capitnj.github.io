@@ -33,7 +33,18 @@ function renderLiveCards() {
       ? Math.round(college["latest.admissions.admission_rate.overall"] * 100) + "%" 
       : "Open Enrollment / High Acceptance";
 
-    // 1. Calculate Safety / Target / Reach based on user GPA
+    // 1. Geography Prioritization Badges
+    let geoBadgeText = "Out of State";
+    let geoBadgeBg = "#f1f5f9"; // Neutral slate grey tint
+    let geoTextColor = "#475569";
+
+    if (state === "NJ") {
+      geoBadgeText = "Local / In-State";
+      geoBadgeBg = "#e0f2fe"; // Light cyan sky tint
+      geoTextColor = "#0369a1";
+    }
+
+    // 2. Safety / Target / Reach based on GPA
     let categoryBadgeText = "Target Fit";
     let categoryBadgeColor = "#fff3cd"; // Warm amber tint
     let categoryTextColor = "#856404";
@@ -70,6 +81,7 @@ function renderLiveCards() {
           <p style="margin: 4px 0; font-size: 14px; color: #555;">📍 <strong>Location:</strong> ${state} | 🏛️ <strong>Classification:</strong> ${ownership}</p>
         </div>
         <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+          <span style="background: ${geoBadgeBg}; color: ${geoTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">${geoBadgeText}</span>
           <span style="background: ${categoryBadgeColor}; color: ${categoryTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">${categoryBadgeText}</span>
           <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">✓ Live Feed</span>
         </div>

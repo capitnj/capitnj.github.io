@@ -33,8 +33,7 @@ if (profileForm) {
 
     // 3. Build the government database API URL
     // Pulls Name, State, Admission Rate, and the custom Net Price bracket data fields
-    let governmentApiUrl = `https://data.gov{API_KEY}&_fields=school.name,school.state,school.ownership,latest.admissions.admission_rate.overall,${incomeCostField}&_per_page=100`;
-
+     let governmentApiUrl = `https://data.gov{API_KEY}&_fields=id,school.name,school.state,school.ownership,latest.admissions.admission_rate.overall,${incomeCostField}&_sort=${incomeCostField}&_per_page=100`;
     // Local filter optimization: if they choose 'local', prioritize NJ colleges instantly
     if (userDistance === "local") {
       governmentApiUrl += "&school.state=NJ";

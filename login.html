@@ -160,9 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
       sendResetBtn.disabled = true;
 
       try {
-        const { sendPasswordResetEmail } = await import("https://gstatic.com");
-        await sendPasswordResetEmail(window.auth, email);
-        
+        await auth.sendPasswordResetEmail(email);
         resetMessage.style.display = "block";
         resetMessage.style.color = "green";
         resetMessage.textContent = "Success! Check your email inbox for your magic link.";
