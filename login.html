@@ -44,106 +44,109 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script type="module" src="firebase-init.js"></script>
- <script type="module">
+ <script>
+  // 1. Point directly to the globally initialized Firebase layer
+  const auth = firebase.auth();
 
-  const form = document.getElementById('auth-form');
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const errorMsg = document.getElementById('error-msg');
+  // 2. Grab all layout interactive interface nodes
   const toggleBtn = document.getElementById('toggle-btn');
   const toggleText = document.getElementById('toggle-text');
   const formTitle = document.getElementById('form-title');
   const formSubtitle = document.getElementById('form-subtitle');
   const submitBtn = document.getElementById('submit-btn');
+  const errorMsg = document.getElementById('error-msg');
+  const emailField = document.getElementById("email-input");
+  const passwordField = document.getElementById("password-input");
 
-  // If already logged in, skip straight to profile.
+  let mode = "login"; // Default initialization phase configuration
+
+  // 3. Clear landing routing if an active cookie session is open
   auth.onAuthStateChanged((user) => {
-    if (user) window.location.href = "profile.html";
-  });
-
-  toggleBtn.addEventListener('click', () => {
-    mode = mode === "login" ? "signup" : "login";
-    errorMsg.textContent = "";
-    if (mode === "signup") {
-      formTitle.textContent = "Create your account";
-      formSubtitle.textContent = "Takes less than a minute.";
-      submitBtn.textContent = "Sign up";
-      toggleText.textContent = "Already have an account?";
-      toggleBtn.textContent = "Log in";
-    } else {
-      formTitle.textContent = "Log in";
-      formSubtitle.textContent = "Find colleges you can actually afford.";
-      submitBtn.textContent = "Log in";
-      toggleText.textContent = "Don't have an account?";
-      toggleBtn.textContent = "Sign up";
-    }
-  });
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    errorMsg.textContent = "";
-    submitBtn.disabled = true;
-
-    const email = emailInput.value.trim();
-    const password = passwordInput.value;
-
-    try {
-      if (mode === "signup") {
-        const cred = await auth.createUserWithEmailAndPassword(email, password);
-        await db.collection('users').doc(cred.user.uid).set({
-          email,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
-      } else {
-        await auth.signInWithEmailAndPassword(email, password);
-      }
+    if (user) {
       window.location.href = "profile.html";
-    } catch (err) {
-      errorMsg.textContent = friendlyError(err.code);
-      submitBtn.disabled = false;
     }
   });
 
-  function friendlyError(code) {
-    switch (code) {
-      case 'auth/email-already-in-use': return "That email already has an account — try logging in instead.";
-      case 'auth/invalid-email': return "That email doesn't look right.";
-      case 'auth/weak-password': return "Password needs to be at least 6 characters.";
-      case 'auth/user-not-found':
-      case 'auth/wrong-password':
-      case 'auth/invalid-credential': return "Email or password is incorrect.";
-      default: return "Something went wrong — try again.";
-    }
-  }
-  // Modal interaction script
-document.addEventListener("DOMContentLoaded", () => {
-  const forgotLink = document.getElementById("forgot-password-link");
-  const modal = document.getElementById("reset-modal");
-  const closeModal = document.getElementById("close-modal");
+  // 4. Toggle layouts between Login and Sign Up screens
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', () => {
+      mode = mode === "login" ? "signup" : "login";
+      if (errorMsg) errorMsg.textContent = "";
 
-  if (forgotLink && modal && closeModal) {
-    // Open modal when clicking "Forgot your password?"
-    forgotLink.addEventListener("click", (e) => {
-      e.preventDefault();
-      modal.style.display = "flex";
-    });
-
-    // Close modal when clicking the 'X'
-    closeModal.addEventListener("click", () => {
-      modal.style.display = "none";
-    });
-
-    // Close modal when clicking outside the white box
-    window.addEventListener("click", (e) => {
-      if (e.target === modal) {
-        modal.style.display = "none";
+      if (mode === "signup") {
+        if (formTitle) formTitle.textContent = "Create your account";
+        if (formSubtitle) formSubtitle.textContent = "Takes less than a minute.";
+        if (submitBtn) submitBtn.textContent = "Sign up";
+        if (toggleText) toggleText.textContent = "Already have an account?";
+        if (toggleBtn) toggleBtn.textContent = "Log in";
+      } else {
+        if (formTitle) formTitle.textContent = "Log in";
+        if (formSubtitle) formSubtitle.textContent = "Find colleges you can actually afford.";
+        if (submitBtn) submitBtn.textContent = "Log in";
+        if (toggleText) toggleText.textContent = "Don't have an account?";
+        if (toggleBtn) toggleBtn.textContent = "Sign up";
       }
     });
   }
-// Grab elements for the reset action
+
+  // 5. Secure Authentication Event Listener Execution
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (!errorMsg || !emailField || !passwordField) return;
+
+      errorMsg.textContent = "";
+      errorMsg.style.color = "#ef4444";
+      errorMsg.style.display = "block";
+
+      const email = emailField.value.trim();
+      const password = passwordField.value;
+
+      if (!email || !password) {
+        errorMsg.textContent = "❌ Please fill out all required authentication fields.";
+        return;
+      }
+
+      try {
+        if (mode === "signup") {
+          await auth.createUserWithEmailAndPassword(email, password);
+        } else {
+          await auth.signInWithEmailAndPassword(email, password);
+        }
+        window.location.href = "profile.html";
+      } catch (error) {
+        console.error("Firebase Authentication Error:", error.code);
+        switch (error.code) {
+          case "auth/invalid-email":
+            errorMsg.textContent = "❌ The email address format is invalid.";
+            break;
+          case "auth/weak-password":
+            errorMsg.textContent = "❌ Password is too weak. Must be at least 6 characters.";
+            break;
+          case "auth/email-already-in-use":
+            errorMsg.textContent = "❌ This email address is already registered.";
+            break;
+          case "auth/wrong-password":
+          case "auth/user-not-found":
+          case "auth/invalid-credential":
+            errorMsg.textContent = "❌ Incorrect email or password. Please try again.";
+            break;
+          case "auth/too-many-requests":
+            errorMsg.textContent = "⚠️ Account locked temporarily due to too many failed attempts.";
+            break;
+          default:
+            errorMsg.textContent = `❌ Authentication failed: ${error.message}`;
+        }
+      }
+    });
+  }
+
+  // 6. Secure Password Reset Pipeline Modal Handshake
   const sendResetBtn = document.getElementById("send-reset-btn");
   const resetEmailInput = document.getElementById("reset-email");
   const resetMessage = document.getElementById("reset-message");
+  const modal = document.getElementById("reset-modal");
+  const closeModal = document.getElementById("close-modal");
 
   if (sendResetBtn && resetEmailInput && resetMessage) {
     sendResetBtn.addEventListener("click", async () => {
@@ -151,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!email) {
         resetMessage.style.display = "block";
-        resetMessage.style.color = "red";
+        resetMessage.style.color = "#ef4444";
         resetMessage.textContent = "Please enter an email address first.";
         return;
       }
@@ -162,17 +165,14 @@ document.addEventListener("DOMContentLoaded", () => {
       try {
         await auth.sendPasswordResetEmail(email);
         resetMessage.style.display = "block";
-        resetMessage.style.color = "green";
+        resetMessage.style.color = "#27ae60";
         resetMessage.textContent = "Success! Check your email inbox for your magic link.";
         resetEmailInput.value = ""; 
       } catch (error) {
         resetMessage.style.display = "block";
-        resetMessage.style.color = "red";
-        
+        resetMessage.style.color = "#ef4444";
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
           resetMessage.textContent = "We couldn't find an account matching that email.";
-        } else if (error.code === 'auth/invalid-email') {
-          resetMessage.textContent = "That email address doesn't look right.";
         } else {
           resetMessage.textContent = "Error: " + error.message;
         }
@@ -182,7 +182,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-});
+
+  // Modal display toggles
+  if (closeModal && modal) {
+    closeModal.addEventListener("click", () => { modal.style.display = "none"; });
+    window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
+  }
 </script>
 <!-- POPUP MODAL (Hidden by default) -->
 <div id="reset-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
