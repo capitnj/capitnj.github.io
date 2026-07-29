@@ -1,161 +1,209 @@
-<!DOCTYPE html> 
-<html lang="en"> 
-<head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>CapItNJ — Log In / Sign Up</title> 
-    <link rel="preconnect" href="https://googleapis.com"> 
-    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet"> 
-    <link rel="stylesheet" href="style.css"> 
-</head> 
-<body> 
-    <header class="nav"> 
-        <div class="nav-inner"> 
-            <a href="index.html" class="wordmark">CapItNJ</a> 
-            <div class="nav-links"> 
-                <a href="index.html">Home</a> 
-                <a href="improve.html">Improve</a> 
-                <a href="explore.html">Explore</a> 
-                <a href="matches.html">Matches</a> 
-                <a href="mylist.html">My List</a> 
-                <a href="profile.html">Profile</a> 
-            </div> 
-        </div> 
-    </header> 
-    <main> 
-        <div class="wrap" style="max-width: 420px; margin: 0 auto; padding: 60px 20px;"> 
-            <h1 id="form-title" style="font-family: 'Fraunces', serif; font-size: 32px; margin-bottom: 6px; color: #111;">Log in</h1> 
-            <p id="form-subtitle" style="color: #666; margin-bottom: 24px; font-size: 15px;">Find colleges you can actually afford.</p> 
-            <p id="error-msg" style="color: #ef4444; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; margin-bottom: 18px; display: none; padding: 10px; background: #fdf2f2; border-radius: 6px; border: 1px solid #fde2e2;"></p> 
-            
-            <form id="login-form" onsubmit="return false;"> 
-                <div class="field" id="name-field" style="margin-bottom: 18px; display: none;"> 
-                    <label for="name-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Full Name</label> 
-                    <input type="text" id="name-input" placeholder="Jane Doe" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;"> 
-                </div> 
-                <div class="field" style="margin-bottom: 18px;"> 
-                    <label for="email-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Email Address</label> 
-                    <input type="email" id="email-input" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;"> 
-                </div> 
-                <div class="field" style="margin-bottom: 20px;"> 
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;"> 
-                        <label for="password-input" style="font-weight: 500; font-size: 14px;">Password</label> 
-                        <button type="button" id="open-reset-modal-btn" style="background: none; border: none; color: #64748b; font-size: 13px; cursor: pointer; text-decoration: underline; padding: 0; font-family: inherit;">Forgot password?</button> 
-                    </div> 
-                    <input type="password" id="password-input" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;"> 
-                </div> 
-                <button type="button" id="submit-btn" class="btn" style="width: 100%; padding: 12px; font-weight: 600; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px;">Log in</button> 
-            </form> 
-            <p style="margin-top: 24px; text-align: center; font-size: 14px; color: #555;"> 
-                <span id="toggle-text">Don't have an account?</span> 
-                <button type="button" id="toggle-btn" style="background: none; border: none; color: #111; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0; margin-left: 4px; font-family: inherit;">Sign up</button> 
-            </p> 
-        </div> 
-    </main> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapItNJ — Log In / Sign Up</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="wordmark">CapItNJ</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="improve.html">Improve</a>
+                <a href="explore.html">Explore</a>
+                <a href="matches.html">Matches</a>
+                <a href="mylist.html">My List</a>
+                <a href="profile.html">Profile</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="wrap" style="max-width: 420px; margin: 0 auto; padding: 60px 20px;">
+            <h1 id="form-title" style="font-family: 'Fraunces', serif; font-size: 32px; margin-bottom: 6px; color: #111;">Log in</h1>
+            <p id="form-subtitle" style="color: #666; margin-bottom: 24px; font-size: 15px;">Find colleges you can actually afford.</p>
+            <p id="error-msg" style="color: #ef4444; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; margin-bottom: 18px; display: none; padding: 10px; background: #fdf2f2; border-radius: 6px; border: 1px solid #fde2e2;"></p>
 
-    <script type="module" src="firebase-init.js"></script> 
-    <script type="module"> 
-        if (!window.capitnjFirebase?.ready) { 
-            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true })); 
-        } 
-        const firebase = await window.capitnjFirebase.ready; 
-        const auth = firebase.auth; 
-        const { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } = firebase.authFns; 
-        
-        const toggleBtn = document.getElementById("toggle-btn"); 
-        const toggleText = document.getElementById("toggle-text"); 
-        const formTitle = document.getElementById("form-title"); 
-        const formSubtitle = document.getElementById("form-subtitle"); 
-        const submitBtn = document.getElementById("submit-btn"); 
-        const errorMsg = document.getElementById("error-msg"); 
-        const emailField = document.getElementById("email-input"); 
-        const passwordField = document.getElementById("password-input"); 
-        const nameField = document.getElementById("name-input"); 
-        const nameFieldWrap = document.getElementById("name-field"); 
-        let mode = "login"; 
+            <form id="login-form" onsubmit="return false;">
+                <div class="field" id="name-field" style="margin-bottom: 18px; display: none;">
+                    <label for="name-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Full Name</label>
+                    <input type="text" id="name-input" placeholder="Jane Doe" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="field" style="margin-bottom: 18px;">
+                    <label for="email-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Email Address</label>
+                    <input type="email" id="email-input" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <div class="field" style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label for="password-input" style="font-weight: 500; font-size: 14px;">Password</label>
+                        <button type="button" id="open-reset-modal-btn" style="background: none; border: none; color: #64748b; font-size: 13px; cursor: pointer; text-decoration: underline; padding: 0; font-family: inherit;">Forgot password?</button>
+                    </div>
+                    <input type="password" id="password-input" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
+                </div>
+                <button type="button" id="submit-btn" class="btn" style="width: 100%; padding: 12px; font-weight: 600; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px;">Log in</button>
+            </form>
+            <p style="margin-top: 24px; text-align: center; font-size: 14px; color: #555;">
+                <span id="toggle-text">Don't have an account?</span>
+                <button type="button" id="toggle-btn" style="background: none; border: none; color: #111; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0; margin-left: 4px; font-family: inherit;">Sign up</button>
+            </p>
+        </div>
+    </main>
 
-        onAuthStateChanged(auth, (user) => { 
-            if (user) { 
-                window.location.replace("profile.html"); 
-            } 
-        }); 
+    <!-- Password Reset Modal -->
+    <div id="reset-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
+        <div style="background: #fff; border-radius: 10px; padding: 28px; max-width: 380px; width: 90%; position: relative;">
+            <button type="button" id="close-modal" style="position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 20px; cursor: pointer; color: #666; line-height: 1;">&times;</button>
+            <h2 style="font-family: 'Fraunces', serif; font-size: 22px; margin: 0 0 8px;">Reset your password</h2>
+            <p style="color: #666; font-size: 14px; margin-bottom: 18px;">We'll email you a link to reset it.</p>
+            <p id="reset-message" style="font-size: 13px; margin-bottom: 12px; display: none;"></p>
+            <input type="email" id="reset-email" placeholder="you@example.com" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 14px;">
+            <button type="button" id="send-reset-btn" class="btn" style="width: 100%; padding: 12px; font-weight: 600; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px;">Send reset link</button>
+        </div>
+    </div>
 
-        toggleBtn.addEventListener("click", () => { 
-            mode = mode === "login" ? "signup" : "login"; 
-            errorMsg.style.display = "none"; 
-            errorMsg.textContent = ""; 
-            if (mode === "signup") { 
-                formTitle.textContent = "Create your account"; 
-                formSubtitle.textContent = "Takes less than a minute."; 
-                submitBtn.textContent = "Sign up"; 
-                toggleText.textContent = "Already have an account?"; 
-                toggleBtn.textContent = "Log in"; 
-                nameFieldWrap.style.display = "block"; 
-            } else { 
-                formTitle.textContent = "Log in"; 
-                formSubtitle.textContent = "Find colleges you can actually afford."; 
-                submitBtn.textContent = "Log in"; 
-                toggleText.textContent = "Don't have an account?"; 
-                toggleBtn.textContent = "Sign up"; 
-                nameFieldWrap.style.display = "none"; 
-            } 
-        }); 
+    <script type="module" src="firebase-init.js"></script>
+    <script type="module">
+        if (!window.capitnjFirebase?.ready) {
+            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
+        }
+        const firebase = await window.capitnjFirebase.ready;
+        const auth = firebase.auth;
+        const { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } = firebase.authFns;
 
-        submitBtn.addEventListener("click", async (e) => { 
-            e.preventDefault(); 
-            errorMsg.textContent = ""; 
-            errorMsg.style.display = "none"; 
-            const email = emailField.value.trim(); 
-            const password = passwordField.value; 
-            const name = nameField.value.trim(); 
+        const toggleBtn = document.getElementById("toggle-btn");
+        const toggleText = document.getElementById("toggle-text");
+        const formTitle = document.getElementById("form-title");
+        const formSubtitle = document.getElementById("form-subtitle");
+        const submitBtn = document.getElementById("submit-btn");
+        const errorMsg = document.getElementById("error-msg");
+        const emailField = document.getElementById("email-input");
+        const passwordField = document.getElementById("password-input");
+        const nameField = document.getElementById("name-input");
+        const nameFieldWrap = document.getElementById("name-field");
+        let mode = "login";
 
-            if (!email || !password) { 
-                errorMsg.style.display = "block"; 
-                errorMsg.textContent = "❌ Please complete all required inputs."; 
-                return; 
-            } 
-            if (mode === "signup" && !name) { 
-                errorMsg.style.display = "block"; 
-                errorMsg.textContent = "❌ Please enter your name."; 
-                return; 
-            } 
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.location.replace("profile.html");
+            }
+        });
 
-            try { 
-                submitBtn.textContent = "Processing..."; 
+        toggleBtn.addEventListener("click", () => {
+            mode = mode === "login" ? "signup" : "login";
+            errorMsg.style.display = "none";
+            errorMsg.textContent = "";
+            if (mode === "signup") {
+                formTitle.textContent = "Create your account";
+                formSubtitle.textContent = "Takes less than a minute.";
+                submitBtn.textContent = "Sign up";
+                toggleText.textContent = "Already have an account?";
+                toggleBtn.textContent = "Log in";
+                nameFieldWrap.style.display = "block";
+            } else {
+                formTitle.textContent = "Log in";
+                formSubtitle.textContent = "Find colleges you can actually afford.";
+                submitBtn.textContent = "Log in";
+                toggleText.textContent = "Don't have an account?";
+                toggleBtn.textContent = "Sign up";
+                nameFieldWrap.style.display = "none";
+            }
+        });
+
+        submitBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            errorMsg.textContent = "";
+            errorMsg.style.display = "none";
+            const email = emailField.value.trim();
+            const password = passwordField.value;
+            const name = nameField.value.trim();
+
+            if (!email || !password) {
+                errorMsg.style.display = "block";
+                errorMsg.textContent = "❌ Please complete all required inputs.";
+                return;
+            }
+            if (mode === "signup" && !name) {
+                errorMsg.style.display = "block";
+                errorMsg.textContent = "❌ Please enter your name.";
+                return;
+            }
+
+            try {
+                submitBtn.textContent = "Processing...";
                 submitBtn.disabled = true;
 
-                if (mode === "signup") { 
-                    const cred = await createUserWithEmailAndPassword(auth, email, password); 
-                    await updateProfile(cred.user, { displayName: name }); 
-                    sessionStorage.setItem("capitnj_name", name); 
-                } else { 
-                    const cred = await signInWithEmailAndPassword(auth, email, password); 
-                    if (cred.user.displayName) { 
-                        sessionStorage.setItem("capitnj_name", cred.user.displayName); 
-                    } 
-                } 
-                window.location.replace("profile.html"); 
-            } catch (error) { 
-                console.error("Firebase Auth Fail:", error.code); 
-                errorMsg.style.display = "block"; 
-                submitBtn.disabled = false; 
-                submitBtn.textContent = mode === "signup" ? "Sign up" : "Log in"; 
-                switch (error.code) { 
-                    case "auth/invalid-email": errorMsg.textContent = "❌ The format of this email address is invalid."; break; 
-                    case "auth/weak-password": errorMsg.textContent = "❌ Password is too weak. Make it at least 6 characters."; break; 
-                    case "auth/email-already-in-use": errorMsg.textContent = "❌ This email is already registered to an account."; break; 
-                    case "auth/wrong-password": case "auth/user-not-found": case "auth/invalid-credential": errorMsg.textContent = "❌ Account not found, or your email/password is incorrect."; break; 
-                    case "auth/too-many-requests": errorMsg.textContent = "⚠️ Account locked temporarily due to too many failed attempts."; break; 
-                    default: errorMsg.textContent = `❌ Authentication error: ${error.message}`; 
-                } 
-            } 
-        }); 
+                if (mode === "signup") {
+                    const cred = await createUserWithEmailAndPassword(auth, email, password);
+                    await updateProfile(cred.user, { displayName: name });
+                    sessionStorage.setItem("capitnj_name", name);
+                } else {
+                    const cred = await signInWithEmailAndPassword(auth, email, password);
+                    if (cred.user.displayName) {
+                        sessionStorage.setItem("capitnj_name", cred.user.displayName);
+                    }
+                }
+                window.location.replace("profile.html");
+            } catch (error) {
+                console.error("Firebase Auth Fail:", error.code);
+                errorMsg.style.display = "block";
+                submitBtn.disabled = false;
+                submitBtn.textContent = mode === "signup" ? "Sign up" : "Log in";
+                switch (error.code) {
+                    case "auth/invalid-email": errorMsg.textContent = "❌ The format of this email address is invalid."; break;
+                    case "auth/weak-password": errorMsg.textContent = "❌ Password is too weak. Make it at least 6 characters."; break;
+                    case "auth/email-already-in-use": errorMsg.textContent = "❌ This email is already registered to an account."; break;
+                    case "auth/wrong-password": case "auth/user-not-found": case "auth/invalid-credential": errorMsg.textContent = "❌ Account not found, or your email/password is incorrect."; break;
+                    case "auth/too-many-requests": errorMsg.textContent = "⚠️ Account locked temporarily due to too many failed attempts."; break;
+                    default: errorMsg.textContent = `❌ Authentication error: ${error.message}`;
+                }
+            }
+        });
 
-        const openResetModalBtn = document.getElementById("open-reset-modal-btn"); 
-        const sendResetBtn = document.getElementById("send-reset-btn"); 
-        const resetEmailInput = document.getElementById("reset-email"); 
-        const resetMessage = document.getElementById("reset-message"); 
-        const modal = document.getElementById("reset-modal"); 
-        const closeModal = document.getElementById("close-modal"); 
+        const openResetModalBtn = document.getElementById("open-reset-modal-btn");
+        const sendResetBtn = document.getElementById("send-reset-btn");
+        const resetEmailInput = document.getElementById("reset-email");
+        const resetMessage = document.getElementById("reset-message");
+        const modal = document.getElementById("reset-modal");
+        const closeModal = document.getElementById("close-modal");
 
-        openResetModalBtn.addEventListener("click", () => { modal.style.display = "flex"; }); 
+        openResetModalBtn.addEventListener("click", () => {
+            modal.style.display = "flex";
+        });
+
+        closeModal.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+
+        modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+                modal.style.display = "none";
+            }
+        });
+
+        sendResetBtn.addEventListener("click", async () => {
+            const email = resetEmailInput.value.trim();
+            resetMessage.style.display = "none";
+            if (!email) {
+                resetMessage.style.display = "block";
+                resetMessage.style.color = "#ef4444";
+                resetMessage.textContent = "❌ Please enter your email.";
+                return;
+            }
+            try {
+                await sendPasswordResetEmail(auth, email);
+                resetMessage.style.display = "block";
+                resetMessage.style.color = "#16a34a";
+                resetMessage.textContent = "✅ Reset link sent. Check your inbox.";
+            } catch (error) {
+                resetMessage.style.display = "block";
+                resetMessage.style.color = "#ef4444";
+                resetMessage.textContent = "❌ Could not send reset email. Check the address and try again.";
+            }
+        });
+    </script>
+</body>
+</html>
