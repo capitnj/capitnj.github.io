@@ -28,7 +28,7 @@
 <main>
   <div class="wrap">
     <p class="eyebrow">Your profile</p>
-    <h1>Tell us about you</h1>
+    <h1 id="greeting-heading">Tell us about you</h1>
     <p class="subtitle" id="greeting">&nbsp;</p>
 
     <form id="profile-form" style="max-width:460px">
@@ -137,7 +137,11 @@
 
   requireAuth(async (user) => {
     currentUser = user;
-    document.getElementById('greeting').textContent = `Signed in as ${user.email}`;
+
+    // Prefer the Firebase displayName set at signup; fall back to the name
+    // stashed at login time, then to the email if neither is available.
+    const name = user.displayName || sessionStorage.getItem("capitnj_name") || user.email;
+    document.getElementById('greeting').textContent = `Hi, ${name}`;
 
     const doc = await db.collection('users').doc(user.uid).get();
     if (doc.exists) {

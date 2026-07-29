@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CapItNJ — Log In / Sign Up</title>
-<link rel="preconnect" href="https://googleapis.com">
-<link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -32,6 +32,12 @@
     <p id="error-msg" style="color: #ef4444; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; margin-bottom: 18px; display: none; padding: 10px; background: #fdf2f2; border-radius: 6px; border: 1px solid #fde2e2;"></p>
 
     <form id="login-form" onsubmit="return false;">
+
+      <div class="field" id="name-field" style="margin-bottom: 18px; display: none;">
+        <label for="name-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Full Name</label>
+        <input type="text" id="name-input" placeholder="Jane Doe" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
+      </div>
+
       <div class="field" style="margin-bottom: 18px;">
         <label for="email-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Email Address</label>
         <input type="email" id="email-input" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
@@ -55,9 +61,9 @@
   </div>
 </main>
 
-<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
+<!-- Firebase SDKs (compat version, matches firebase.auth() usage below) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="firebase-init.js"></script>
 
 <script>
@@ -71,12 +77,16 @@
   const errorMsg = document.getElementById('error-msg');
   const emailField = document.getElementById("email-input");
   const passwordField = document.getElementById("password-input");
+  const nameField = document.getElementById("name-input");
+  const nameFieldWrap = document.getElementById("name-field");
   const loginForm = document.getElementById("login-form");
-let mode = "login";
+  let mode = "login";
 
+  // Only auto-redirect existing sessions AWAY from this page — not during
+  // the submit flow itself (that redirect happens explicitly below).
   auth.onAuthStateChanged((user) => {
-    if (user) {
-      window.location.href = "profile.html";
+    if (user && !submitBtn.disabled) {
+      window.location.href = "home.html";
     }
   });
 
@@ -91,12 +101,14 @@ let mode = "login";
         if (submitBtn) submitBtn.textContent = "Sign up";
         if (toggleText) toggleText.textContent = "Already have an account?";
         if (toggleBtn) toggleBtn.textContent = "Log in";
+        if (nameFieldWrap) nameFieldWrap.style.display = "block";
       } else {
         if (formTitle) formTitle.textContent = "Log in";
         if (formSubtitle) formSubtitle.textContent = "Find colleges you can actually afford.";
         if (submitBtn) submitBtn.textContent = "Log in";
         if (toggleText) toggleText.textContent = "Don't have an account?";
         if (toggleBtn) toggleBtn.textContent = "Sign up";
+        if (nameFieldWrap) nameFieldWrap.style.display = "none";
       }
     });
   }
@@ -111,10 +123,17 @@ let mode = "login";
 
       const email = emailField.value.trim();
       const password = passwordField.value;
+      const name = nameField ? nameField.value.trim() : "";
 
       if (!email || !password) {
         errorMsg.style.display = "block";
         errorMsg.textContent = "❌ Please complete all required inputs.";
+        return;
+      }
+
+      if (mode === "signup" && !name) {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = "❌ Please enter your name.";
         return;
       }
 
@@ -123,11 +142,20 @@ let mode = "login";
         submitBtn.disabled = true;
 
         if (mode === "signup") {
-          await auth.createUserWithEmailAndPassword(email, password);
+          const cred = await auth.createUserWithEmailAndPassword(email, password);
+          await cred.user.updateProfile({ displayName: name });
         } else {
           await auth.signInWithEmailAndPassword(email, password);
         }
-        window.location.href = "profile.html";
+
+        // Store the name so home.html can greet the user immediately,
+        // even before Firebase's auth state has fully refreshed.
+        const displayName = auth.currentUser && auth.currentUser.displayName;
+        if (displayName) {
+          sessionStorage.setItem("capitnj_name", displayName);
+        }
+
+        window.location.href = "home.html";
       } catch (error) {
         console.error("Firebase Auth Fail:", error.code);
         errorMsg.style.display = "block";
@@ -147,7 +175,7 @@ let mode = "login";
           case "auth/wrong-password":
           case "auth/user-not-found":
           case "auth/invalid-credential":
-            errorMsg.textContent = "❌ Incorrect email or password. Please try again.";
+            errorMsg.textContent = "❌ Account not found, or your email/password is incorrect.";
             break;
           case "auth/too-many-requests":
             errorMsg.textContent = "⚠️ Account locked temporarily due to too many failed attempts.";
@@ -193,13 +221,13 @@ let mode = "login";
         await auth.sendPasswordResetEmail(email);
         resetMessage.style.display = "block";
         resetMessage.style.color = "#27ae60";
-        resetMessage.textContent = "Success! Password link sent to your email inbox.";
+        resetMessage.textContent = "Success! A password reset link was sent to your email.";
         resetEmailInput.value = ""; 
       } catch (error) {
         resetMessage.style.display = "block";
         resetMessage.style.color = "#ef4444";
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-          resetMessage.textContent = "No registered records tracking that entry.";
+          resetMessage.textContent = "No account found with that email.";
         } else {
           resetMessage.textContent = "Error: " + error.message;
         }
@@ -214,3 +242,19 @@ let mode = "login";
 <!-- POPUP PASSWORD RESET MODAL -->
 <div id="reset-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
   <div style="background: white; padding: 2.5rem 2rem; border-radius: 12px; width: 90%; max-width: 400px; position: relative; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+    <button id="close-modal" type="button" style="position: absolute; top: 12px; right: 14px; background: none; border: none; font-size: 20px; line-height: 1; cursor: pointer; color: #999;">&times;</button>
+
+    <h2 style="font-family: 'Fraunces', serif; font-size: 22px; margin-bottom: 8px;">Reset your password</h2>
+    <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Enter your email and we'll send you a link to reset your password.</p>
+
+    <label for="reset-email" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Email Address</label>
+    <input type="email" id="reset-email" placeholder="you@example.com" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 16px;">
+
+    <button type="button" id="send-reset-btn" style="width: 100%; padding: 12px; font-weight: 600; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px;">Send reset link</button>
+
+    <p id="reset-message" style="display: none; margin-top: 14px; font-size: 13px; text-align: center;"></p>
+  </div>
+</div>
+
+</body>
+</html>
