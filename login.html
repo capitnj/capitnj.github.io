@@ -3,52 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CapItNJ — Log In</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<title>CapItNJ — Log In / Sign Up</title>
+<link rel="preconnect" href="https://googleapis.com">
+<link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="auth-shell">
-  <div class="auth-card">
-    <a href="index.html" class="auth-wordmark" style="text-decoration:none;color:inherit">CapItNJ</a>
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="wordmark">CapItNJ</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="explore.html">Explore</a>
+      <a href="profile.html">Profile</a>
+      <a href="matches.html">Matches</a>
+      <a href="mylist.html">My List</a>
+      <a href="improve.html">Improve</a>
+    </div>
+  </div>
+</header>
 
-    <h1 id="form-title">Log in</h1>
-    <p class="subtitle" id="form-subtitle">Find colleges you can actually afford.</p>
+<main>
+  <div class="wrap" style="max-width: 420px; margin: 0 auto; padding: 60px 20px;">
+    <h1 id="form-title" style="font-family: 'Fraunces', serif; font-size: 32px; margin-bottom: 6px;">Log in</h1>
+    <p id="form-subtitle" style="color: #666; margin-bottom: 24px;">Find colleges you can actually afford.</p>
 
-    <form id="auth-form">
-      <div class="field">
-        <label for="email">Email</label>
-        <input type="email" id="email" required autocomplete="email">
+    <!-- Error container target placeholder explicitly styled for alerts -->
+    <p id="error-msg" style="color: #ef4444; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; margin-bottom: 16px; display: none; line-height: 1.4;"></p>
+
+    <form id="login-form">
+      <div class="field" style="margin-bottom: 16px;">
+        <label for="email-input">Email Address</label>
+        <input type="email" id="email-input" placeholder="you@example.com" required style="width: 100%; box-sizing: border-box;">
       </div>
-      <div class="field">
-        <label for="password">Password</label>
-        <input type="password" id="password" required autocomplete="current-password" minlength="6">
+      
+      <div class="field" style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <label for="password-input">Password</label>
+          <button type="button" id="open-reset-modal-btn" style="background: none; border: none; color: #666; font-size: 13px; cursor: pointer; text-decoration: underline; padding: 0;">Forgot password?</button>
+        </div>
+        <input type="password" id="password-input" placeholder="••••••••" required style="width: 100%; box-sizing: border-box;">
       </div>
-      <p class="error" id="error-msg"></p>
-      <p class="form-help" style="margin-bottom: 1rem; font-size: 0.9rem;">
-  <a href="#" id="forgot-password-link" style="color: #666; text-decoration: underline;">Forgot your password?</a>
-</p>
-      <button type="submit" class="btn" id="submit-btn" style="width:100%">Log in</button>
+
+      <button type="submit" id="submit-btn" class="btn" style="width: 100%; padding: 12px; font-weight: 600;">Log in</button>
     </form>
 
-    <p class="auth-toggle">
-      <span id="toggle-text">Don't have an account?</span>
-      <button class="link-btn" id="toggle-btn" type="button">Sign up</button>
+    <p style="margin-top: 24px; text-align: center; font-size: 14px; color: #555;">
+      <span id="toggle-text">Don't have an account?</span> 
+      <button type="button" id="toggle-btn" style="background: none; border: none; color: #111; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0; margin-left: 4px;">Sign up</button>
     </p>
   </div>
-</div>
+</main>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script type="module" src="firebase-init.js"></script>
- <script>
-  // 1. Point directly to the globally initialized Firebase layer
+<!-- Initialize and link clean infrastructure scripts -->
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+<script src="firebase-init.js"></script>
+
+<script>
+  // Core Operational Authentication Logic Configuration Block
   const auth = firebase.auth();
 
-  // 2. Grab all layout interactive interface nodes
   const toggleBtn = document.getElementById('toggle-btn');
   const toggleText = document.getElementById('toggle-text');
   const formTitle = document.getElementById('form-title');
@@ -57,21 +74,22 @@
   const errorMsg = document.getElementById('error-msg');
   const emailField = document.getElementById("email-input");
   const passwordField = document.getElementById("password-input");
+  const loginForm = document.getElementById("login-form");
 
-  let mode = "login"; // Default initialization phase configuration
+  let mode = "login";
 
-  // 3. Clear landing routing if an active cookie session is open
+  // Check login state and forward automatically if valid session cookies match
   auth.onAuthStateChanged((user) => {
     if (user) {
       window.location.href = "profile.html";
     }
   });
 
-  // 4. Toggle layouts between Login and Sign Up screens
+  // Interface Toggle configuration handling
   if (toggleBtn) {
     toggleBtn.addEventListener('click', () => {
       mode = mode === "login" ? "signup" : "login";
-      if (errorMsg) errorMsg.textContent = "";
+      if (errorMsg) { errorMsg.style.display = "none"; errorMsg.textContent = ""; }
 
       if (mode === "signup") {
         if (formTitle) formTitle.textContent = "Create your account";
@@ -89,23 +107,17 @@
     });
   }
 
-  // 5. Secure Authentication Event Listener Execution
-  if (submitBtn) {
-    submitBtn.addEventListener('click', async (e) => {
+  // Active user pipeline credential submittal handler 
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (!errorMsg || !emailField || !passwordField) return;
 
       errorMsg.textContent = "";
-      errorMsg.style.color = "#ef4444";
-      errorMsg.style.display = "block";
+      errorMsg.style.display = "none";
 
       const email = emailField.value.trim();
       const password = passwordField.value;
-
-      if (!email || !password) {
-        errorMsg.textContent = "❌ Please fill out all required authentication fields.";
-        return;
-      }
 
       try {
         if (mode === "signup") {
@@ -115,38 +127,50 @@
         }
         window.location.href = "profile.html";
       } catch (error) {
-        console.error("Firebase Authentication Error:", error.code);
+        console.error("Firebase Authentication Fault:", error.code);
+        errorMsg.style.display = "block";
+
         switch (error.code) {
           case "auth/invalid-email":
-            errorMsg.textContent = "❌ The email address format is invalid.";
+            errorMsg.textContent = "❌ The format of this email address is invalid.";
             break;
           case "auth/weak-password":
-            errorMsg.textContent = "❌ Password is too weak. Must be at least 6 characters.";
+            errorMsg.textContent = "❌ Password is too weak. Make it at least 6 characters.";
             break;
           case "auth/email-already-in-use":
-            errorMsg.textContent = "❌ This email address is already registered.";
+            errorMsg.textContent = "❌ This email address is already registered to an account.";
             break;
           case "auth/wrong-password":
           case "auth/user-not-found":
           case "auth/invalid-credential":
-            errorMsg.textContent = "❌ Incorrect email or password. Please try again.";
+            errorMsg.textContent = "❌ Incorrect email or password credentials. Please try again.";
             break;
           case "auth/too-many-requests":
             errorMsg.textContent = "⚠️ Account locked temporarily due to too many failed attempts.";
             break;
           default:
-            errorMsg.textContent = `❌ Authentication failed: ${error.message}`;
+            errorMsg.textContent = `❌ Authentication failure: ${error.message}`;
         }
       }
     });
   }
 
-  // 6. Secure Password Reset Pipeline Modal Handshake
+  // Modal Popup Interface Control
+  const openResetModalBtn = document.getElementById("open-reset-modal-btn");
   const sendResetBtn = document.getElementById("send-reset-btn");
   const resetEmailInput = document.getElementById("reset-email");
   const resetMessage = document.getElementById("reset-message");
   const modal = document.getElementById("reset-modal");
   const closeModal = document.getElementById("close-modal");
+
+  if (openResetModalBtn && modal) {
+    openResetModalBtn.addEventListener("click", () => { modal.style.display = "flex"; });
+  }
+
+  if (closeModal && modal) {
+    closeModal.addEventListener("click", () => { modal.style.display = "none"; if (resetMessage) resetMessage.style.display = "none"; });
+    window.addEventListener("click", (e) => { if (e.target === modal) { modal.style.display = "none"; if (resetMessage) resetMessage.style.display = "none"; } });
+  }
 
   if (sendResetBtn && resetEmailInput && resetMessage) {
     sendResetBtn.addEventListener("click", async () => {
@@ -182,27 +206,12 @@
       }
     });
   }
-
-  // Modal display toggles
-  if (closeModal && modal) {
-    closeModal.addEventListener("click", () => { modal.style.display = "none"; });
-    window.addEventListener("click", (e) => { if (e.target === modal) modal.style.display = "none"; });
-  }
 </script>
+
 <!-- POPUP MODAL (Hidden by default) -->
 <div id="reset-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-  <div class="modal-content" style="background: white; padding: 2rem; border-radius: 8px; width: 90%; max-width: 400px; position: relative; color: #333;">
-    <span id="close-modal" style="position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 1.5rem; color: #666;">&times;</span>
-    <h3 style="margin-top: 0;">Reset your password</h3>
-    <p style="font-size: 0.9rem; margin-bottom: 1rem; color: #666; line-height: 1.4;">Enter your account email and we'll send you a secure link to choose a new password.</p>
+  <div class="modal-content" style="background: white; padding: 2.5rem 2rem; border-radius: 12px; width: 90%; max-width: 400px; position: relative; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+    <span id="close-modal" style="position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 1.5rem; color: #888; font-weight: bold;">&times;</span>
+    <h3 style="margin-top: 0; font-family: 'Fraunces', serif; font-size: 24px; margin-bottom: 8px;">Reset your password</h3>
+    <p style="font-size: 0.9rem; margin-bottom: 1.5rem; color: #666; line-height: 1.4;">Enter your account email and we'll send you a secure link to choose a new password.</p>
     
-    <div class="field" style="margin-bottom: 1rem;">
-      <label for="reset-email">Email Address</label>
-      <input type="email" id="reset-email" placeholder="you@example.com" style="width: 100%; padding: 0.5rem; margin-top: 0.25rem;">
-    </div>
-    <button id="send-reset-btn" class="btn" type="button" style="width: 100%;">Send reset link</button>
-    <p id="reset-message" style="margin-top: 1rem; font-size: 0.9rem; display: none;"></p>
-  </div>
-</div>
-</body>
-</html>
