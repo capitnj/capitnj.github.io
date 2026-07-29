@@ -8,24 +8,32 @@
     <script type="module" src="firebase-init.js"></script>
 </head>
 <body>
-    <header>
-        <div class="logo">CapItNJ</div>
-        <nav>
-            <a href="index.html">Home</a>
-            <a href="explore.html">Explore</a>
-            <a href="profile.html" class="active">Profile</a>
-            <a href="matches.html">Matches</a>
-            <a href="mylist.html">My List</a>
-            <a href="improve.html">Improve</a>
-            <button id="logout-btn" style="display:none;">Log Out</button>
-        </nav>
+    <header class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="wordmark">CapItNJ</a>
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="explore.html">Explore</a>
+                <a href="profile.html" class="active">Profile</a>
+                <a href="matches.html">Matches</a>
+                <a href="mylist.html">My List</a>
+                <a href="improve.html">Improve</a>
+                <button id="logout-btn" class="link-btn" style="display:none;">Log Out</button>
+            </nav>
+        </div>
     </header>
 
-    <main class="profile-container">
-        <h1>Your Profile</h1>
+    <main class="profile-shell">
+        <div class="profile-header">
+            <div>
+                <h1>Your Profile</h1>
+                <p class="profile-subtitle">Manage your account and college preferences in one place.</p>
+            </div>
+        </div>
+
         <div id="loading">Loading your profile data...</div>
 
-        <div id="profile-content" style="display: none;">
+        <div id="profile-content" class="profile-grid" style="display: none;">
             <div class="profile-card">
                 <h2>Account Details</h2>
                 <p><strong>Name:</strong> <span id="user-name">N/A</span></p>
@@ -34,20 +42,24 @@
 
             <div class="profile-card">
                 <h2>College Preferences</h2>
-                <form id="preferences-form">
-                    <label for="max-tuition">Maximum Annual Tuition ($):</label>
-                    <input type="number" id="max-tuition" placeholder="e.g., 20000">
+                <form id="preferences-form" class="profile-form">
+                    <div class="field">
+                        <label for="max-tuition">Maximum Annual Tuition ($)</label>
+                        <input type="number" id="max-tuition" placeholder="e.g., 20000">
+                    </div>
 
-                    <label for="preferred-location">Preferred Location:</label>
-                    <select id="preferred-location">
-                        <option value="any">No Preference</option>
-                        <option value="north-nj">North Jersey</option>
-                        <option value="central-nj">Central Jersey</option>
-                        <option value="south-nj">South Jersey</option>
-                        <option value="out-of-state">Out of State</option>
-                    </select>
+                    <div class="field">
+                        <label for="preferred-location">Preferred Location</label>
+                        <select id="preferred-location">
+                            <option value="any">No Preference</option>
+                            <option value="north-nj">North Jersey</option>
+                            <option value="central-nj">Central Jersey</option>
+                            <option value="south-nj">South Jersey</option>
+                            <option value="out-of-state">Out of State</option>
+                        </select>
+                    </div>
 
-                    <button type="submit">Save Preferences</button>
+                    <button type="submit" class="btn">Save Preferences</button>
                 </form>
                 <p id="status-message" class="status-msg"></p>
             </div>
