@@ -26,44 +26,41 @@
 
 <main>
   <div class="wrap" style="max-width: 420px; margin: 0 auto; padding: 60px 20px;">
-    <h1 id="form-title" style="font-family: 'Fraunces', serif; font-size: 32px; margin-bottom: 6px;">Log in</h1>
-    <p id="form-subtitle" style="color: #666; margin-bottom: 24px;">Find colleges you can actually afford.</p>
+    <h1 id="form-title" style="font-family: 'Fraunces', serif; font-size: 32px; margin-bottom: 6px; color: #111;">Log in</h1>
+    <p id="form-subtitle" style="color: #666; margin-bottom: 24px; font-size: 15px;">Find colleges you can actually afford.</p>
 
-    <!-- Error container target placeholder explicitly styled for alerts -->
-    <p id="error-msg" style="color: #ef4444; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; margin-bottom: 16px; display: none; line-height: 1.4;"></p>
+    <p id="error-msg" style="color: #ef4444; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; margin-bottom: 18px; display: none; padding: 10px; background: #fdf2f2; border-radius: 6px; border: 1px solid #fde2e2;"></p>
 
-    <form id="login-form">
-      <div class="field" style="margin-bottom: 16px;">
-        <label for="email-input">Email Address</label>
-        <input type="email" id="email-input" placeholder="you@example.com" required style="width: 100%; box-sizing: border-box;">
+    <form id="login-form" onsubmit="return false;">
+      <div class="field" style="margin-bottom: 18px;">
+        <label for="email-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Email Address</label>
+        <input type="email" id="email-input" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
       </div>
       
-      <div class="field" style="margin-bottom: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <label for="password-input">Password</label>
-          <button type="button" id="open-reset-modal-btn" style="background: none; border: none; color: #666; font-size: 13px; cursor: pointer; text-decoration: underline; padding: 0;">Forgot password?</button>
+      <div class="field" style="margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label for="password-input" style="font-weight: 500; font-size: 14px;">Password</label>
+          <button type="button" id="open-reset-modal-btn" style="background: none; border: none; color: #64748b; font-size: 13px; cursor: pointer; text-decoration: underline; padding: 0; font-family: inherit;">Forgot password?</button>
         </div>
-        <input type="password" id="password-input" placeholder="••••••••" required style="width: 100%; box-sizing: border-box;">
+        <input type="password" id="password-input" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
       </div>
 
-      <button type="submit" id="submit-btn" class="btn" style="width: 100%; padding: 12px; font-weight: 600;">Log in</button>
+      <button type="button" id="submit-btn" class="btn" style="width: 100%; padding: 12px; font-weight: 600; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px;">Log in</button>
     </form>
 
     <p style="margin-top: 24px; text-align: center; font-size: 14px; color: #555;">
       <span id="toggle-text">Don't have an account?</span> 
-      <button type="button" id="toggle-btn" style="background: none; border: none; color: #111; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0; margin-left: 4px;">Sign up</button>
+      <button type="button" id="toggle-btn" style="background: none; border: none; color: #111; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0; margin-left: 4px; font-family: inherit;">Sign up</button>
     </p>
   </div>
 </main>
 
-<!-- Initialize and link clean infrastructure scripts -->
 <script src="https://gstatic.com"></script>
 <script src="https://gstatic.com"></script>
 <script src="https://gstatic.com"></script>
 <script src="firebase-init.js"></script>
 
 <script>
-  // Core Operational Authentication Logic Configuration Block
   const auth = firebase.auth();
 
   const toggleBtn = document.getElementById('toggle-btn');
@@ -75,17 +72,14 @@
   const emailField = document.getElementById("email-input");
   const passwordField = document.getElementById("password-input");
   const loginForm = document.getElementById("login-form");
+let mode = "login";
 
-  let mode = "login";
-
-  // Check login state and forward automatically if valid session cookies match
   auth.onAuthStateChanged((user) => {
     if (user) {
       window.location.href = "profile.html";
     }
   });
 
-  // Interface Toggle configuration handling
   if (toggleBtn) {
     toggleBtn.addEventListener('click', () => {
       mode = mode === "login" ? "signup" : "login";
@@ -106,9 +100,9 @@
       }
     });
   }
- // Active user pipeline credential submittal handler 
-  if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
+
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async (e) => {
       e.preventDefault();
       if (!errorMsg || !emailField || !passwordField) return;
 
@@ -118,7 +112,16 @@
       const email = emailField.value.trim();
       const password = passwordField.value;
 
+      if (!email || !password) {
+        errorMsg.style.display = "block";
+        errorMsg.textContent = "❌ Please complete all required inputs.";
+        return;
+      }
+
       try {
+        submitBtn.textContent = "Processing...";
+        submitBtn.disabled = true;
+
         if (mode === "signup") {
           await auth.createUserWithEmailAndPassword(email, password);
         } else {
@@ -126,8 +129,10 @@
         }
         window.location.href = "profile.html";
       } catch (error) {
-        console.error("Firebase Authentication Fault:", error.code);
+        console.error("Firebase Auth Fail:", error.code);
         errorMsg.style.display = "block";
+        submitBtn.disabled = false;
+        submitBtn.textContent = mode === "signup" ? "Sign up" : "Log in";
 
         switch (error.code) {
           case "auth/invalid-email":
@@ -137,24 +142,23 @@
             errorMsg.textContent = "❌ Password is too weak. Make it at least 6 characters.";
             break;
           case "auth/email-already-in-use":
-            errorMsg.textContent = "❌ This email address is already registered to an account.";
+            errorMsg.textContent = "❌ This email is already registered to an account.";
             break;
           case "auth/wrong-password":
           case "auth/user-not-found":
           case "auth/invalid-credential":
-            errorMsg.textContent = "❌ Incorrect email or password credentials. Please try again.";
+            errorMsg.textContent = "❌ Incorrect email or password. Please try again.";
             break;
           case "auth/too-many-requests":
             errorMsg.textContent = "⚠️ Account locked temporarily due to too many failed attempts.";
             break;
           default:
-            errorMsg.textContent = `❌ Authentication failure: ${error.message}`;
+            errorMsg.textContent = `❌ Authentication error: ${error.message}`;
         }
       }
     });
   }
 
-  // Modal Popup Interface Control
   const openResetModalBtn = document.getElementById("open-reset-modal-btn");
   const sendResetBtn = document.getElementById("send-reset-btn");
   const resetEmailInput = document.getElementById("reset-email");
@@ -178,7 +182,7 @@
       if (!email) {
         resetMessage.style.display = "block";
         resetMessage.style.color = "#ef4444";
-        resetMessage.textContent = "Please enter an email address first.";
+        resetMessage.textContent = "Please enter an email address.";
         return;
       }
 
@@ -189,13 +193,13 @@
         await auth.sendPasswordResetEmail(email);
         resetMessage.style.display = "block";
         resetMessage.style.color = "#27ae60";
-        resetMessage.textContent = "Success! Check your email inbox for your magic link.";
+        resetMessage.textContent = "Success! Password link sent to your email inbox.";
         resetEmailInput.value = ""; 
       } catch (error) {
         resetMessage.style.display = "block";
         resetMessage.style.color = "#ef4444";
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
-          resetMessage.textContent = "We couldn't find an account matching that email.";
+          resetMessage.textContent = "No registered records tracking that entry.";
         } else {
           resetMessage.textContent = "Error: " + error.message;
         }
@@ -207,10 +211,6 @@
   }
 </script>
 
-<!-- POPUP MODAL (Hidden by default) -->
-<div id="reset-modal" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
-  <div class="modal-content" style="background: white; padding: 2.5rem 2rem; border-radius: 12px; width: 90%; max-width: 400px; position: relative; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
-    <span id="close-modal" style="position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 1.5rem; color: #888; font-weight: bold;">&times;</span>
-    <h3 style="margin-top: 0; font-family: 'Fraunces', serif; font-size: 24px; margin-bottom: 8px;">Reset your password</h3>
-    <p style="font-size: 0.9rem; margin-bottom: 1.5rem; color: #666; line-height: 1.4;">Enter your account email and we'll send you a secure link to choose a new password.</p>
-    
+<!-- POPUP PASSWORD RESET MODAL -->
+<div id="reset-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+  <div style="background: white; padding: 2.5rem 2rem; border-radius: 12px; width: 90%; max-width: 400px; position: relative; color: #333; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
