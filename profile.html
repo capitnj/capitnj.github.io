@@ -19,6 +19,7 @@
       <a href="profile.html" class="active">Profile</a>
       <a href="matches.html">Matches</a>
       <a href="improve.html">Improve</a>
+      <a href="mylist.html">My List</a>
       <button id="logout-btn">Log out</button>
     </div>
   </div>
@@ -120,6 +121,8 @@
 
       <p class="error" id="error-msg"></p>
       <button type="submit" class="btn" id="save-btn">Save profile</button>
+
+      <div id="matching-loader" style="display: none; margin-top: 15px; color: #27ae60; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500;">⚡ Connecting to U.S. Dept of Education...</div>
       <span class="hint" id="saved-msg" style="display:inline-block;margin-left:12px"></span>
     </form>
   </div>
@@ -189,5 +192,7 @@
     }
   });
 </script>
+<script src="matching.js"></script>
+
 </body>
 </html>

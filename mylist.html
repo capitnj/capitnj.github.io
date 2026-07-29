@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CapItNJ — My List</title>
+<link rel="preconnect" href="https://googleapis.com">
+<link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="wordmark">CapItNJ</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="explore.html">Explore</a>
+      <a href="profile.html">Profile</a>
+      <a href="matches.html">Matches</a>
+      <a href="mylist.html" class="active">My List</a>
+      <a href="improve.html">Improve</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <p class="eyebrow">Dashboard Tracker</p>
+    <h1>My Shortlisted Colleges</h1>
+    <p class="subtitle">Review notes, edit application priority, and track choices.</p>
+
+    <!-- Empty container target for our database records -->
+    <div id="myListContainer" style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px; max-width: 600px;">
+      <p style="color: #666; font-family: 'IBM Plex Mono', monospace;">Connecting to your dashboard database folder...</p>
+    </div>
+  </div>
+</main>
+
+<!-- Load cloud database configuration arrays -->
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+<script src="firebase-init.js"></script>
+<script src="mylist.js"></script>
+
+</body>
+</html>
