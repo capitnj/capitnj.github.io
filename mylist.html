@@ -1,48 +1,107 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CapItNJ — My List</title>
-<link rel="preconnect" href="https://googleapis.com">
-<link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>CapItNJ — My List</title> 
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="style.css"> 
+</head> 
+<body> 
+    <header class="nav"> 
+        <div class="nav-inner"> 
+            <a href="index.html" class="wordmark">CapItNJ</a> 
+            <div class="nav-links"> 
+                <a href="index.html">Home</a> 
+                <a href="improve.html">Improve</a> 
+                <a href="explore.html">Explore</a> 
+                <a href="matches.html">Matches</a> 
+                <a href="mylist.html" class="active">My List</a> 
+                <a href="profile.html">Profile</a> 
+            </div> 
+        </div> 
+    </header> 
+    <main> 
+        <div class="wrap"> 
+            <p class="eyebrow">Dashboard Tracker</p> 
+            <h1>My Shortlisted Colleges</h1> 
+            <p class="subtitle">Review notes, edit application priority, and track choices.</p> 
+            
+            <!-- Target container for our database records --> 
+            <div id="myListContainer" style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px; max-width: 600px;"> 
+                <p style="color: #666; font-family: 'IBM Plex Mono', monospace;">Connecting to your dashboard database folder...</p> 
+            </div> 
+        </div> 
+    </main> 
 
-<header class="nav">
-  <div class="nav-inner">
-    <a href="index.html" class="wordmark">CapItNJ</a>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="explore.html">Explore</a>
-      <a href="profile.html">Profile</a>
-      <a href="matches.html">Matches</a>
-      <a href="mylist.html" class="active">My List</a>
-      <a href="improve.html">Improve</a>
-    </div>
-  </div>
-</header>
+    <!-- Connects seamlessly using your clean modular framework configuration -->
+    <script type="module" src="firebase-init.js"></script> 
+    <script type="module"> 
+        if (!window.capitnjFirebase?.ready) { 
+            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true })); 
+        } 
+        const firebase = await window.capitnjFirebase.ready; 
+        const { requireAuth } = firebase; 
+        const { doc, getDoc, setDoc } = firebase.firestoreFns; 
+        const db = firebase.db; 
 
-<main>
-  <div class="wrap">
-    <p class="eyebrow">Dashboard Tracker</p>
-    <h1>My Shortlisted Colleges</h1>
-    <p class="subtitle">Review notes, edit application priority, and track choices.</p>
+        const containerEl = document.getElementById("myListContainer");
 
-    <!-- Empty container target for our database records -->
-    <div id="myListContainer" style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px; max-width: 600px;">
-      <p style="color: #666; font-family: 'IBM Plex Mono', monospace;">Connecting to your dashboard database folder...</p>
-    </div>
-  </div>
-</main>
+        requireAuth(async (user) => { 
+            const userDocRef = doc(db, "users", user.uid); 
+            try { 
+                const docSnap = await getDoc(userDocRef); 
+                let savedColleges = [];
+                
+                if (docSnap.exists() && docSnap.data().myList) { 
+                    savedColleges = docSnap.data().myList;
+                } 
 
-<!-- Load cloud database configuration arrays -->
-<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
-<script src="firebase-init.js"></script>
-<script src="mylist.js"></script>
+                if (savedColleges.length === 0) {
+                    containerEl.innerHTML = `
+                        <div style="padding: 24px; border: 1px dashed #ccc; border-radius: 8px; text-align: center; color: #666;">
+                            Your shortlist is currently empty! Explore colleges to save your favorites here.
+                            <br><br>
+                            <a href="explore.html" class="btn" style="text-decoration: none; display: inline-block;">Go Explore Schools</a>
+                        </div>`;
+                    return;
+                }
 
-</body>
+                // Render saved list items automatically
+                containerEl.innerHTML = savedColleges.map((collegeName, index) => `
+                    <div style="background: white; border: 1px solid #e2e8f0; padding: 18px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; font-size: 16px; color: #111;">${collegeName}</div>
+                            <div style="font-size: 13px; color: #666; margin-top: 2px;">Saved Option #${index + 1}</div>
+                        </div>
+                        <button class="remove-btn" data-name="${collegeName}" style="background: none; border: none; color: #ef4444; font-size: 13px; cursor: pointer; text-decoration: underline; font-family: inherit;">Remove</button>
+                    </div>
+                `).join('');
+
+                // Hook up remove button click events to update Firestore seamlessly
+                containerEl.querySelectorAll(".remove-btn").forEach(button => {
+                    button.addEventListener("click", async (e) => {
+                        const nameToRemove = e.target.getAttribute("data-name");
+                        e.target.textContent = "Removing...";
+                        
+                        const updatedList = savedColleges.filter(name => name !== nameToRemove);
+                        
+                        try {
+                            await setDoc(userDocRef, { myList: updatedList }, { merge: true });
+                            window.location.reload(); // Refresh screen to show changes cleanly
+                        } catch (err) {
+                            console.error("Error removing item:", err);
+                            e.target.textContent = "Remove";
+                        }
+                    });
+                });
+
+            } catch (error) { 
+                console.error("Error loading user shortlist container elements:", error); 
+                containerEl.innerHTML = `<p style="color: #ef4444;">❌ Error connecting to database records.</p>`;
+            } 
+        }); 
+    </script> 
+</body> 
 </html>

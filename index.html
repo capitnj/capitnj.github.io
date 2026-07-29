@@ -1,197 +1,163 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CapItNJ — Find colleges you can actually afford</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>CapItNJ — Find colleges you can actually afford</title> 
+    <link rel="preconnect" href="https://googleapis.com"> 
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="style.css"> 
+</head> 
+<body> 
+    <header class="nav"> 
+        <div class="nav-inner"> 
+            <a href="index.html" class="wordmark">CapItNJ</a> 
+            <div class="nav-links"> 
+                <a href="index.html" class="active">Home</a> 
+                <a href="improve.html">Improve</a> 
+                <a href="explore.html">Explore</a> 
+                <a href="matches.html">Matches</a> 
+                <a href="mylist.html">My List</a> 
+                <a href="profile.html">Profile</a> 
+                <a href="login.html" id="nav-login-btn">Log in</a>
+            </div> 
+        </div> 
+    </header> 
+    <main> 
+        <div class="wrap"> 
+            <!-- HERO --> 
+            <section class="home-hero"> 
+                <p class="eyebrow">Congressional App Challenge · NJ-06</p> 
+                <h1>Cap it. <em>Don't</em> guess it.</h1> 
+                <p class="hero-sub"> 
+                    CapItNJ matches you with colleges you're actually likely to get into and actually afford — using your GPA, budget, and what you're looking for, not just a school's name. 
+                </p> 
+                <div class="cta-row"> 
+                    <a href="login.html" class="btn">Get started</a> 
+                    <a href="#why" class="link-btn">Why I built this →</a> 
+                </div> 
+                <div class="hero-chart"> 
+                    <p class="hero-chart-title">Sticker price vs. what families typically pay</p> 
+                    <div class="chart-row"> 
+                        <span class="chart-row-label">Need aid</span> 
+                        <div class="chart-bars"> 
+                            <div class="chart-bar-track"><div class="chart-bar sticker" style="width:100%"></div></div> 
+                            <div class="chart-bar-track"><div class="chart-bar net" style="width:22%"></div></div> 
+                        </div> 
+                        <span class="chart-row-value">−78%</span> </div> 
+                    <div class="chart-row"> 
+                        <span class="chart-row-label">Some aid</span> 
+                        <div class="chart-bars"> 
+                            <div class="chart-bar-track"><div class="chart-bar sticker" style="width:100%"></div></div> 
+                            <div class="chart-bar-track"><div class="chart-bar net" style="width:42%"></div></div> 
+                        </div> 
+                        <span class="chart-row-value">−58%</span> </div> 
+                    <div class="chart-row"> 
+                        <span class="chart-row-label">Full pay</span> 
+                        <div class="chart-bars"> 
+                            <div class="chart-bar-track"><div class="chart-bar sticker" style="width:100%"></div></div> 
+                            <div class="chart-bar-track"><div class="chart-bar net" style="width:78%"></div></div> 
+                        </div> 
+                        <span class="chart-row-value">−22%</span> </div> 
+                    <div class="chart-legend"> 
+                        <span><span class="legend-dot sticker"></span>Sticker price</span> 
+                        <span><span class="legend-dot net"></span>Estimated net price</span> 
+                    </div> 
+                </div> 
+            </section> 
 
-<header class="nav">
-  <div class="nav-inner">
-    <a href="home.html" class="wordmark">CapItNJ</a>
-    <div class="nav-links">
-      <a href="home.html" class="active">Home</a>
-      <a href="explore.html">Explore</a>
-      <a href="improve.html">Improve</a>
-      <a href="login.html">Log in</a>
-      <a href="mylist.html">My List</a>
-    </div>
-  </div>
-</header>
+            <!-- WHY / BACKGROUND --> 
+            <section class="block" id="why"> 
+                <p class="eyebrow">Why I built this</p> 
+                <div class="bio-row"> 
+                    <span class="bio-mark">NJ-06</span> 
+                    <div class="bio-text"> 
+                        <p> 
+                            I'm a first-generation college applicant in the US. My parents went to university in a different country, so a lot of how American college admissions and financial aid work wasn't something I could just ask them about at dinner. I had to piece it together myself, and looking at the giant sticker prices was genuinely overwhelming.
+                        </p> 
+                        <p> 
+                            I built CapItNJ for the Congressional App Challenge to make this process easier for other students and parents. The goal is simple: put your information in once, and get a realistic list of options that actually fit your grades and family budget without confusing complications.
+                        </p> 
+                        <p> 
+                            It's a work in progress built by an NJ student for families in similar positions—fewer surprises, simpler steps, and a clearer guide.
+                        </p> 
+                    </div> 
+                </div> 
+            </section> 
 
-<main>
-  <div class="wrap">
+            <!-- HOW IT HELPS --> 
+            <section class="block tint"> 
+                <p class="eyebrow">How it helps</p> 
+                <h2>One profile. A realistic shortlist.</h2> 
+                <p class="lede"> 
+                    Instead of scrolling long rankings lists, CapItNJ looks at real numbers to show options that fit your preferences. 
+                </p> 
+                <div class="feature-grid"> 
+                    <div class="feature-card"> 
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18M6 21V10l6-5 6 5v11M10 21v-6h4v6"/></svg> 
+                        <h3>Cost, not sticker price</h3> 
+                        <p>Matches use estimated net price by income tier, not the scary number on a school's homepage.</p> 
+                    </div> 
+                    <div class="feature-card"> 
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"/></svg> 
+                        <h3>Your academic fit</h3> 
+                        <p>GPA is weighed against each school's typical admit, so you see reach, match, and safety schools clearly.</p> 
+                    </div> 
+                    <div class="feature-card"> 
+                        <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3Z"/></svg> 
+                        <h3>Local to global</h3> 
+                        <p>Results are grouped into clean categories based on location and budget options.</p> 
+                    </div> 
+                    <div class="feature-card"> 
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 20V10M12 10 5 6M12 10l7-4M5 6v8l7 4M19 6v8l-7 4"/></svg> 
+                        <h3>Schools to explore</h3> 
+                        <p>Browse college options across our database before you even make an account. <a href="explore.html" style="color:var(--accent)">Explore it →</a></p> 
+                    </div> 
+                    <div class="feature-card"> 
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7"/></svg> 
+                        <h3>Clear navigation tips</h3> 
+                        <p>A dedicated section on what helpful moves can assist your application profile. <a href="improve.html" style="color:var(--accent)">See the tips →</a></p> 
+                    </div> 
+                    <div class="feature-card"> 
+                        <svg class="icon" viewBox="0 0 24 24"><path d="M4 19h16M6 19V9l6-4 6 4v10M9 19v-5h6v5"/></svg> 
+                        <h3>A custom profile</h3> 
+                        <p>The layout adjusts to match your grades and settings requirements directly.</p> 
+                    </div> 
+                </div> 
+            </section> 
 
-    <!-- HERO -->
-    <section class="home-hero">
-      <p class="eyebrow">Congressional App Challenge · NJ-06</p>
-      <h1>Cap it. <em>Don't</em> guess it.</h1>
-      <p class="hero-sub">
-        CapItNJ matches you with colleges you're actually likely to get into
-        and actually afford — using your GPA, budget, and what you're looking
-        for, not just a school's name.
-      </p>
-      <div class="cta-row">
-        <a href="login.html" class="btn">Get started</a>
-        <a href="#why" class="link-btn">Why I built this →</a>
-      </div>
-
-      <div class="hero-chart">
-        <p class="hero-chart-title">Sticker price vs. what families typically pay</p>
-
-        <div class="chart-row">
-          <span class="chart-row-label">Need aid</span>
-          <div class="chart-bars">
-            <div class="chart-bar-track"><div class="chart-bar sticker" style="width:100%"></div></div>
-            <div class="chart-bar-track"><div class="chart-bar net" style="width:22%"></div></div>
-          </div>
-          <span class="chart-row-value">−78%</span>
-        </div>
-        <div class="chart-row">
-          <span class="chart-row-label">Some aid</span>
-          <div class="chart-bars">
-            <div class="chart-bar-track"><div class="chart-bar sticker" style="width:100%"></div></div>
-            <div class="chart-bar-track"><div class="chart-bar net" style="width:42%"></div></div>
-          </div>
-          <span class="chart-row-value">−58%</span>
-        </div>
-        <div class="chart-row">
-          <span class="chart-row-label">Full pay</span>
-          <div class="chart-bars">
-            <div class="chart-bar-track"><div class="chart-bar sticker" style="width:100%"></div></div>
-            <div class="chart-bar-track"><div class="chart-bar net" style="width:78%"></div></div>
-          </div>
-          <span class="chart-row-value">−22%</span>
-        </div>
-
-        <div class="chart-legend">
-          <span><span class="legend-dot sticker"></span>Sticker price</span>
-          <span><span class="legend-dot net"></span>Estimated net price</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- WHY / BACKGROUND -->
-    <section class="block" id="why">
-      <p class="eyebrow">Why I built this</p>
-      <div class="bio-row">
-        <span class="bio-mark">NJ-06</span>
-        <div class="bio-text">
-          <p>
-            I'm a first-generation college applicant in the US — my parents
-            went through university in a different country, so a lot of how
-            American college admissions and financial aid actually work
-            wasn't something I could just ask them about at the dinner table.
-            I had to piece it together myself, and the first time I looked
-            seriously at sticker prices, it was genuinely overwhelming.
-          </p>
-          <p>
-            I needed something like this and it didn't exist in a form that
-            made sense to me, so for the Congressional App Challenge I built
-            it myself: put your numbers in once, and get a ranked shortlist —
-            local, national, or international — that actually fits your
-            grades <strong>and</strong> your family's budget, plus a
-            plain-language tip on where you stand for each one.
-          </p>
-          <p>
-            It's a work in progress, built by a NJ student for other NJ
-            students in a similar spot — the goal is simple: fewer surprises,
-            earlier, for anyone trying to figure this out without a guide.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- HOW IT HELPS -->
-    <section class="block tint">
-      <p class="eyebrow">How it helps</p>
-      <h2>One profile. A realistic shortlist.</h2>
-      <p class="lede">
-        Instead of scrolling rankings lists or guessing from a school's name,
-        CapItNJ scores every college in its database against your actual
-        numbers and tells you why it's a fit.
-      </p>
-
-      <div class="feature-grid">
-        <div class="feature-card">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M3 21h18M6 21V10l6-5 6 5v11M10 21v-6h4v6"/></svg>
-          <h3>Cost, not sticker price</h3>
-          <p>Matches use estimated net price by income tier, not the scary number on a school's homepage.</p>
-        </div>
-        <div class="feature-card">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 10-5-10-5Z"/><path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5"/></svg>
-          <h3>Your academic fit</h3>
-          <p>GPA is weighed against each school's typical admit, so you see reach, match, and safety schools clearly.</p>
-        </div>
-        <div class="feature-card">
-          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9S9.5 5.6 12 3Z"/></svg>
-          <h3>Local to global</h3>
-          <p>Results are grouped into Near Home, Best for Your Budget, Outside NJ, and Out of Country — not one long undifferentiated list.</p>
-        </div>
-        <div class="feature-card">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M12 20V10M12 10 5 6M12 10l7-4M5 6v8l7 4M19 6v8l-7 4"/></svg>
-          <h3>65+ schools to explore</h3>
-          <p>Browse the full database — public, private, every size and setting — before you even make an account. <a href="explore.html" style="color:var(--accent)">Explore it →</a></p>
-        </div>
-        <div class="feature-card">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M12 3v1M12 20v1M4.2 4.2l.7.7M19.1 19.1l.7.7M3 12h1M20 12h1M4.2 19.8l.7-.7M19.1 4.9l.7-.7"/></svg>
-          <h3>Improve your chances</h3>
-          <p>A dedicated section on what actually moves the needle for academics, essays, aid, and extracurriculars. <a href="improve.html" style="color:var(--accent)">See the tips →</a></p>
-        </div>
-        <div class="feature-card">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M4 19h16M6 19V9l6-4 6 4v10M9 19v-5h6v5"/></svg>
-          <h3>A deeper profile</h3>
-          <p>Test scores, major, extracurriculars, campus size and setting, and background — the more you share, the sharper the shortlist.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- HOW TO USE -->
-    <section class="block">
-      <p class="eyebrow">How to use it</p>
-      <h2>Three steps, about a minute</h2>
-
-      <div class="steps">
-        <div class="step">
-          <span class="step-num">01</span>
-          <div class="step-body">
-            <h3>Create an account</h3>
-            <p>Sign up with your email so your profile and matches are saved for next time.</p>
-          </div>
-        </div>
-        <div class="step">
-          <span class="step-num">02</span>
-          <div class="step-body">
-            <h3>Fill out your profile</h3>
-            <p>GPA, budget, distance you're willing to go, test scores if you have them, and what you're hoping to study.</p>
-          </div>
-        </div>
-        <div class="step">
-          <span class="step-num">03</span>
-          <div class="step-body">
-            <h3>Get your matches</h3>
-            <p>See a ranked list of schools with estimated net price and a tip for improving your shot at each one.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="cta-row" style="margin-top:32px">
-        <a href="login.html" class="btn">Create your profile</a>
-      </div>
-    </section>
-
-  </div>
-</main>
-
-<footer class="home-footer">
-  <div class="wrap">
-    Built for the Congressional App Challenge, NJ-06. College cost figures are estimates for planning purposes — always confirm with a school's financial aid office.
-  </div>
-</footer>
-
-</body>
-</html>
+            <!-- HOW TO USE --> 
+            <section class="block"> 
+                <p class="eyebrow">How to use it</p> 
+                <h2>Three steps, about a minute</h2> 
+                <div class="steps"> 
+                    <div class="step"> 
+                        <span class="step-num">01</span> 
+                        <div class="step-body"> 
+                            <h3>Create an account</h3> 
+                            <p>Sign up with your email so your profile and matches are saved for next time.</p> 
+                        </div> 
+                    </div> 
+                    <div class="step"> 
+                        <span class="step-num">02</span> 
+                        <div class="step-body"> 
+                            <h3>Fill out your profile</h3> 
+                            <p>Enter your basic GPA, location choices, and estimated college budget needs.</p> 
+                        </div> 
+                    </div> 
+                    <div class="step"> 
+                        <span class="step-num">03</span> 
+                        <div class="step-body"> 
+                            <h3>Get your matches</h3> 
+                            <p>See your options ranked cleanly by cost transparency figures immediately.</p> 
+                        </div> 
+                    </div> 
+                </div> 
+                <div class="cta-row" style="margin-top:32px"> 
+                    <a href="login.html" class="btn">Create your profile</a> 
+                </div> 
+            </section> 
+        </div> 
+    </main> 
+    <footer class="home-footer"> 
+        <div class="wrap"> 

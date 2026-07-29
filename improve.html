@@ -1,94 +1,90 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CapItNJ — Improve Your Chances</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>CapItNJ — Improve Your Chances</title> 
+    <link rel="preconnect" href="https://fonts.googleapis.com"> 
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="style.css"> 
+</head> 
+<body> 
+    <header class="nav"> 
+        <div class="nav-inner"> 
+            <a href="index.html" class="wordmark">CapItNJ</a> 
+            <div class="nav-links"> 
+                <a href="index.html">Home</a> 
+                <a href="improve.html" class="active">Improve</a> 
+                <a href="explore.html">Explore</a> 
+                <a href="matches.html">Matches</a> 
+                <a href="mylist.html">My List</a> 
+                <a href="profile.html">Profile</a> 
+            </div> 
+        </div> 
+    </header> 
+    <main> 
+        <div class="wrap"> 
+            <p class="eyebrow">Improve your chances</p> 
+            <h1>What actually moves the needle</h1> 
+            <p class="subtitle" id="greeting">General guidance — not specific to any one school, but useful for almost every application.</p> 
+            
+            <div class="improve-grid"> 
+                <section class="improve-card"> 
+                    <span class="improve-tag">Academics &amp; testing</span> 
+                    <ul> 
+                        <li>Colleges weigh trend more than any single grade — an upward GPA trajectory junior→senior year reads well even if freshman year was rough.</li> 
+                        <li>If your GPA is below a school's average, look into applying test-optional, or submit a strong score if it's above their average.</li> 
+                        <li>Retaking the SAT/ACT once, with real prep in between, is usually worth it if your first score was a practice-level attempt.</li> 
+                        <li>Talk to your counselor about which AP/Honors courses actually strengthen your application vs. which just add stress.</li> 
+                    </ul> 
+                </section> 
+                <section class="improve-card"> 
+                    <span class="improve-tag">Essays &amp; applications</span> 
+                    <ul> 
+                        <li>Specific beats impressive. A small, honest story about one real moment usually reads better than a resume of achievements.</li> 
+                        <li>Write your first draft without worrying about the word count — cut it down after, don't self-censor while writing.</li> 
+                        <li>Have one teacher and one non-teacher (parent, mentor, friend) read your essay — you want both perspectives.</li> 
+                        <li>Answer supplemental "why us" essays with details specific to that school — generic answers are easy for admissions to spot.</li> 
+                    </ul> 
+                </section> 
+                <section class="improve-card"> 
+                    <span class="improve-tag">Financial aid &amp; scholarships</span> 
+                    <ul> 
+                        <li>File the FAFSA as early as possible after it opens — some aid is first-come, first-served.</li> 
+                        <li>Private colleges often require the CSS Profile in addition to the FAFSA — check each school's requirements early.</li> 
+                        <li>Local scholarships (your school, town, a parent's employer) have far less competition than national ones — apply to those first.</li> 
+                        <li>Appeal a financial aid offer if your situation changes or another school offered more — many schools will reconsider.</li> 
+                    </ul> 
+                </section> 
+                <section class="improve-card"> 
+                    <span class="improve-tag">Extracurriculars &amp; fit</span> 
+                    <ul> 
+                        <li>Depth beats breadth — colleges would rather see two years of real commitment than one line on ten different clubs.</li> 
+                        <li>Leadership doesn't have to mean "president of something" — starting a small initiative or running one, even informally, counts.</li> 
+                        <li>If you work a part-time job or have family responsibilities, say so — colleges read that as real-world time management, not a gap.</li> 
+                        <li>Apply to a genuine mix of reach, match, and safety schools — CapItNJ's fit score is a starting point, not a guarantee.</li> 
+                    </ul> 
+                </section> 
+            </div> 
+            <div class="improve-note"> 
+                This is general guidance, not personalized advice for your specific situation — for anything about your individual chances, talk to your school counselor. 
+            </div> 
+        </div> 
+    </main> 
 
-<header class="nav">
-  <div class="nav-inner">
-    <a href="index.html" class="wordmark">CapItNJ</a>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="explore.html">Explore</a>
-      <a href="profile.html">Profile</a>
-      <a href="matches.html">Matches</a>
-      <a href="improve.html" class="active">Improve</a>
-      <button id="logout-btn">Log out</button>
-    </div>
-  </div>
-</header>
+    <!-- Connects seamlessly using your modular framework -->
+    <script type="module" src="firebase-init.js"></script> 
+    <script type="module"> 
+        if (!window.capitnjFirebase?.ready) { 
+            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true })); 
+        } 
+        const firebase = await window.capitnjFirebase.ready; 
+        const { requireAuth } = firebase; 
 
-<main>
-  <div class="wrap">
-    <p class="eyebrow">Improve your chances</p>
-    <h1>What actually moves the needle</h1>
-    <p class="subtitle" id="greeting">General guidance — not specific to any one school, but useful for almost every application.</p>
-
-    <div class="improve-grid">
-
-      <section class="improve-card">
-        <span class="improve-tag">Academics &amp; testing</span>
-        <ul>
-          <li>Colleges weigh trend more than any single grade — an upward GPA trajectory junior→senior year reads well even if freshman year was rough.</li>
-          <li>If your GPA is below a school's average, look into applying test-optional, or submit a strong score if it's above their average.</li>
-          <li>Retaking the SAT/ACT once, with real prep in between, is usually worth it if your first score was a practice-level attempt.</li>
-          <li>Talk to your counselor about which AP/Honors courses actually strengthen your application vs. which just add stress.</li>
-        </ul>
-      </section>
-
-      <section class="improve-card">
-        <span class="improve-tag">Essays &amp; applications</span>
-        <ul>
-          <li>Specific beats impressive. A small, honest story about one real moment usually reads better than a resume of achievements.</li>
-          <li>Write your first draft without worrying about the word count — cut it down after, don't self-censor while writing.</li>
-          <li>Have one teacher and one non-teacher (parent, mentor, friend) read your essay — you want both perspectives.</li>
-          <li>Answer supplemental "why us" essays with details specific to that school — generic answers are easy for admissions to spot.</li>
-        </ul>
-      </section>
-
-      <section class="improve-card">
-        <span class="improve-tag">Financial aid &amp; scholarships</span>
-        <ul>
-          <li>File the FAFSA as early as possible after it opens — some aid is first-come, first-served.</li>
-          <li>Private colleges often require the CSS Profile in addition to the FAFSA — check each school's requirements early.</li>
-          <li>Local scholarships (your school, town, a parent's employer) have far less competition than national ones — apply to those first.</li>
-          <li>Appeal a financial aid offer if your situation changes or another school offered more — many schools will reconsider.</li>
-        </ul>
-      </section>
-
-      <section class="improve-card">
-        <span class="improve-tag">Extracurriculars &amp; fit</span>
-        <ul>
-          <li>Depth beats breadth — colleges would rather see two years of real commitment than one line on ten different clubs.</li>
-          <li>Leadership doesn't have to mean "president of something" — starting a small initiative or running one, even informally, counts.</li>
-          <li>If you work a part-time job or have family responsibilities, say so — colleges read that as real-world time management, not a gap.</li>
-          <li>Apply to a genuine mix of reach, match, and safety schools — CapItNJ's fit score is a starting point, not a guarantee.</li>
-        </ul>
-      </section>
-
-    </div>
-
-    <div class="improve-note">
-      This is general guidance, not personalized advice for your specific situation — for anything about your individual chances, talk to your school counselor.
-    </div>
-  </div>
-</main>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="firebase-init.js"></script>
-<script>
-  requireAuth((user) => {
-    document.getElementById('greeting').textContent = `Signed in as ${user.email} — general guidance, not specific to any one school.`;
-  });
-  document.getElementById('logout-btn').addEventListener('click', logOut);
-</script>
-</body>
+        requireAuth((user) => { 
+            const userGreetingName = user.displayName || sessionStorage.getItem("capitnj_name") || "Student";
+            document.getElementById('greeting').textContent = `Hi ${userGreetingName}, glad you're here. This is general guidance to help you and your parents plan your college path smoothly.`; 
+        }); 
+    </script> 
+</body> 
 </html>

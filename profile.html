@@ -1,135 +1,126 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CapItNJ — My Profile</title>
-    <link rel="stylesheet" href="style.css">
-    <script type="module" src="firebase-init.js"></script>
-</head>
-<body>
-    <header class="nav">
-        <div class="nav-inner">
-            <a href="index.html" class="wordmark">CapItNJ</a>
-            <nav class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="explore.html">Explore</a>
-                <a href="profile.html" class="active">Profile</a>
-                <a href="matches.html">Matches</a>
-                <a href="mylist.html">My List</a>
-                <a href="improve.html">Improve</a>
-                <button id="logout-btn" class="link-btn" style="display:none;">Log Out</button>
-            </nav>
-        </div>
-    </header>
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>CapItNJ — My Profile</title> 
+    <link rel="stylesheet" href="style.css"> 
+    <script type="module" src="firebase-init.js"></script> 
+</head> 
+<body> 
+    <header class="nav"> 
+        <div class="nav-inner"> 
+            <a href="index.html" class="wordmark">CapItNJ</a> 
+            <div class="nav-links"> 
+                <a href="index.html">Home</a> 
+                <a href="improve.html">Improve</a> 
+                <a href="explore.html">Explore</a> 
+                <a href="matches.html">Matches</a> 
+                <a href="mylist.html">My List</a> 
+                <a href="profile.html" class="active">Profile</a> 
+            </div> 
+        </div> 
+    </header> 
+    <main class="profile-shell"> 
+        <div class="profile-header"> 
+            <div> 
+                <h1>Your Profile</h1> 
+                <p class="profile-subtitle">Manage your account and college preferences in one place.</p> 
+            </div> 
+        </div> 
+        <div id="loading">Loading your profile data...</div> 
+        <div id="profile-content" class="profile-grid" style="display: none;"> 
+            <div class="profile-card"> 
+                <h2>Account Details</h2> 
+                <p><strong>Name:</strong> <span id="user-name">N/A</span></p> 
+                <p><strong>Email:</strong> <span id="user-email">N/A</span></p> 
+                <button id="logout-btn" class="btn" style="display:none; margin-top: 16px; background-color: #ef4444; color: white;">Log Out</button>
+            </div> 
+            <div class="profile-card"> 
+                <h2>College Preferences</h2> 
+                <form id="preferences-form" class="profile-form"> 
+                    <div class="field"> 
+                        <label for="max-tuition">Maximum Annual Tuition ($)</label> 
+                        <input type="number" id="max-tuition" placeholder="e.g., 20000"> 
+                    </div> 
+                    <div class="field"> 
+                        <label for="preferred-location">Preferred Location</label> 
+                        <select id="preferred-location"> 
+                            <option value="any">No Preference</option> 
+                            <option value="north-nj">North Jersey</option> 
+                            <option value="central-nj">Central Jersey</option> 
+                            <option value="south-nj">South Jersey</option> 
+                            <option value="out-of-state">Out of State</option> 
+                        </select> 
+                    </div> 
+                    <button type="submit" class="btn">Save Preferences</button> 
+                </form> 
+                <p id="status-message" class="status-msg"></p> 
+            </div> 
+        </div> 
+    </main> 
+    <script type="module"> 
+        if (!window.capitnjFirebase?.ready) { 
+            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true })); 
+        } 
+        const firebase = await window.capitnjFirebase.ready; 
+        const { requireAuth, logOut } = firebase; 
+        const { doc, getDoc, setDoc } = firebase.firestoreFns; 
+        const db = firebase.db; 
 
-    <main class="profile-shell">
-        <div class="profile-header">
-            <div>
-                <h1>Your Profile</h1>
-                <p class="profile-subtitle">Manage your account and college preferences in one place.</p>
-            </div>
-        </div>
+        const loadingEl = document.getElementById("loading"); 
+        const contentEl = document.getElementById("profile-content"); 
+        const logoutBtn = document.getElementById("logout-btn"); 
+        const nameEl = document.getElementById("user-name"); 
+        const emailEl = document.getElementById("user-email"); 
+        const tuitionInput = document.getElementById("max-tuition"); 
+        const locationSelect = document.getElementById("preferred-location"); 
+        const prefForm = document.getElementById("preferences-form"); 
+        const statusMsg = document.getElementById("status-message"); 
 
-        <div id="loading">Loading your profile data...</div>
+        logoutBtn.addEventListener("click", () => logOut()); 
 
-        <div id="profile-content" class="profile-grid" style="display: none;">
-            <div class="profile-card">
-                <h2>Account Details</h2>
-                <p><strong>Name:</strong> <span id="user-name">N/A</span></p>
-                <p><strong>Email:</strong> <span id="user-email">N/A</span></p>
-            </div>
+        requireAuth(async (user) => { 
+            loadingEl.style.display = "none"; 
+            contentEl.style.display = "block"; 
+            logoutBtn.style.display = "inline-block"; 
 
-            <div class="profile-card">
-                <h2>College Preferences</h2>
-                <form id="preferences-form" class="profile-form">
-                    <div class="field">
-                        <label for="max-tuition">Maximum Annual Tuition ($)</label>
-                        <input type="number" id="max-tuition" placeholder="e.g., 20000">
-                    </div>
+            // Check Firebase object, then local storage to make sure names display correctly
+            nameEl.textContent = user.displayName || sessionStorage.getItem("capitnj_name") || "Student"; 
+            emailEl.textContent = user.email; 
 
-                    <div class="field">
-                        <label for="preferred-location">Preferred Location</label>
-                        <select id="preferred-location">
-                            <option value="any">No Preference</option>
-                            <option value="north-nj">North Jersey</option>
-                            <option value="central-nj">Central Jersey</option>
-                            <option value="south-nj">South Jersey</option>
-                            <option value="out-of-state">Out of State</option>
-                        </select>
-                    </div>
+            const userDocRef = doc(db, "users", user.uid); 
+            try { 
+                const docSnap = await getDoc(userDocRef); 
+                if (docSnap.exists()) { 
+                    const data = docSnap.data(); 
+                    if (data.maxTuition) tuitionInput.value = data.maxTuition; 
+                    if (data.preferredLocation) locationSelect.value = data.preferredLocation; 
+                } 
+            } catch (error) { 
+                console.error("Error fetching profile document:", error); 
+            } 
 
-                    <button type="submit" class="btn">Save Preferences</button>
-                </form>
-                <p id="status-message" class="status-msg"></p>
-            </div>
-        </div>
-    </main>
-
-    <script type="module">
-        if (!window.capitnjFirebase?.ready) {
-            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
-        }
-
-        const firebase = await window.capitnjFirebase.ready;
-        const { requireAuth, logOut } = firebase;
-        const { doc, getDoc, setDoc } = firebase.firestoreFns;
-        const db = firebase.db;
-
-        const loadingEl = document.getElementById("loading");
-        const contentEl = document.getElementById("profile-content");
-        const logoutBtn = document.getElementById("logout-btn");
-        const nameEl = document.getElementById("user-name");
-        const emailEl = document.getElementById("user-email");
-        const tuitionInput = document.getElementById("max-tuition");
-        const locationSelect = document.getElementById("preferred-location");
-        const prefForm = document.getElementById("preferences-form");
-        const statusMsg = document.getElementById("status-message");
-
-        logoutBtn.addEventListener("click", () => logOut());
-
-        requireAuth(async (user) => {
-            loadingEl.style.display = "none";
-            contentEl.style.display = "block";
-            logoutBtn.style.display = "inline-block";
-            nameEl.textContent = user.displayName || "CapItNJ User";
-            emailEl.textContent = user.email;
-
-            const userDocRef = doc(db, "users", user.uid);
-
-            try {
-                const docSnap = await getDoc(userDocRef);
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    if (data.maxTuition) tuitionInput.value = data.maxTuition;
-                    if (data.preferredLocation) locationSelect.value = data.preferredLocation;
-                }
-            } catch (error) {
-                console.error("Error fetching profile document:", error);
-            }
-
-            prefForm.addEventListener("submit", async (event) => {
-                event.preventDefault();
-                statusMsg.textContent = "Saving...";
-                statusMsg.className = "status-msg";
-
-                try {
-                    await setDoc(userDocRef, {
-                        maxTuition: tuitionInput.value,
-                        preferredLocation: locationSelect.value,
-                        email: user.email,
-                        updatedAt: new Date().toISOString()
-                    }, { merge: true });
-
-                    statusMsg.textContent = "Preferences saved successfully!";
-                    statusMsg.className = "status-msg success";
-                } catch (error) {
-                    console.error("Error saving preferences:", error);
-                    statusMsg.textContent = "Failed to save preferences. Try again.";
-                    statusMsg.className = "status-msg error";
-                }
-            });
-        });
-    </script>
-</body>
+            prefForm.addEventListener("submit", async (event) => { 
+                event.preventDefault(); 
+                statusMsg.textContent = "Saving..."; 
+                statusMsg.className = "status-msg"; 
+                try { 
+                    await setDoc(userDocRef, { 
+                        maxTuition: tuitionInput.value, 
+                        preferredLocation: locationSelect.value, 
+                        email: user.email, 
+                        updatedAt: new Date().toISOString() 
+                    }, { merge: true }); 
+                    statusMsg.textContent = "Preferences saved successfully!"; 
+                    statusMsg.className = "status-msg success"; 
+                } catch (error) { 
+                    console.error("Error saving preferences:", error); 
+                    statusMsg.textContent = "Failed to save preferences. Try again."; 
+                    statusMsg.className = "status-msg error"; 
+                } 
+            }); 
+        }); 
+    </script> 
+</body> 
 </html>
