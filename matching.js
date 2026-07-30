@@ -5,7 +5,9 @@ const API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
 const profileForm = document.getElementById("preferences-form");
 
 if (profileForm) {
-  profileForm.addEventListener("submit", async function () {
+  profileForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
     const loader = document.getElementById("matching-loader");
     const saveBtn = document.getElementById("save-btn");
     if (loader) loader.style.display = "block";
