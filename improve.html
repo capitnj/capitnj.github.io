@@ -1,3 +1,8 @@
+Let's start with what I can do right now, then I'll need one more file from you.
+
+Here's the updated improve.html with a proper login gate instead of an automatic redirect. Replace your entire file with this:
+
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -99,6 +104,26 @@
         }
         .remove-x:hover { color: #B3413A; }
         .empty-mini { font-size: 13px; color: var(--ink-faint); padding: 8px 0; }
+
+        .login-gate {
+            text-align: center;
+            padding: 56px 24px;
+            border: 1px dashed var(--line);
+            border-radius: 10px;
+            background: var(--surface);
+            max-width: 440px;
+            margin: 24px auto 0;
+        }
+        .login-gate h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            margin: 0 0 10px;
+        }
+        .login-gate p {
+            color: var(--ink-soft);
+            font-size: 14px;
+            margin: 0 0 22px;
+        }
     </style>
 </head>
 <body>
@@ -138,7 +163,21 @@
         const { doc, getDoc, setDoc } = fb.firestoreFns;
         const db = fb.db;
 
-        fb.requireAuth(async (user) => {
+        fb.authFns.onAuthStateChanged(fb.auth, (user) => {
+            if (!user) {
+                container.innerHTML = `
+                    <div class="login-gate">
+                        <h2>Log in to get customized results!</h2>
+                        <p>Track your SAT/ACT scores, keep a to-do list, and stay on top of deadlines, all saved to your account.</p>
+                        <a href="login.html" class="btn">Sign up / Log in</a>
+                    </div>`;
+                return;
+            }
+            startImproveTools(user);
+        });
+
+        async function startImproveTools(user) {
+            const { doc, getDoc, setDoc } = fb.firestoreFns;
             const userDocRef = doc(db, "users", user.uid);
             let data = { sat: "", act: "", todos: [], reminders: [] };
 
@@ -315,7 +354,7 @@
             }
 
             render();
-        });
+        }
     </script>
 </body>
 </html>

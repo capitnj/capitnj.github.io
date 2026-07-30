@@ -7,6 +7,36 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .login-gate {
+            text-align: center;
+            padding: 56px 24px;
+            border: 1px dashed var(--line);
+            border-radius: 10px;
+            background: var(--surface);
+            max-width: 440px;
+            margin: 24px auto 0;
+        }
+        .login-gate h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            margin: 0 0 10px;
+        }
+        .login-gate p {
+            color: var(--ink-soft);
+            font-size: 14px;
+            margin: 0 0 22px;
+        }
+        .why-matched {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: var(--accent-bg);
+            color: var(--accent);
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+    </style>
 </head>
 <body>
     <header class="nav">
@@ -26,12 +56,14 @@
         <div class="wrap">
             <p class="eyebrow">Your matches</p>
             <h1>Ranked for you</h1>
-            <p class="subtitle">Based on the profile you saved — grouped by how they fit your budget, not just a single list.</p>
+            <p class="subtitle">Based on the profile you saved, grouped by how they fit your budget, not just a single list.</p>
 
-            <div id="no-profile" class="empty-state" style="display:none">
-                You haven't customized your budget preferences yet. <a href="profile.html" style="text-decoration:underline">Go to Profile</a> to set your tuition cap and location preference.
+            <div id="matches-content">
+                <div id="no-profile" class="empty-state" style="display:none">
+                    You haven't set your budget preferences yet. <a href="profile.html">Go to Profile</a> to set your tuition cap and location preference.
+                </div>
+                <div id="results-groups"></div>
             </div>
-            <div id="results-groups"></div>
         </div>
     </main>
 
@@ -42,11 +74,10 @@
             await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
         }
         const firebase = await window.capitnjFirebase.ready;
-        const { requireAuth } = firebase;
         const { doc, getDoc, setDoc } = firebase.firestoreFns;
         const db = firebase.db;
 
-        const FALLBACK_NET_PRICE = 22000; // single source of truth, used by both filter and card
+        const FALLBACK_NET_PRICE = 22000;
         let currentUser = null;
 
         function formatCurrency(num) {
@@ -57,7 +88,22 @@
             return name.replace(/[^a-zA-Z0-9]/g, '');
         }
 
-        requireAuth(async (user) => {
+        const mainWrap = document.querySelector('main .wrap');
+
+        firebase.authFns.onAuthStateChanged(firebase.auth, (user) => {
+            if (!user) {
+                document.getElementById('matches-content').innerHTML = `
+                    <div class="login-gate">
+                        <h2>Log in to get customized results!</h2>
+                        <p>Set your GPA, budget, and location preferences once, then see colleges ranked just for you.</p>
+                        <a href="login.html" class="btn">Sign up / Log in</a>
+                    </div>`;
+                return;
+            }
+            loadMatches(user);
+        });
+
+        async function loadMatches(user) {
             currentUser = user;
             const userDocRef = doc(db, "users", user.uid);
             let data = null;
@@ -81,68 +127,84 @@
                 const netPrice = c.netPrice || FALLBACK_NET_PRICE;
                 if (netPrice > maxBudget) return false;
 
-                // NJ preference variants (north/central/south) all map to the same
-                // 'NJ' state value in data.js today — there's no finer-grained region
-                // field yet, so all three currently behave identically.
                 if (preferredLoc === 'north-nj' || preferredLoc === 'central-nj' || preferredLoc === 'south-nj') {
                     if (c.state !== 'NJ') return false;
                 } else if (preferredLoc === 'out-of-state') {
                     if (c.state === 'NJ') return false;
                 }
-                // preferredLoc === 'any' → no location filtering
                 return true;
             });
 
             renderGroups(matchedColleges, maxBudget, preferredLoc);
-        });
+        }
 
-        function cardHtml(college, maxBudget) {
+        function locationPhrase(preferredLoc) {
+            if (preferredLoc === 'north-nj' || preferredLoc === 'central-nj' || preferredLoc === 'south-nj') {
+                return "it's in New Jersey, which matches what you're looking for";
+            }
+            if (preferredLoc === 'out-of-state') {
+                return "it's outside New Jersey, matching your preference to look elsewhere";
+            }
+            return "it fits the location range you're open to";
+        }
+
+        function whyMatchedText(college, maxBudget, preferredLoc) {
             const price = college.netPrice || FALLBACK_NET_PRICE;
-            const statusLabel = price <= maxBudget * 0.8 ? "✓ Safe Budget Choice" : "⚠ Near Your Limit";
-            const statusColor = price <= maxBudget * 0.8 ? "#10b981" : "#f59e0b";
+            const pctOfBudget = Math.round((price / maxBudget) * 100);
+            const budgetPhrase = pctOfBudget <= 80
+                ? `it runs well under your ${formatCurrency(maxBudget)} budget cap (about ${pctOfBudget}% of it)`
+                : `it fits inside your ${formatCurrency(maxBudget)} budget cap, though it's close to the limit`;
+            return `Matched because ${budgetPhrase}, and ${locationPhrase(preferredLoc)}.`;
+        }
+
+        function cardHtml(college, maxBudget, preferredLoc) {
+            const price = college.netPrice || FALLBACK_NET_PRICE;
+            const statusLabel = price <= maxBudget * 0.8 ? "Safe budget choice" : "Near your limit";
+            const statusColor = price <= maxBudget * 0.8 ? "#1d7a4f" : "#b8791a";
             const uid = sanitizeId(college.name);
 
             return `
-                <div class="result-card" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px; background: white;">
+                <div class="result-card" style="border: 1px solid var(--line); border-radius: 8px; padding: 20px; margin-bottom: 16px; background: var(--bg);">
                     <div class="result-top" style="display: flex; justify-content: space-between; align-items: flex-start;">
                         <div>
-                            <div class="result-name" style="font-weight: 600; font-size: 18px; color: #111;">${college.name}</div>
-                            <div class="result-meta" style="color: #666; font-size: 13px; margin-top: 4px;">
+                            <div class="result-name" style="font-weight: 600; font-size: 18px; color: var(--ink);">${college.name}</div>
+                            <div class="result-meta" style="color: var(--ink-soft); font-size: 13px; margin-top: 4px;">
                                 ${college.type} · ${college.setting} · ${college.state}, ${college.country}
                             </div>
                         </div>
                         <div style="text-align:right">
-                            <div class="result-price-label" style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 500;">Est. cost / yr</div>
-                            <div class="result-price" style="font-size: 20px; font-weight: 700; color: #111; margin-top: 2px;">${formatCurrency(price)}</div>
+                            <div class="result-price-label" style="font-size: 11px; text-transform: uppercase; color: var(--ink-faint); font-weight: 500;">Est. cost / yr</div>
+                            <div class="result-price" style="font-size: 20px; font-weight: 700; color: var(--ink); margin-top: 2px;">${formatCurrency(price)}</div>
                         </div>
                     </div>
-                    <div class="result-tip" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #e2e8f0; font-size: 14px; color: ${statusColor}; font-weight: 500;">
-                        ${statusLabel} — Estimated costs fit inside your parameters. Keep tabs on local scholarship updates in your Improve tab!
+                    <div class="result-tip" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 14px; color: ${statusColor}; font-weight: 500;">
+                        ${statusLabel}. Estimated costs fit inside your parameters, keep an eye on local scholarship updates in your Improve tab.
                     </div>
-                    <div style="margin-top: 15px; padding: 12px; background: #fafafa; border-radius: 6px; border: 1px dashed #ddd; display: flex; flex-direction: column; gap: 10px;">
+                    <div class="why-matched">${whyMatchedText(college, maxBudget, preferredLoc)}</div>
+                    <div style="margin-top: 15px; padding: 12px; background: var(--surface); border-radius: 6px; border: 1px dashed var(--line); display: flex; flex-direction: column; gap: 10px;">
                         <div style="display: flex; gap: 10px; align-items: center;">
-                            <label style="font-size: 13px; font-weight: 500; color: #111;">Rank Priority:</label>
-                            <select id="rank-${uid}" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
-                                <option value="Top Choice">🥇 Top Choice / #1 Pick</option>
-                                <option value="Target School" selected>🥈 Strong Target</option>
-                                <option value="Safety Backup">🥉 Safety Backup</option>
+                            <label style="font-size: 13px; font-weight: 500; color: var(--ink);">Rank Priority:</label>
+                            <select id="rank-${uid}" style="padding: 4px; border-radius: 4px; border: 1px solid var(--line); font-size: 13px;">
+                                <option value="Top Choice">Top Choice / #1 Pick</option>
+                                <option value="Considering" selected>Considering</option>
+                                <option value="Safety Backup">Safety Backup</option>
                             </select>
                         </div>
-                        <textarea id="notes-${uid}" placeholder="Add your research notes (e.g. Spoke to counselor, requires extra essays)" style="width: 100%; min-height: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
-                        <button class="btn-save-match" data-uid="${uid}" data-name="${encodeURIComponent(college.name)}" data-state="${college.state}" style="background: #111; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; align-self: flex-start;">✨ Save to My List</button>
+                        <textarea id="notes-${uid}" placeholder="Add your research notes (e.g. spoke to counselor, requires extra essays)" style="width: 100%; min-height: 50px; padding: 8px; border: 1px solid var(--line); border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
+                        <button class="btn-save-match" data-uid="${uid}" data-name="${encodeURIComponent(college.name)}" data-state="${college.state}" style="background: var(--accent); color: #fff; border: none; padding: 8px 12px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; align-self: flex-start;">Save to My List</button>
                     </div>
                 </div>
             `;
         }
 
-        function sectionHtml(title, subtitle, items, maxBudget) {
+        function sectionHtml(title, subtitle, items, maxBudget, preferredLoc) {
             if (items.length === 0) return '';
-            const cards = items.map((c) => cardHtml(c, maxBudget)).join('');
+            const cards = items.map((c) => cardHtml(c, maxBudget, preferredLoc)).join('');
             return `
                 <section class="result-section" style="margin-bottom: 40px;">
                     <div class="result-section-head" style="margin-bottom: 16px;">
-                        <h2 style="font-family: 'Fraunces', serif; font-size: 24px; color: #111;">${title}</h2>
-                        <p style="color: #666; font-size: 14px; margin-top: 2px;">${subtitle}</p>
+                        <h2 style="font-family: 'Fraunces', serif; font-size: 24px; color: var(--ink);">${title}</h2>
+                        <p style="color: var(--ink-soft); font-size: 14px; margin-top: 2px;">${subtitle}</p>
                     </div>
                     ${cards}
                 </section>
@@ -162,7 +224,7 @@
 
         async function saveCollegeToList(collegeName, state, uid) {
             if (!currentUser) {
-                alert("Please sign in first to save colleges to your dashboard list!");
+                alert("Please sign in first to save colleges to your dashboard list.");
                 return;
             }
 
@@ -178,7 +240,7 @@
                     notes: noteContent,
                     timestamp: new Date().toISOString()
                 });
-                alert(`🎉 Successfully saved ${collegeName} to your list!`);
+                alert(`Saved ${collegeName} to your list.`);
             } catch (err) {
                 console.error("Cloud storage sync failed:", err);
                 alert("Failed to save college data. Make sure you are signed in.");
@@ -190,7 +252,7 @@
             wrap.innerHTML = '';
 
             if (colleges.length === 0) {
-                wrap.innerHTML = `<div class="empty-state" style="padding: 40px; text-align: center; color: #666;">No schools match your budget threshold currently — try widening your tuition cap on your Profile page.</div>`;
+                wrap.innerHTML = `<div class="empty-state" style="padding: 40px; text-align: center; color: var(--ink-soft);">No schools match your budget threshold currently, try widening your tuition cap on your Profile page.</div>`;
                 return;
             }
 
@@ -204,11 +266,11 @@
             const international = colleges.filter(c => !isUS(c.country));
 
             let html = '';
-            html += sectionHtml('Near Home', 'Colleges close by inside New Jersey state bounds.', nearHome, maxBudget);
-            html += sectionHtml('Outside NJ', 'Options located across other US states.', outsideNJ, maxBudget);
-            html += sectionHtml('Out of Country', 'International paths that expand your options.', international, maxBudget);
+            html += sectionHtml('Near Home', 'Colleges close by, inside New Jersey.', nearHome, maxBudget, preferredLoc);
+            html += sectionHtml('Outside NJ', 'Options located across other US states.', outsideNJ, maxBudget, preferredLoc);
+            html += sectionHtml('Out of Country', 'International paths that expand your options.', international, maxBudget, preferredLoc);
 
-            wrap.innerHTML = html || `<div class="empty-state" style="padding: 40px; text-align: center; color: #666;">No schools match your exact criteria. Try adjusting your preferences.</div>`;
+            wrap.innerHTML = html || `<div class="empty-state" style="padding: 40px; text-align: center; color: var(--ink-soft);">No schools match your exact criteria. Try adjusting your preferences.</div>`;
             attachSaveHandlers();
         }
     </script>

@@ -20,6 +20,17 @@
             align-items: flex-start;
             gap: 12px;
         }
+        .saved-card-name-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .saved-card-name-row input[type="checkbox"] {
+            width: 17px;
+            height: 17px;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
         .saved-card-name {
             font-family: 'Fraunces', serif;
             font-size: 19px;
@@ -79,6 +90,98 @@
             margin-top: 4px;
             min-height: 14px;
         }
+
+        .compare-bar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+        .compare-bar p {
+            font-size: 13px;
+            color: var(--ink-soft);
+            margin: 0;
+        }
+        .compare-bar button {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .compare-bar button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .compare-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .compare-modal-inner {
+            background: #fff;
+            border-radius: 10px;
+            padding: 28px;
+            max-width: 720px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .compare-close {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: var(--ink-faint);
+        }
+        .compare-modal-inner h2 {
+            font-family: 'Fraunces', serif;
+            margin: 0 0 18px;
+            font-size: 22px;
+        }
+        table.compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        table.compare-table th, table.compare-table td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--line);
+            vertical-align: top;
+        }
+        table.compare-table th {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            font-weight: 600;
+        }
+        table.compare-table td.college-name-cell {
+            font-weight: 600;
+            font-family: 'Fraunces', serif;
+            font-size: 15px;
+        }
     </style>
 </head>
 <body>
@@ -107,13 +210,22 @@
         </div>
     </main>
 
+    <div id="compare-modal" class="compare-modal">
+        <div class="compare-modal-inner">
+            <button id="compare-close" class="compare-close">&times;</button>
+            <div id="compare-content">Loading…</div>
+        </div>
+    </div>
+
     <script type="module" src="firebase-init.js"></script>
     <script type="module">
+        const SCORECARD_API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
+
         if (!window.capitnjFirebase?.ready) {
             await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
         }
         const fb = await window.capitnjFirebase.ready;
-        const { doc, getDoc, collection, getDocs, deleteDoc, setDoc, query, orderBy } = fb.firestoreFns;
+        const { doc, getDoc, collection, getDocs, deleteDoc, setDoc } = fb.firestoreFns;
         const db = fb.db;
 
         const containerEl = document.getElementById("myListContainer");
@@ -123,6 +235,9 @@
             "Considering": { bg: "var(--accent-bg)", text: "var(--accent)" }
         };
 
+        let selectedNames = new Set();
+        let allColleges = [];
+
         fb.requireAuth(async (user) => {
             const savedCollegesRef = collection(db, "users", user.uid, "savedColleges");
 
@@ -131,6 +246,7 @@
                     const snap = await getDocs(savedCollegesRef);
                     const colleges = [];
                     snap.forEach(d => colleges.push({ id: d.id, ...d.data() }));
+                    allColleges = colleges;
 
                     if (colleges.length === 0) {
                         containerEl.innerHTML = `
@@ -142,15 +258,24 @@
                         return;
                     }
 
-                    containerEl.innerHTML = colleges.map(c => {
+                    const compareBarHtml = `
+                        <div class="compare-bar">
+                            <p id="compare-count-text">Select 2 or 3 colleges to compare them side by side.</p>
+                            <button id="compare-btn" disabled>Compare selected</button>
+                        </div>`;
+
+                    const cardsHtml = colleges.map(c => {
                         const colors = PRIORITY_COLORS[c.priority] || PRIORITY_COLORS["Considering"];
                         return `
                         <div class="saved-card" data-id="${c.id}">
                             <div class="saved-card-top">
-                                <div>
-                                    <span class="priority-badge" style="background:${colors.bg}; color:${colors.text};">${c.priority || "Considering"}</span>
-                                    <h3 class="saved-card-name">${c.name}</h3>
-                                    <p class="saved-card-meta">${c.state || ''}${c.rate && c.rate !== 'N/A' ? ' · Acceptance rate: ' + c.rate : ''}</p>
+                                <div class="saved-card-name-row">
+                                    <input type="checkbox" class="compare-checkbox" data-name="${encodeURIComponent(c.name)}">
+                                    <div>
+                                        <span class="priority-badge" style="background:${colors.bg}; color:${colors.text};">${c.priority || "Considering"}</span>
+                                        <h3 class="saved-card-name">${c.name}</h3>
+                                        <p class="saved-card-meta">${c.state || ''}${c.rate && c.rate !== 'N/A' ? ' · Acceptance rate: ' + c.rate : ''}</p>
+                                    </div>
                                 </div>
                                 <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
                                     <select class="priority-select" data-id="${c.id}">
@@ -169,6 +294,8 @@
                         </div>
                     `;
                     }).join('');
+
+                    containerEl.innerHTML = compareBarHtml + cardsHtml;
 
                     containerEl.querySelectorAll(".remove-btn").forEach(button => {
                         button.addEventListener("click", async (e) => {
@@ -215,6 +342,32 @@
                         });
                     });
 
+                    selectedNames = new Set();
+                    const compareBtn = document.getElementById("compare-btn");
+                    const compareCountText = document.getElementById("compare-count-text");
+
+                    containerEl.querySelectorAll(".compare-checkbox").forEach(checkbox => {
+                        checkbox.addEventListener("change", (e) => {
+                            const name = decodeURIComponent(e.target.getAttribute("data-name"));
+                            if (e.target.checked) {
+                                if (selectedNames.size >= 3) {
+                                    e.target.checked = false;
+                                    compareCountText.textContent = "You can compare up to 3 colleges at once.";
+                                    return;
+                                }
+                                selectedNames.add(name);
+                            } else {
+                                selectedNames.delete(name);
+                            }
+                            compareBtn.disabled = selectedNames.size < 2;
+                            compareCountText.textContent = selectedNames.size < 2
+                                ? "Select 2 or 3 colleges to compare them side by side."
+                                : `${selectedNames.size} selected. Ready to compare.`;
+                        });
+                    });
+
+                    compareBtn.addEventListener("click", () => openCompareModal(Array.from(selectedNames)));
+
                 } catch (error) {
                     console.error("Error loading saved colleges:", error);
                     containerEl.innerHTML = `<p style="color: #B3413A;">Couldn't load your list right now.</p>`;
@@ -222,6 +375,65 @@
             }
 
             loadAndRender();
+        });
+
+        async function fetchScorecardData(name) {
+            try {
+                const fields = "school.name,latest.cost.net_price.overall.overall,latest.admissions.admission_rate.overall,latest.admissions.sat_scores.average.overall";
+                const url = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${SCORECARD_API_KEY}&school.name=${encodeURIComponent(name)}&_fields=${fields}&_per_page=10`;
+                const res = await fetch(url);
+                const data = await res.json();
+                const candidates = data.results || [];
+                const result = candidates.find(r => r["school.name"].toLowerCase() === name.toLowerCase()) || candidates[0];
+                if (!result) return null;
+                return {
+                    netPrice: result["latest.cost.net_price.overall.overall"],
+                    admitRate: result["latest.admissions.admission_rate.overall"],
+                    satAvg: result["latest.admissions.sat_scores.average.overall"]
+                };
+            } catch (err) {
+                console.error("Scorecard lookup failed for", name, err);
+                return null;
+            }
+        }
+
+        async function openCompareModal(names) {
+            const modal = document.getElementById("compare-modal");
+            const content = document.getElementById("compare-content");
+            modal.style.display = "flex";
+            content.innerHTML = `<h2>Comparing ${names.length} colleges</h2><p>Loading live data…</p>`;
+
+            const results = await Promise.all(names.map(async (name) => {
+                const stats = await fetchScorecardData(name);
+                return { name, stats };
+            }));
+
+            const rows = [
+                { label: "Avg net price", get: (r) => r.stats && r.stats.netPrice ? "$" + Math.round(r.stats.netPrice).toLocaleString() : "N/A" },
+                { label: "Admission rate", get: (r) => r.stats && r.stats.admitRate ? Math.round(r.stats.admitRate * 100) + "%" : "N/A" },
+                { label: "Avg SAT", get: (r) => r.stats && r.stats.satAvg ? r.stats.satAvg : "N/A" }
+            ];
+
+            content.innerHTML = `
+                <h2>Comparing ${results.length} colleges</h2>
+                <table class="compare-table">
+                    <tr>
+                        <th></th>
+                        ${results.map(r => `<td class="college-name-cell">${r.name}</td>`).join('')}
+                    </tr>
+                    ${rows.map(row => `
+                        <tr>
+                            <th>${row.label}</th>
+                            ${results.map(r => `<td>${row.get(r)}</td>`).join('')}
+                        </tr>
+                    `).join('')}
+                </table>
+                <p style="font-size:12px; color: var(--ink-faint); margin-top:16px;">Data pulled live from the U.S. Department of Education's College Scorecard. Schools outside the U.S. may not have data available.</p>
+            `;
+        }
+
+        document.getElementById("compare-close").addEventListener("click", () => {
+            document.getElementById("compare-modal").style.display = "none";
         });
     </script>
 </body>
