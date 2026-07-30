@@ -99,32 +99,7 @@
         }
         .remove-x:hover { color: #B3413A; }
         .empty-mini { font-size: 13px; color: var(--ink-faint); padding: 8px 0; }
-.privacy-note {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    background: var(--accent-bg);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: 14px 16px;
-    margin: 20px 0 0;
-}
-.privacy-note svg {
-    width: 18px;
-    height: 18px;
-    stroke: var(--accent);
-    fill: none;
-    stroke-width: 1.8;
-    flex-shrink: 0;
-    margin-top: 1px;
-}
-.privacy-note p {
-    margin: 0;
-    font-size: 12.5px;
-    color: var(--accent);
-    line-height: 1.5;
-}
-.privacy-note strong { color: var(--ink); }
+
         .login-gate {
             text-align: center;
             padding: 56px 24px;
@@ -166,29 +141,13 @@
             <h1>Stay on track</h1>
             <p class="subtitle">Track your scores, your to-dos, and your deadlines in one place.</p>
 
-<div class="privacy-note reveal">
-    <svg viewBox="0 0 24 24"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
-    <p><strong>Your data stays private.</strong> Nothing you enter here is shared or sold — only you can see your scores, to-dos, and profile.</p>
-</div>
-
             <div id="improve-container">
                 <p style="color: var(--ink-faint); font-family: 'IBM Plex Mono', monospace;">Loading…</p>
             </div>
         </div>
     </main>
 
-     <script type="module" src="firebase-init.js"></script>
-    <script>
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    revealObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.15 });
-        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
-    </script>
+    <script type="module" src="firebase-init.js"></script>
     <script type="module">
         const container = document.getElementById("improve-container");
 
@@ -240,8 +199,8 @@
 
             function render() {
                 container.innerHTML = `
-    <div class="improve-grid">
-        <div class="improve-card tracker-card reveal">
+                    <div class="improve-grid">
+                        <div class="improve-card tracker-card">
                             <h2>SAT / ACT scores</h2>
                             <div class="score-row">
                                 <div class="score-field">
@@ -260,7 +219,7 @@
                         </div>
 
                         <div class="improve-card">
-                            <h2>Deadlines & reminders</h2>
+                            <h2>To-do list</h2>
                             <div class="add-row">
                                 <input type="text" id="todo-input" placeholder="e.g. Draft the Common App essay">
                                 <button id="add-todo-btn">Add</button>
