@@ -20,7 +20,12 @@ import {
   doc,
   getDoc,
   setDoc,
-  deleteDoc
+  deleteDoc,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -88,7 +93,7 @@ async function initializeFirebase() {
     reauthenticateWithCredential
   };
 
-  const firestoreFns = { doc, getDoc, setDoc, deleteDoc };
+  const firestoreFns = { doc, getDoc, setDoc, deleteDoc, collection, addDoc, getDocs, query, orderBy };
 
   firebaseState.app = app;
   firebaseState.auth = auth;
