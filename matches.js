@@ -6,7 +6,6 @@ function renderLiveCards() {
 
   if (!container) return;
 
-  // Fallback state if a user visits this page without executing a profile check first
   if (!rawData || JSON.parse(rawData).length === 0) {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa;">
@@ -16,64 +15,47 @@ function renderLiveCards() {
     return;
   }
 
-  // Grabbing user input variables from storage to calculate badges on the fly
   const matches = JSON.parse(rawData);
   const userGPA = parseFloat(localStorage.getItem("userGpa") || 3.0);
-  const userIncome = localStorage.getItem("userIncomeTier") || "mid";
-  container.innerHTML = ""; 
+  container.innerHTML = "";
 
-  // Loop through every single entry matching your criteria from the US government database
   matches.forEach(college => {
     const name = college["school.name"];
     const state = college["school.state"];
     const ownership = college["school.ownership"] === 1 ? "Public University" : "Private University";
-    
-    // Convert 0.15 acceptance rate math into "15%" visually
-    const rate = college["latest.admissions.admission_rate.overall"] 
-      ? Math.round(college["latest.admissions.admission_rate.overall"] * 100) + "%" 
+
+    const rate = college["latest.admissions.admission_rate.overall"]
+      ? Math.round(college["latest.admissions.admission_rate.overall"] * 100) + "%"
       : "Open Enrollment / High Acceptance";
 
-    // 1. Geography Prioritization Badges
     let geoBadgeText = "Out of State";
-    let geoBadgeBg = "#f1f5f9"; // Neutral slate grey tint
+    let geoBadgeBg = "#f1f5f9";
     let geoTextColor = "#475569";
 
     if (state === "NJ") {
       geoBadgeText = "Local / In-State";
-      geoBadgeBg = "#e0f2fe"; // Light cyan sky tint
+      geoBadgeBg = "#e0f2fe";
       geoTextColor = "#0369a1";
     }
 
-    // 2. Safety / Target / Reach based on GPA
     let categoryBadgeText = "Target Fit";
-    let categoryBadgeColor = "#fff3cd"; // Warm amber tint
+    let categoryBadgeColor = "#fff3cd";
     let categoryTextColor = "#856404";
 
     if (userGPA >= 3.8) {
       categoryBadgeText = "Safety Option";
-      categoryBadgeColor = "#d4edda"; // Soft green tint
+      categoryBadgeColor = "#d4edda";
       categoryTextColor = "#155724";
     } else if (userGPA < 3.2) {
       categoryBadgeText = "Reach Goal";
-      categoryBadgeColor = "#f8d7da"; // Light crimson tint
+      categoryBadgeColor = "#f8d7da";
       categoryTextColor = "#721c24";
     }
 
-    // 2. Calculate if they qualify for NJ Specific Grants
-    let aidBonusHtml = "";
-    if (state === "NJ" && userIncome === "low") {
-      aidBonusHtml = `
-        <div style="margin-top: 12px; background: #eef9f0; border: 1px solid #c3e6cb; border-radius: 4px; padding: 10px; font-size: 13px; color: #155724; display: flex; align-items: center; gap: 8px;">
-          <span>💡</span>
-          <span><strong>NJ Aid Match:</strong> You likely qualify for extra state funding through the <strong>NJ TAG Grant</strong> or <strong>EOF Program</strong> at this institution!</span>
-        </div>
-      `;
-    }
-
     const card = document.createElement("div");
-    card.className = "college-card"; 
+    card.className = "college-card";
     card.style = "background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea; box-shadow: 0 2px 4px rgba(0,0,0,0.015); margin-bottom: 16px;";
-    
+
     card.innerHTML = `
       <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
         <div>
@@ -88,10 +70,7 @@ function renderLiveCards() {
       </div>
       <hr style="border: 0; border-top: 1px solid #f5f5f5; margin: 12px 0;">
       <p style="margin: 4px 0; font-size: 14px; color: #333;">🎯 <strong>Admissions Acceptance Rate:</strong> ${rate}</p>
-      
-      ${aidBonusHtml}
 
-      <!-- "My List" Saving Actions Overlay Container -->
       <div style="margin-top: 15px; padding: 12px; background: #fafafa; border-radius: 6px; border: 1px dashed #ddd; display: flex; flex-direction: column; gap: 10px;">
         <div style="display: flex; gap: 10px; align-items: center;">
           <label style="font-size: 13px; font-weight: 500; color: #111;">Rank Priority:</label>
@@ -109,26 +88,32 @@ function renderLiveCards() {
   });
 }
 
-// Function to push a college entry and its custom notes up to the cloud list
 async function saveCollegeToList(collegeName, location, acceptanceRate, uniqueId) {
-  const rankSelection = document.getElementById(`rank-${uniqueId}`).value;
-  const noteContent = document.getElementById(`notes-${uniqueId}`).value;
+  if (!window.capitnjFirebase?.ready) {
+    await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
+  }
+  const firebase = await window.capitnjFirebase.ready;
+  const auth = firebase.auth;
+  const db = firebase.db;
+  const { doc, setDoc } = firebase.firestoreFns;
 
-  if (!firebase.auth().currentUser) {
-    alert("Please sign in or save your user profile settings first to back up files to your dashboard list!");
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Please sign in first to save colleges to your dashboard list!");
     return;
   }
 
-  const userId = firebase.auth().currentUser.uid;
+  const rankSelection = document.getElementById(`rank-${uniqueId}`).value;
+  const noteContent = document.getElementById(`notes-${uniqueId}`).value;
 
   try {
-    await db.collection('users').doc(userId).collection('savedColleges').doc(uniqueId).set({
+    await setDoc(doc(db, "users", user.uid, "savedColleges", uniqueId), {
       name: collegeName,
       state: location,
       rate: acceptanceRate,
       priority: rankSelection,
       notes: noteContent,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+      timestamp: new Date().toISOString()
     });
 
     alert(`🎉 Successfully saved ${collegeName} to your list!`);

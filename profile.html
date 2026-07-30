@@ -109,7 +109,8 @@
                         <input type="text" id="intended-major" placeholder="e.g., Computer Science" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;">
                     </div>
 
-                    <button type="submit" class="btn" style="width: 100%; padding: 12px; font-weight: 600; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Save Preferences</button>
+                    <button type="submit" id="save-btn" class="btn" style="width: 100%; padding: 12px; font-weight: 600; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Save Preferences</button>
+                    <div id="matching-loader" style="display:none; font-size:13px; color:#666; margin-top:8px; text-align:center;">Finding your matches…</div>
                 </form>
                 <p id="status-message" class="status-msg"></p>
             </div>
@@ -430,5 +431,6 @@
             });
         });
     </script>
+    <script src="matching.js"></script>
 </body>
 </html>

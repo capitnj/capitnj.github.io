@@ -1,82 +1,55 @@
-// matching.js - Real-Time Federal Update Integration
+// matching.js - College Scorecard live matching
 
-// Your verified government api.data.gov access key
-const API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg"; 
+const API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
 
-// Using your exact HTML ID "profile-form"
-const profileForm = document.getElementById("profile-form");
+const profileForm = document.getElementById("preferences-form");
 
 if (profileForm) {
-  profileForm.addEventListener("submit", async function (e) {
-        e.preventDefault();
-    document.getElementById("matching-loader").style.display = "block";
-    document.getElementById("save-btn").textContent = "Analyzing Fits...";
-    // We let Firebase finish saving the profile data first, then handle matching
-    
-    // 1. Grab values using your exact HTML form IDs
-    const userGPA = parseFloat(document.getElementById("gpa").value);
-    const userIncome = document.getElementById("budget").value; // 'low', 'mid', or 'high'
-    const userDistance = document.getElementById("distance").value; // 'local', 'regional', etc.
-    const userCollegeType = document.getElementById("college-type").value; // 'public', 'private', 'either'
+  profileForm.addEventListener("submit", async function () {
+    const loader = document.getElementById("matching-loader");
+    const saveBtn = document.getElementById("save-btn");
+    if (loader) loader.style.display = "block";
+    if (saveBtn) saveBtn.textContent = "Analyzing Fits...";
 
-    // 2. Map your 'budget' dropdown values directly to official federal update brackets
-    let incomeCostField = "latest.cost.net_price.public.by_income_level.0-30000"; 
-    let budgetCap = 15000;
+    const userGPA = parseFloat(document.getElementById("gpa").value) || 3.0;
+    const budgetCap = parseFloat(document.getElementById("max-tuition").value) || 999999;
+    const userLocation = document.getElementById("preferred-location").value; // any, north-nj, central-nj, south-nj, out-of-state
+    const userCollegeType = document.getElementById("school-type").value; // public, private, any
 
-    if (userIncome === "mid") {
-      incomeCostField = "latest.cost.net_price.public.by_income_level.48001-75000";
-      budgetCap = 30000;
-    } else if (userIncome === "high") {
-      incomeCostField = "latest.cost.net_price.public.by_income_level.110001plus";
-      budgetCap = 999999; // Unlimited budget
-    }
+    const netPriceField = "latest.cost.net_price.overall.overall";
+    let governmentApiUrl = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${API_KEY}&_fields=id,school.name,school.state,school.ownership,latest.admissions.admission_rate.overall,${netPriceField}&_sort=${netPriceField}&_per_page=100`;
 
-    // 3. Build the government database API URL
-    // Pulls Name, State, Admission Rate, and the custom Net Price bracket data fields
-     let governmentApiUrl = `https://data.gov{API_KEY}&_fields=id,school.name,school.state,school.ownership,latest.admissions.admission_rate.overall,${incomeCostField}&_sort=${incomeCostField}&_per_page=100`;
-    // Local filter optimization: if they choose 'local', prioritize NJ colleges instantly
-    if (userDistance === "local") {
+    if (userLocation === "north-nj" || userLocation === "central-nj" || userLocation === "south-nj") {
       governmentApiUrl += "&school.state=NJ";
     }
 
     try {
-      console.log("Fetching live data packages from federal servers...");
       const response = await fetch(governmentApiUrl);
+      if (!response.ok) throw new Error(`Scorecard API returned ${response.status}`);
       const resultData = await response.json();
-      const liveCollegesList = resultData.results;
+      const liveCollegesList = resultData.results || [];
 
-      // 4. Run your algorithm filtration process over live data rows
       const matchedResults = liveCollegesList.filter(college => {
-        const liveNetPrice = college[incomeCostField];
+        const liveNetPrice = college[netPriceField];
         const liveAdmissionRate = college["latest.admissions.admission_rate.overall"];
         const ownershipType = college["school.ownership"]; // 1 = Public, 2 = Private Non-Profit
 
-        // Budget constraint rule check
         if (liveNetPrice && liveNetPrice > budgetCap) return false;
-
-        // Academic safety check using live admission selectiveness 
-        // Skips ultra-selective schools if GPA is below 3.0
         if (userGPA < 3.0 && liveAdmissionRate && liveAdmissionRate < 0.20) return false;
-
-        // Public vs Private preferences calibration
         if (userCollegeType === "public" && ownershipType !== 1) return false;
         if (userCollegeType === "private" && ownershipType !== 2) return false;
 
         return true;
       });
 
-      // 5. Cache the filtered database match structure into browser memory
       localStorage.setItem("userShortlist", JSON.stringify(matchedResults));
-       localStorage.setItem("userGpa", userGPA);
-      localStorage.setItem("userIncomeTier", userIncome);
-      
-      // Delays redirect slightly so Firebase code block can finish syncing simultaneously
-      setTimeout(() => {
-        window.location.href = "matches.html";
-      }, 800);
+      localStorage.setItem("userGpa", userGPA);
 
     } catch (err) {
-      console.error("Failed to sync with real-time federal statistics:", err);
+      console.error("Failed to sync with federal college data:", err);
+    } finally {
+      if (loader) loader.style.display = "none";
+      if (saveBtn) saveBtn.textContent = "Save Preferences";
     }
   });
 }
