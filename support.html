@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support — CapItNJ</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .support-section {
+            max-width: 640px;
+            margin: 0 auto;
+            padding: 48px 0 80px;
+        }
+        .support-card {
+            background: var(--accent-bg);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 36px;
+        }
+        .support-card h1 {
+            margin: 6px 0 8px;
+        }
+        .support-sub {
+            color: var(--accent);
+            margin: 0 0 28px;
+            font-size: 15px;
+        }
+        .support-form {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .support-label {
+            font-size: 13px;
+            color: var(--accent);
+            margin-top: 14px;
+        }
+        .support-input,
+        .support-textarea {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: var(--ink);
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            resize: vertical;
+        }
+        .support-input:focus,
+        .support-textarea:focus {
+            outline: none;
+            border-color: var(--ink);
+        }
+        .support-button {
+            margin-top: 22px;
+            align-self: flex-start;
+        }
+        @media (max-width: 480px) {
+            .support-card { padding: 22px; }
+            .support-button { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <header class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="wordmark">CapItNJ</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="improve.html">Improve</a>
+                <a href="explore.html">Explore</a>
+                <a href="matches.html">Matches</a>
+                <a href="mylist.html">My List</a>
+                <a href="profile.html">Profile</a>
+                <a href="Support.html" class="active">Support</a>
+                <a href="login.html" id="nav-login-btn">Log in</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="wrap">
+            <section class="support-section">
+                <p class="eyebrow">Support</p>
+                <div class="support-card">
+                    <h1>Have feedback? Drop it here.</h1>
+                    <p class="support-sub">You'll typically get a response within 48 hours.</p>
+
+                    <form class="support-form" id="supportForm">
+                        <label for="supportEmail" class="support-label">Your email</label>
+                        <input type="email" id="supportEmail" class="support-input" placeholder="you@example.com" required />
+
+                        <label for="supportMessage" class="support-label">Your feedback</label>
+                        <textarea id="supportMessage" class="support-textarea" placeholder="Tell us what's on your mind — bugs, ideas, anything." rows="4" required></textarea>
+
+                        <button type="submit" class="btn support-button">Send feedback</button>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+    <footer class="home-footer">
+        <div class="wrap">
+            <p>CapItNJ, built for the Congressional App Challenge, NJ-06.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById("supportForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            var senderEmail = document.getElementById("supportEmail").value.trim();
+            var message = document.getElementById("supportMessage").value.trim();
+
+            var subject = "CapItNJ Feedback";
+            var body = "From: " + senderEmail + "\n\n" + message;
+
+            var mailtoLink =
+                "mailto:support.CapitNJ@gmail.com" +
+                "?subject=" + encodeURIComponent(subject) +
+                "&body=" + encodeURIComponent(body);
+
+            window.location.href = mailtoLink;
+        });
+    </script>
+</body>
+</html>
