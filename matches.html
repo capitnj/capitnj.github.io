@@ -88,6 +88,12 @@
             return name.replace(/[^a-zA-Z0-9]/g, '');
         }
 
+        function isUS(country) {
+            if (!country) return true;
+            const c = country.trim().toLowerCase();
+            return c === 'us' || c === 'usa' || c === 'united states' || c === 'united states of america';
+        }
+
         const mainWrap = document.querySelector('main .wrap');
 
         firebase.authFns.onAuthStateChanged(firebase.auth, (user) => {
@@ -121,43 +127,34 @@
             }
 
             const maxBudget = parseFloat(data.maxTuition) || 999999;
-            const preferredLoc = data.preferredLocation || 'any';
 
+            // Budget is the only hard filter now — location no longer excludes
+            // whole categories, so Near Home / Outside NJ / Out of Country can
+            // all show up together.
             const matchedColleges = (window.COLLEGES || []).filter(c => {
                 const netPrice = c.netPrice || FALLBACK_NET_PRICE;
-                if (netPrice > maxBudget) return false;
-
-                if (preferredLoc === 'north-nj' || preferredLoc === 'central-nj' || preferredLoc === 'south-nj') {
-                    if (c.state !== 'NJ') return false;
-                } else if (preferredLoc === 'out-of-state') {
-                    if (c.state === 'NJ') return false;
-                }
-                return true;
+                return netPrice <= maxBudget;
             });
 
-            renderGroups(matchedColleges, maxBudget, preferredLoc);
+            renderGroups(matchedColleges, maxBudget);
         }
 
-        function locationPhrase(preferredLoc) {
-            if (preferredLoc === 'north-nj' || preferredLoc === 'central-nj' || preferredLoc === 'south-nj') {
-                return "it's in New Jersey, which matches what you're looking for";
-            }
-            if (preferredLoc === 'out-of-state') {
-                return "it's outside New Jersey, matching your preference to look elsewhere";
-            }
-            return "it fits the location range you're open to";
+        function locationPhrase(college) {
+            if (college.state === 'NJ') return "it's close to home, right here in New Jersey";
+            if (isUS(college.country)) return "it's a solid option outside New Jersey";
+            return "it's an international option that broadens your search";
         }
 
-        function whyMatchedText(college, maxBudget, preferredLoc) {
+        function whyMatchedText(college, maxBudget) {
             const price = college.netPrice || FALLBACK_NET_PRICE;
             const pctOfBudget = Math.round((price / maxBudget) * 100);
             const budgetPhrase = pctOfBudget <= 80
                 ? `it runs well under your ${formatCurrency(maxBudget)} budget cap (about ${pctOfBudget}% of it)`
                 : `it fits inside your ${formatCurrency(maxBudget)} budget cap, though it's close to the limit`;
-            return `Matched because ${budgetPhrase}, and ${locationPhrase(preferredLoc)}.`;
+            return `Matched because ${budgetPhrase}, and ${locationPhrase(college)}.`;
         }
 
-        function cardHtml(college, maxBudget, preferredLoc) {
+        function cardHtml(college, maxBudget) {
             const price = college.netPrice || FALLBACK_NET_PRICE;
             const statusLabel = price <= maxBudget * 0.8 ? "Safe budget choice" : "Near your limit";
             const statusColor = price <= maxBudget * 0.8 ? "#1d7a4f" : "#b8791a";
@@ -180,7 +177,7 @@
                     <div class="result-tip" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 14px; color: ${statusColor}; font-weight: 500;">
                         ${statusLabel}. Estimated costs fit inside your parameters, keep an eye on local scholarship updates in your Improve tab.
                     </div>
-                    <div class="why-matched">${whyMatchedText(college, maxBudget, preferredLoc)}</div>
+                    <div class="why-matched">${whyMatchedText(college, maxBudget)}</div>
                     <div style="margin-top: 15px; padding: 12px; background: var(--surface); border-radius: 6px; border: 1px dashed var(--line); display: flex; flex-direction: column; gap: 10px;">
                         <div style="display: flex; gap: 10px; align-items: center;">
                             <label style="font-size: 13px; font-weight: 500; color: var(--ink);">Rank Priority:</label>
@@ -197,9 +194,9 @@
             `;
         }
 
-        function sectionHtml(title, subtitle, items, maxBudget, preferredLoc) {
+        function sectionHtml(title, subtitle, items, maxBudget) {
             if (items.length === 0) return '';
-            const cards = items.map((c) => cardHtml(c, maxBudget, preferredLoc)).join('');
+            const cards = items.map((c) => cardHtml(c, maxBudget)).join('');
             return `
                 <section class="result-section" style="margin-bottom: 40px;">
                     <div class="result-section-head" style="margin-bottom: 16px;">
@@ -247,7 +244,7 @@
             }
         }
 
-        function renderGroups(colleges, maxBudget, preferredLoc) {
+        function renderGroups(colleges, maxBudget) {
             const wrap = document.getElementById('results-groups');
             wrap.innerHTML = '';
 
@@ -256,19 +253,14 @@
                 return;
             }
 
-            function isUS(country) {
-                if (!country) return true;
-                const c = country.trim().toLowerCase();
-                return c === 'us' || c === 'usa' || c === 'united states' || c === 'united states of america';
-            }
             const nearHome = colleges.filter(c => c.state === 'NJ');
             const outsideNJ = colleges.filter(c => c.state !== 'NJ' && isUS(c.country));
             const international = colleges.filter(c => !isUS(c.country));
 
             let html = '';
-            html += sectionHtml('Near Home', 'Colleges close by, inside New Jersey.', nearHome, maxBudget, preferredLoc);
-            html += sectionHtml('Outside NJ', 'Options located across other US states.', outsideNJ, maxBudget, preferredLoc);
-            html += sectionHtml('Out of Country', 'International paths that expand your options.', international, maxBudget, preferredLoc);
+            html += sectionHtml('Near Home', 'Colleges close by, inside New Jersey.', nearHome, maxBudget);
+            html += sectionHtml('Outside NJ', 'Options located across other US states.', outsideNJ, maxBudget);
+            html += sectionHtml('Out of Country', 'International paths that expand your options.', international, maxBudget);
 
             wrap.innerHTML = html || `<div class="empty-state" style="padding: 40px; text-align: center; color: var(--ink-soft);">No schools match your exact criteria. Try adjusting your preferences.</div>`;
             attachSaveHandlers();
