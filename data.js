@@ -1,4 +1,4 @@
-/ CapItNJ Global Database Loader
+// CapItNJ Global Database Loader
 // Loads real university data from the open Hipo university-domains-list dataset,
 // covering thousands of US schools plus international options.
 
