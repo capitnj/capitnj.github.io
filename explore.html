@@ -112,154 +112,167 @@
 
     <script src="data.js"></script>
     <script type="module" src="firebase-init.js"></script>
-    <script type="module">
-        const SCORECARD_API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
-        const REGION_LABEL = { local: "Near home", regional: "Nearby state", far: "Elsewhere in US", international: "Out of country" };
-        const collegeByName = {};
-        let currentUser = null;
+    const SCORECARD_API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
 
-        // Wait for firebase-init.js to finish setting up, then track login state
-        (async () => {
-            if (!window.capitnjFirebase?.ready) {
-                await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
-            }
-            const fb = await window.capitnjFirebase.ready;
-            fb.authFns.onAuthStateChanged(fb.auth, (user) => {
-                currentUser = user;
-            });
-        })();
+        if (!window.capitnjFirebase?.ready) { 
+            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true })); 
+        } 
+        const firebase = await window.capitnjFirebase.ready; 
+        const { requireAuth } = firebase; 
+        const { doc, getDoc } = firebase.firestoreFns; 
+        const db = firebase.db; 
 
-        function render() {
-            const q = document.getElementById('search').value.trim().toLowerCase();
-            const region = document.getElementById('filter-region').value;
-            const type = document.getElementById('filter-type').value;
-
-            const dataPool = window.COLLEGES || [];
-
-            const filtered = dataPool.filter((c) => {
-                const matchesQuery = !q || c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q) || c.country.toLowerCase().includes(q);
-                const matchesRegion = region === 'all' || c.distanceTier === region;
-                const matchesType = type === 'all' || c.type.toLowerCase() === type;
-                return matchesQuery && matchesRegion && matchesType;
-            });
-
-            document.getElementById('result-count').textContent = `${filtered.length} school${filtered.length === 1 ? '' : 's'}`;
-            const list = document.getElementById('explore-list');
-
-            list.innerHTML = filtered.slice(0, 150).map((c) => {
-                collegeByName[c.name] = c;
-                const key = encodeURIComponent(c.name);
-                return `
-                <div class="explore-row">
-                    <div>
-                        <div class="explore-row-name">${c.name}</div>
-                        <div class="explore-row-meta">${c.type} · ${c.setting} · ${c.state}, ${c.country}</div>
-                    </div>
-                    <div class="explore-row-actions">
-                        <div class="explore-row-tag">${REGION_LABEL[c.distanceTier] || "Global Option"}</div>
-                        <button class="btn-details" data-key="${key}">Details</button>
-                        <button class="btn-save" data-key="${key}">Save</button>
-                    </div>
-                </div>
-            `;
-            }).join('') || `<div class="empty-state">No schools match those filters.</div>`;
-
-            if (filtered.length > 150) {
-                document.getElementById('result-count').textContent += ` (showing first 150 — narrow your search to see more)`;
-            }
-
-            list.querySelectorAll('.btn-details').forEach(btn => {
-                btn.addEventListener('click', () => showDetails(btn.getAttribute('data-key')));
-            });
-            list.querySelectorAll('.btn-save').forEach(btn => {
-                btn.addEventListener('click', () => saveCollege(btn.getAttribute('data-key')));
-            });
+        function formatCurrency(num) {
+            return '$' + Number(num).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
         }
 
-        async function showDetails(key) {
-            const name = decodeURIComponent(key);
-            const college = collegeByName[name];
-            const modal = document.getElementById('details-modal');
-            const content = document.getElementById('details-content');
-            modal.style.display = 'flex';
-            content.innerHTML = `<h2>${college.name}</h2><p>Loading details…</p>`;
+        function isUS(country) {
+            if (!country) return true;
+            const c = country.trim().toLowerCase();
+            return c === 'us' || c === 'usa' || c === 'united states' || c === 'united states of america';
+        }
 
-            if (college.country !== "United States") {
-                content.innerHTML = `
-                    <h2>${college.name}</h2>
-                    <p>${college.setting} · ${college.state}, ${college.country}</p>
-                    <p>Detailed tuition and test-score data is only available for U.S. schools right now.</p>`;
-                return;
+        requireAuth(async (user) => { 
+            const userDocRef = doc(db, "users", user.uid); 
+            let data = null;
+            
+            try {
+                const docSnap = await getDoc(userDocRef);
+                data = docSnap.exists() ? docSnap.data() : null;
+            } catch (error) {
+                console.error("Error reading matches database profile:", error);
             }
 
+            if (!data || !data.maxTuition) { 
+                document.getElementById('no-profile').style.display = 'block'; 
+                return; 
+            } 
+
+            const maxBudget = parseFloat(data.maxTuition) || 999999;
+            const preferredLoc = data.preferredLocation || 'any';
+
+            const matchedColleges = COLLEGES.filter(c => {
+                const netPrice = c.netPrice || 25000; 
+                if (netPrice > maxBudget) return false;
+
+                if (preferredLoc !== 'any') {
+                    if (preferredLoc === 'north-nj' && c.state === 'NJ') return true;
+                    if (preferredLoc === 'central-nj' && c.state === 'NJ') return true;
+                    if (preferredLoc === 'south-nj' && c.state === 'NJ') return true;
+                    if (preferredLoc === 'out-of-state' && c.state === 'NJ') return false;
+                }
+                return true;
+            });
+
+            renderGroups(matchedColleges, maxBudget, preferredLoc); 
+            fetchRealCosts(matchedColleges, maxBudget);
+        }); 
+
+        function cardHtml(college, maxBudget) { 
+            const key = encodeURIComponent(college.name);
+            const placeholder = college.netPrice || 22000;
+            const isUSSchool = isUS(college.country);
+
+            return ` 
+                <div class="result-card" style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 16px; background: white;"> 
+                    <div class="result-top" style="display: flex; justify-content: space-between; align-items: flex-start;"> 
+                        <div> 
+                            <div class="result-name" style="font-weight: 600; font-size: 18px; color: #111;">${college.name}</div> 
+                            <div class="result-meta" style="color: #666; font-size: 13px; margin-top: 4px;">
+                                ${college.type} · ${college.setting} · ${college.state}, ${college.country}
+                            </div> 
+                        </div> 
+                        <div style="text-align:right"> 
+                            <div class="result-price-label" style="font-size: 11px; text-transform: uppercase; color: #888; font-weight: 500;">Est. cost / yr</div> 
+                            <div class="result-price" id="price-${key}" style="font-size: 20px; font-weight: 700; color: #111; margin-top: 2px;">${isUSSchool ? "…" : formatCurrency(placeholder)}</div> 
+                        </div> 
+                    </div> 
+                    <div class="result-tip" id="tip-${key}" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #e2e8f0; font-size: 14px; color: #888; font-weight: 500;">
+                        ${isUSSchool ? "Fetching real cost data from College Scorecard…" : "⚠ Estimated — official cost data isn't available for international schools yet."}
+                    </div> 
+                </div> 
+            `; 
+        } 
+
+        function sectionHtml(title, subtitle, items, maxBudget) { 
+            if (items.length === 0) return ''; 
+            const cards = items.map((c) => cardHtml(c, maxBudget)).join(''); 
+            return ` 
+                <section class="result-section" style="margin-bottom: 40px;"> 
+                    <div class="result-section-head" style="margin-bottom: 16px;"> 
+                        <h2 style="font-family: 'Fraunces', serif; font-size: 24px; color: #111;">${title}</h2> 
+                        <p style="color: #666; font-size: 14px; margin-top: 2px;">${subtitle}</p> 
+                    </div> 
+                    ${cards} 
+                </section> 
+            `; 
+        } 
+
+        function renderGroups(colleges, maxBudget, preferredLoc) { 
+            const wrap = document.getElementById('results-groups'); 
+            wrap.innerHTML = ''; 
+
+            if (colleges.length === 0) { 
+                wrap.innerHTML = `<div class="empty-state" style="padding: 40px; text-align: center; color: #666;">No schools match your budget threshold currently — try widening your tuition cap on your Profile page.</div>`; 
+                return; 
+            } 
+
+            const nearHome = colleges.filter(c => c.state === 'NJ');
+            const outsideNJ = colleges.filter(c => c.state !== 'NJ' && isUS(c.country));
+            const international = colleges.filter(c => !isUS(c.country));
+
+            let html = ''; 
+            html += sectionHtml('Near Home', 'Colleges close by inside New Jersey state bounds.', nearHome, maxBudget); 
+            html += sectionHtml('Outside NJ', 'Options located across other US states.', outsideNJ, maxBudget); 
+            html += sectionHtml('Out of Country', 'International paths that expand your options.', international, maxBudget); 
+            
+            wrap.innerHTML = html || `<div class="empty-state" style="padding: 40px; text-align: center; color: #666;">No schools match your exact criteria. Try adjusting your preferences.</div>`; 
+        } 
+
+        async function fetchRealCost(college, maxBudget) {
+            const key = encodeURIComponent(college.name);
+            const priceEl = document.getElementById(`price-${key}`);
+            const tipEl = document.getElementById(`tip-${key}`);
+            if (!priceEl || !tipEl) return;
+
             try {
-                const fields = "school.name,latest.cost.net_price.overall.overall,latest.admissions.admission_rate.overall,latest.admissions.sat_scores.average.overall";
-                const url = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${SCORECARD_API_KEY}&school.name=${encodeURIComponent(college.name)}&_fields=${fields}&_per_page=1`;
+                const fields = "school.name,latest.cost.net_price.overall.overall";
+                const url = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${SCORECARD_API_KEY}&school.name=${encodeURIComponent(college.name)}&_fields=${fields}&_per_page=5`;
                 const res = await fetch(url);
                 const data = await res.json();
-                const result = data.results && data.results[0];
+                const result = (data.results || []).find(r =>
+                    r["school.name"] && r["school.name"].toLowerCase() === college.name.toLowerCase()
+                ) || (data.results || [])[0];
 
-                if (!result) {
-                    content.innerHTML = `<h2>${college.name}</h2><p>No federal data found for this school.</p>`;
+                const netPrice = result && result["latest.cost.net_price.overall.overall"];
+
+                if (!netPrice) {
+                    priceEl.textContent = "N/A";
+                    tipEl.textContent = "⚠ No federal cost data found for this school — check their site directly.";
+                    tipEl.style.color = "#888";
                     return;
                 }
 
-                const netPrice = result["latest.cost.net_price.overall.overall"];
-                const admitRate = result["latest.admissions.admission_rate.overall"];
-                const satAvg = result["latest.admissions.sat_scores.average.overall"];
-
-                content.innerHTML = `
-                    <h2>${college.name}</h2>
-                    <p><strong>Avg net price:</strong> ${netPrice ? "$" + Math.round(netPrice).toLocaleString() : "N/A"}</p>
-                    <p><strong>Admission rate:</strong> ${admitRate ? Math.round(admitRate * 100) + "%" : "N/A"}</p>
-                    <p><strong>Avg SAT:</strong> ${satAvg || "N/A"}</p>`;
+                priceEl.textContent = formatCurrency(netPrice);
+                const safe = netPrice <= maxBudget * 0.8;
+                const withinBudget = netPrice <= maxBudget;
+                tipEl.style.color = safe ? "#10b981" : (withinBudget ? "#f59e0b" : "#dc2626");
+                tipEl.textContent = safe
+                    ? "✓ Safe Budget Choice — Estimated costs fit comfortably inside your parameters."
+                    : withinBudget
+                        ? "⚠ Near Your Limit — Estimated costs fit inside your parameters. Keep tabs on local scholarship updates in your Improve tab!"
+                        : "✗ Over Your Budget — real net price exceeds your tuition cap.";
             } catch (err) {
-                console.error("Scorecard lookup failed:", err);
-                content.innerHTML = `<h2>${college.name}</h2><p>Couldn't load details right now.</p>`;
+                console.error(`Scorecard lookup failed for ${college.name}:`, err);
+                priceEl.textContent = "N/A";
+                tipEl.textContent = "Couldn't load cost data right now.";
             }
         }
 
-        document.getElementById('details-close').addEventListener('click', () => {
-            document.getElementById('details-modal').style.display = 'none';
-        });
-
-        async function saveCollege(key) {
-            const name = decodeURIComponent(key);
-            const college = collegeByName[name];
-
-            if (!currentUser) {
-                if (confirm(`Sign in to save ${college.name} to My List. Go to the login page now?`)) {
-                    window.location.href = "login.html";
-                }
-                return;
-            }
-
-            const fb = await window.capitnjFirebase.ready;
-            const { collection, addDoc } = fb.firestoreFns;
-
-            try {
-                await addDoc(collection(fb.db, "users", currentUser.uid, "savedColleges"), {
-                    name: college.name,
-                    state: college.state,
-                    rate: "N/A",
-                    priority: "Considering",
-                    notes: ""
-                });
-                alert(`${college.name} saved to My List!`);
-            } catch (err) {
-                console.error("Error saving college:", err);
-                alert("Couldn't save this college — try again.");
-            }
+        function fetchRealCosts(colleges, maxBudget) {
+            colleges
+                .filter(c => isUS(c.country))
+                .forEach(c => fetchRealCost(c, maxBudget));
         }
-
-        document.getElementById('search').addEventListener('input', render);
-        document.getElementById('filter-region').addEventListener('change', render);
-        document.getElementById('filter-type').addEventListener('change', render);
-
-        window.addEventListener('database-ready', render);
-        if (window.COLLEGES && window.COLLEGES.length > 0) {
-            render();
-        }
-    </script>
 </body>
 </html>
