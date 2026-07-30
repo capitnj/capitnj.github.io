@@ -38,11 +38,29 @@ async function loadGlobalCollegeDatabase() {
                          nameLower.includes("drew university") ||
                          nameLower.includes("william paterson");
 
-            return {
-                name: school.name,
-                type: nameLower.includes("university") ? "University" : "College",
-                setting: isNJ ? "Suburban" : "Urban",
-                state: isNJ ? "NJ" : (isUS ? "US" : "INTL"),
+             // Define clean fallbacks so out-of-state matches do not crash or glitch out
+    let stateValue = "NJ";
+    if (!isNJ) {
+        const apiState = school["state-province"] || "";
+        stateValue = isUS ? (apiState || "OOS") : "INTL";
+    }
+
+    // Lower the default artificial prices so financial sliders do not filter out options
+    let estimatedNetPrice = 16500; 
+    if (!isNJ) {
+        estimatedNetPrice = isUS ? 22000 : 25000; 
+    }
+
+    return {
+        name: school.name,
+        type: nameLower.includes("university") ? "University" : "College",
+        setting: isNJ ? "Suburban" : "Urban",
+        state: stateValue,
+        country: school.country,
+        webPage: (school.web_pages && school.web_pages[0]) || "",
+        netPrice: estimatedNetPrice,
+        distanceTier: isNJ ? "local" : (isUS ? "far" : "international")
+    };
                 country: school.country,
                 webPage: (school.web_pages && school.web_pages[0]) || "",
                 netPrice: isNJ ? 16500 : (isUS ? 24000 : 31000), // placeholder estimate until real cost data is added
