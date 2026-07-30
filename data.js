@@ -1,6 +1,5 @@
 // CapItNJ Global Database Loader
-// Loads real university data from the open Hipo university-domains-list dataset,
-// covering thousands of US schools plus international options.
+// Loads real university data from the open Hipo university-domains-list dataset.
 
 window.COLLEGES = [];
 
@@ -13,8 +12,12 @@ const CURATED_INTERNATIONAL = [
 
 async function loadGlobalCollegeDatabase() {
     try {
-        const response = await fetch('https://cdn.jsdelivr.net/gh/Hipo/university-domains-list/world_universities_and_domains.json');
+        const response = await fetch(
+            "https://cdn.jsdelivr.net/gh/Hipo/university-domains-list/world_universities_and_domains.json"
+        );
+
         if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
+
         const allSchools = await response.json();
 
         const usSchools = allSchools.filter(s => s.country === "United States");
@@ -22,62 +25,84 @@ async function loadGlobalCollegeDatabase() {
 
         const combined = [...usSchools, ...intlSchools];
 
-        window.COLLEGES = combined.map(school => {
-            const isUS = school.country === "United States";
+        window.COLLEGES = combined.map((school, index) => {
             const nameLower = school.name.toLowerCase();
-            const isNJ = school["state-province"] === "New Jersey" ||
-                         nameLower.includes("new jersey") ||
-                         nameLower.includes("rutgers") ||
-                         nameLower.includes("princeton") ||
-                         nameLower.includes("rowan") ||
-                         nameLower.includes("kean") ||
-                         nameLower.includes("montclair") ||
-                         nameLower.includes("njit") ||
-                         nameLower.includes("stockton") ||
-                         nameLower.includes("seton hall") ||
-                         nameLower.includes("drew university") ||
-                         nameLower.includes("william paterson");
+            const isUS = school.country === "United States";
 
-             // Define clean fallbacks so out-of-state matches do not crash or glitch out
-    let stateValue = "NJ";
-    if (!isNJ) {
-        const apiState = school["state-province"] || "";
-        stateValue = isUS ? (apiState || "OOS") : "INTL";
-    }
+            const isNJ =
+                school["state-province"] === "New Jersey" ||
+                nameLower.includes("new jersey") ||
+                nameLower.includes("rutgers") ||
+                nameLower.includes("princeton") ||
+                nameLower.includes("rowan") ||
+                nameLower.includes("kean") ||
+                nameLower.includes("montclair") ||
+                nameLower.includes("njit") ||
+                nameLower.includes("stockton") ||
+                nameLower.includes("seton hall") ||
+                nameLower.includes("drew university") ||
+                nameLower.includes("william paterson");
 
-    // Lower the default artificial prices so financial sliders do not filter out options
-    let estimatedNetPrice = 16500; 
-    if (!isNJ) {
-        estimatedNetPrice = isUS ? 22000 : 25000; 
-    }
+            let stateValue = "NJ";
+            if (!isNJ) {
+                const apiState = school["state-province"] || "";
+                stateValue = isUS ? (apiState || "OOS") : "INTL";
+            }
 
-    return {
-        name: school.name,
-        type: nameLower.includes("university") ? "University" : "College",
-        setting: isNJ ? "Suburban" : "Urban",
-        state: stateValue,
-        country: school.country,
-        webPage: (school.web_pages && school.web_pages[0]) || "",
-        netPrice: estimatedNetPrice,
-        distanceTier: isNJ ? "local" : (isUS ? "far" : "international")
-    };
+            let estimatedNetPrice = isNJ ? 16500 : (isUS ? 24000 : 31000);
+
+            return {
+                id: `school_${index}`, // REQUIRED for Details + Save buttons
+                name: school.name,
+                type: nameLower.includes("university") ? "University" : "College",
+                setting: isNJ ? "Suburban" : "Urban",
+                state: stateValue,
                 country: school.country,
                 webPage: (school.web_pages && school.web_pages[0]) || "",
-                netPrice: isNJ ? 16500 : (isUS ? 24000 : 31000), // placeholder estimate until real cost data is added
+                netPrice: estimatedNetPrice,
                 distanceTier: isNJ ? "local" : (isUS ? "far" : "international")
             };
         });
 
-        window.dispatchEvent(new CustomEvent('database-ready'));
+        window.dispatchEvent(new CustomEvent("database-ready"));
         console.log(`Database initialized. Loaded ${window.COLLEGES.length} institutions.`);
     } catch (error) {
         console.error("Database loading failed:", error);
+
         window.COLLEGES = [
-            { name: "Rutgers University - New Brunswick", type: "Public", setting: "Suburban", state: "NJ", country: "United States", netPrice: 17500, distanceTier: "local" },
-            { name: "Princeton University", type: "Private", setting: "Suburban", state: "NJ", country: "United States", netPrice: 12000, distanceTier: "local" },
-            { name: "New Jersey Institute of Technology (NJIT)", type: "Public", setting: "Urban", state: "NJ", country: "United States", netPrice: 16000, distanceTier: "local" }
+            {
+                id: "rutgers_nb",
+                name: "Rutgers University - New Brunswick",
+                type: "Public",
+                setting: "Suburban",
+                state: "NJ",
+                country: "United States",
+                netPrice: 17500,
+                distanceTier: "local"
+            },
+            {
+                id: "princeton",
+                name: "Princeton University",
+                type: "Private",
+                setting: "Suburban",
+                state: "NJ",
+                country: "United States",
+                netPrice: 12000,
+                distanceTier: "local"
+            },
+            {
+                id: "njit",
+                name: "New Jersey Institute of Technology (NJIT)",
+                type: "Public",
+                setting: "Urban",
+                state: "NJ",
+                country: "United States",
+                netPrice: 16000,
+                distanceTier: "local"
+            }
         ];
-        window.dispatchEvent(new CustomEvent('database-ready'));
+
+        window.dispatchEvent(new CustomEvent("database-ready"));
     }
 }
 
