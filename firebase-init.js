@@ -1,4 +1,3 @@
-// Firebase project: CapItNJ
 // This file initializes Firebase once and exposes the shared instances globally.
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -9,13 +8,19 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
   updateProfile,
+  updateEmail,
+  updatePassword,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore,
   doc,
   getDoc,
-  setDoc
+  setDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -75,10 +80,15 @@ async function initializeFirebase() {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     sendPasswordResetEmail,
-    updateProfile
+    updateProfile,
+    updateEmail,
+    updatePassword,
+    deleteUser,
+    EmailAuthProvider,
+    reauthenticateWithCredential
   };
 
-  const firestoreFns = { doc, getDoc, setDoc };
+  const firestoreFns = { doc, getDoc, setDoc, deleteDoc };
 
   firebaseState.app = app;
   firebaseState.auth = auth;
