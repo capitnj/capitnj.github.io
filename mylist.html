@@ -1,44 +1,228 @@
-<!DOCTYPE html> 
-<html lang="en"> 
-<head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>CapItNJ — My List</title> 
-    <link rel="preconnect" href="https://fonts.googleapis.com"> 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet"> 
-    <link rel="stylesheet" href="style.css"> 
-</head> 
-<body> 
-    <header class="nav"> 
-        <div class="nav-inner"> 
-            <a href="index.html" class="wordmark">CapItNJ</a> 
-            <div class="nav-links"> 
-                <a href="index.html">Home</a> 
-                <a href="improve.html">Improve</a> 
-                <a href="explore.html">Explore</a> 
-                <a href="matches.html">Matches</a> 
-                <a href="mylist.html" class="active">My List</a> 
-                <a href="profile.html">Profile</a> 
-            </div> 
-        </div> 
-    </header> 
-    <main> 
-        <div class="wrap"> 
-            <p class="eyebrow">Dashboard Tracker</p> 
-            <h1>My Shortlisted Colleges</h1> 
-            <p class="subtitle">Review notes, edit application priority, and track choices.</p> 
-            
-            <!-- Target container for our database records --> 
-            <div id="myListContainer" style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px; max-width: 600px;"> 
-                <p style="color: #666; font-family: 'IBM Plex Mono', monospace;">Connecting to your dashboard database folder...</p> 
-            </div> 
-        </div> 
-    </main> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapItNJ — My List</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .saved-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: 6px;
+            padding: 20px 22px;
+        }
+        .saved-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .saved-card-name {
+            font-family: 'Fraunces', serif;
+            font-size: 19px;
+            margin: 0 0 4px;
+        }
+        .saved-card-meta {
+            font-size: 13px;
+            color: var(--ink-soft);
+            margin: 0;
+        }
+        .priority-badge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .priority-select {
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            padding: 4px 6px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+        }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #B3413A;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .notes-box {
+            margin-top: 14px;
+        }
+        .notes-box label {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--ink-faint);
+            margin-bottom: 6px;
+        }
+        .notes-box textarea {
+            width: 100%;
+            min-height: 60px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 4px;
+            resize: vertical;
+        }
+        .notes-saved-note {
+            font-size: 11px;
+            color: var(--ink-faint);
+            margin-top: 4px;
+            min-height: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="wordmark">CapItNJ</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="improve.html">Improve</a>
+                <a href="explore.html">Explore</a>
+                <a href="matches.html">Matches</a>
+                <a href="mylist.html" class="active">My List</a>
+                <a href="profile.html">Profile</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="wrap">
+            <p class="eyebrow">Dashboard Tracker</p>
+            <h1>My Shortlisted Colleges</h1>
+            <p class="subtitle">Add colleges, add notes! Keep track of what you love about each one.</p>
 
-    <!-- Connects seamlessly using your clean modular framework configuration -->
-    <script type="module" src="firebase-init.js"></script> 
-    <script type="module"> 
-       <script type="module" src="firebase-init.js"></script>
-<script type="module" src="mylist.js"></script>
-</body> 
+            <div id="myListContainer" style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px; max-width: 640px;">
+                <p style="color: var(--ink-faint); font-family: 'IBM Plex Mono', monospace;">Loading your list…</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="firebase-init.js"></script>
+    <script type="module">
+        if (!window.capitnjFirebase?.ready) {
+            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
+        }
+        const fb = await window.capitnjFirebase.ready;
+        const { doc, getDoc, collection, getDocs, deleteDoc, setDoc, query, orderBy } = fb.firestoreFns;
+        const db = fb.db;
+
+        const containerEl = document.getElementById("myListContainer");
+        const PRIORITY_COLORS = {
+            "Top Choice": { bg: "#fff9c4", text: "#8a6d00" },
+            "Safety Backup": { bg: "#f0f0f0", text: "#616161" },
+            "Considering": { bg: "var(--accent-bg)", text: "var(--accent)" }
+        };
+
+        fb.requireAuth(async (user) => {
+            const savedCollegesRef = collection(db, "users", user.uid, "savedColleges");
+
+            async function loadAndRender() {
+                try {
+                    const snap = await getDocs(savedCollegesRef);
+                    const colleges = [];
+                    snap.forEach(d => colleges.push({ id: d.id, ...d.data() }));
+
+                    if (colleges.length === 0) {
+                        containerEl.innerHTML = `
+                            <div style="padding: 24px; border: 1px dashed var(--line); border-radius: 8px; text-align: center; color: var(--ink-soft);">
+                                Your shortlist is empty right now. Explore colleges and save your favorites here.
+                                <br><br>
+                                <a href="explore.html" class="btn" style="display: inline-block;">Go explore schools</a>
+                            </div>`;
+                        return;
+                    }
+
+                    containerEl.innerHTML = colleges.map(c => {
+                        const colors = PRIORITY_COLORS[c.priority] || PRIORITY_COLORS["Considering"];
+                        return `
+                        <div class="saved-card" data-id="${c.id}">
+                            <div class="saved-card-top">
+                                <div>
+                                    <span class="priority-badge" style="background:${colors.bg}; color:${colors.text};">${c.priority || "Considering"}</span>
+                                    <h3 class="saved-card-name">${c.name}</h3>
+                                    <p class="saved-card-meta">${c.state || ''}${c.rate && c.rate !== 'N/A' ? ' · Acceptance rate: ' + c.rate : ''}</p>
+                                </div>
+                                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                                    <select class="priority-select" data-id="${c.id}">
+                                        <option value="Considering" ${c.priority === "Considering" ? "selected" : ""}>Considering</option>
+                                        <option value="Top Choice" ${c.priority === "Top Choice" ? "selected" : ""}>Top Choice</option>
+                                        <option value="Safety Backup" ${c.priority === "Safety Backup" ? "selected" : ""}>Safety Backup</option>
+                                    </select>
+                                    <button class="remove-btn" data-id="${c.id}">Remove</button>
+                                </div>
+                            </div>
+                            <div class="notes-box">
+                                <label for="notes-${c.id}">Your notes</label>
+                                <textarea id="notes-${c.id}" data-id="${c.id}" placeholder="What do you like about this school? Anything to remember for your application...">${c.notes || ''}</textarea>
+                                <p class="notes-saved-note" id="notes-status-${c.id}"></p>
+                            </div>
+                        </div>
+                    `;
+                    }).join('');
+
+                    containerEl.querySelectorAll(".remove-btn").forEach(button => {
+                        button.addEventListener("click", async (e) => {
+                            const id = e.target.getAttribute("data-id");
+                            if (!confirm("Remove this college from your list?")) return;
+                            try {
+                                await deleteDoc(doc(db, "users", user.uid, "savedColleges", id));
+                                loadAndRender();
+                            } catch (err) {
+                                console.error("Error removing college:", err);
+                            }
+                        });
+                    });
+
+                    containerEl.querySelectorAll(".priority-select").forEach(select => {
+                        select.addEventListener("change", async (e) => {
+                            const id = e.target.getAttribute("data-id");
+                            try {
+                                await setDoc(doc(db, "users", user.uid, "savedColleges", id), { priority: e.target.value }, { merge: true });
+                                loadAndRender();
+                            } catch (err) {
+                                console.error("Error updating priority:", err);
+                            }
+                        });
+                    });
+
+                    let noteTimers = {};
+                    containerEl.querySelectorAll(".notes-box textarea").forEach(textarea => {
+                        textarea.addEventListener("input", (e) => {
+                            const id = e.target.getAttribute("data-id");
+                            const statusEl = document.getElementById(`notes-status-${id}`);
+                            statusEl.textContent = "Saving...";
+                            clearTimeout(noteTimers[id]);
+                            noteTimers[id] = setTimeout(async () => {
+                                try {
+                                    await setDoc(doc(db, "users", user.uid, "savedColleges", id), { notes: e.target.value }, { merge: true });
+                                    statusEl.textContent = "Saved";
+                                    setTimeout(() => { statusEl.textContent = ""; }, 1500);
+                                } catch (err) {
+                                    console.error("Error saving notes:", err);
+                                    statusEl.textContent = "Couldn't save";
+                                }
+                            }, 800);
+                        });
+                    });
+
+                } catch (error) {
+                    console.error("Error loading saved colleges:", error);
+                    containerEl.innerHTML = `<p style="color: #B3413A;">Couldn't load your list right now.</p>`;
+                }
+            }
+
+            loadAndRender();
+        });
+    </script>
+</body>
 </html>

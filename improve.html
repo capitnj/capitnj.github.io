@@ -1,90 +1,321 @@
-<!DOCTYPE html> 
-<html lang="en"> 
-<head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>CapItNJ — Improve Your Chances</title> 
-    <link rel="preconnect" href="https://fonts.googleapis.com"> 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet"> 
-    <link rel="stylesheet" href="style.css"> 
-</head> 
-<body> 
-    <header class="nav"> 
-        <div class="nav-inner"> 
-            <a href="index.html" class="wordmark">CapItNJ</a> 
-            <div class="nav-links"> 
-                <a href="index.html">Home</a> 
-                <a href="improve.html" class="active">Improve</a> 
-                <a href="explore.html">Explore</a> 
-                <a href="matches.html">Matches</a> 
-                <a href="mylist.html">My List</a> 
-                <a href="profile.html">Profile</a> 
-            </div> 
-        </div> 
-    </header> 
-    <main> 
-        <div class="wrap"> 
-            <p class="eyebrow">Improve your chances</p> 
-            <h1>What actually moves the needle</h1> 
-            <p class="subtitle" id="greeting">General guidance — not specific to any one school, but useful for almost every application.</p> 
-            
-            <div class="improve-grid"> 
-                <section class="improve-card"> 
-                    <span class="improve-tag">Academics &amp; testing</span> 
-                    <ul> 
-                        <li>Colleges weigh trend more than any single grade — an upward GPA trajectory junior→senior year reads well even if freshman year was rough.</li> 
-                        <li>If your GPA is below a school's average, look into applying test-optional, or submit a strong score if it's above their average.</li> 
-                        <li>Retaking the SAT/ACT once, with real prep in between, is usually worth it if your first score was a practice-level attempt.</li> 
-                        <li>Talk to your counselor about which AP/Honors courses actually strengthen your application vs. which just add stress.</li> 
-                    </ul> 
-                </section> 
-                <section class="improve-card"> 
-                    <span class="improve-tag">Essays &amp; applications</span> 
-                    <ul> 
-                        <li>Specific beats impressive. A small, honest story about one real moment usually reads better than a resume of achievements.</li> 
-                        <li>Write your first draft without worrying about the word count — cut it down after, don't self-censor while writing.</li> 
-                        <li>Have one teacher and one non-teacher (parent, mentor, friend) read your essay — you want both perspectives.</li> 
-                        <li>Answer supplemental "why us" essays with details specific to that school — generic answers are easy for admissions to spot.</li> 
-                    </ul> 
-                </section> 
-                <section class="improve-card"> 
-                    <span class="improve-tag">Financial aid &amp; scholarships</span> 
-                    <ul> 
-                        <li>File the FAFSA as early as possible after it opens — some aid is first-come, first-served.</li> 
-                        <li>Private colleges often require the CSS Profile in addition to the FAFSA — check each school's requirements early.</li> 
-                        <li>Local scholarships (your school, town, a parent's employer) have far less competition than national ones — apply to those first.</li> 
-                        <li>Appeal a financial aid offer if your situation changes or another school offered more — many schools will reconsider.</li> 
-                    </ul> 
-                </section> 
-                <section class="improve-card"> 
-                    <span class="improve-tag">Extracurriculars &amp; fit</span> 
-                    <ul> 
-                        <li>Depth beats breadth — colleges would rather see two years of real commitment than one line on ten different clubs.</li> 
-                        <li>Leadership doesn't have to mean "president of something" — starting a small initiative or running one, even informally, counts.</li> 
-                        <li>If you work a part-time job or have family responsibilities, say so — colleges read that as real-world time management, not a gap.</li> 
-                        <li>Apply to a genuine mix of reach, match, and safety schools — CapItNJ's fit score is a starting point, not a guarantee.</li> 
-                    </ul> 
-                </section> 
-            </div> 
-            <div class="improve-note"> 
-                This is general guidance, not personalized advice for your specific situation — for anything about your individual chances, talk to your school counselor. 
-            </div> 
-        </div> 
-    </main> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapItNJ — Improve</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .tracker-card { padding: 28px 26px; }
+        .tracker-card h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 19px;
+            margin: 0 0 16px;
+        }
+        .score-row { display: flex; gap: 14px; margin-bottom: 8px; }
+        .score-field { flex: 1; }
+        .score-field label {
+            display: block;
+            font-size: 12px;
+            color: var(--ink-soft);
+            margin-bottom: 6px;
+        }
+        .score-field input {
+            width: 100%;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 16px;
+            padding: 10px 12px;
+            border: 1px solid var(--line);
+            border-radius: 2px;
+        }
+        .score-save-row { margin-top: 14px; }
+        .score-save-row button {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .score-saved-note { font-size: 12px; color: var(--ink-faint); margin-top: 8px; min-height: 16px; }
 
-    <!-- Connects seamlessly using your modular framework -->
-    <script type="module" src="firebase-init.js"></script> 
-    <script type="module"> 
-        if (!window.capitnjFirebase?.ready) { 
-            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true })); 
-        } 
-        const firebase = await window.capitnjFirebase.ready; 
-        const { requireAuth } = firebase; 
+        .add-row { display: flex; gap: 8px; margin-bottom: 18px; }
+        .add-row input[type="text"] {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+        }
+        .add-row input[type="date"] {
+            padding: 9px 10px;
+            border: 1px solid var(--line);
+            border-radius: 2px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+        }
+        .add-row button {
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 9px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
 
-        requireAuth((user) => { 
-            const userGreetingName = user.displayName || sessionStorage.getItem("capitnj_name") || "Student";
-            document.getElementById('greeting').textContent = `Hi ${userGreetingName}, glad you're here. This is general guidance to help you and your parents plan your college path smoothly.`; 
-        }); 
-    </script> 
-</body> 
+        .todo-list, .reminder-list { list-style: none; margin: 0; padding: 0; }
+        .todo-item, .reminder-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-top: 1px solid var(--line);
+        }
+        .todo-item:first-child, .reminder-item:first-child { border-top: none; }
+        .todo-item input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; }
+        .todo-item span, .reminder-item span.reminder-text { flex: 1; font-size: 14px; }
+        .todo-item.done span { text-decoration: line-through; color: var(--ink-faint); }
+        .reminder-date {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--ink-faint);
+            white-space: nowrap;
+        }
+        .reminder-date.overdue { color: #B3413A; }
+        .reminder-date.soon { color: var(--accent); }
+        .remove-x {
+            background: none;
+            border: none;
+            color: var(--ink-faint);
+            cursor: pointer;
+            font-size: 15px;
+            padding: 0 2px;
+        }
+        .remove-x:hover { color: #B3413A; }
+        .empty-mini { font-size: 13px; color: var(--ink-faint); padding: 8px 0; }
+    </style>
+</head>
+<body>
+    <header class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="wordmark">CapItNJ</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="improve.html" class="active">Improve</a>
+                <a href="explore.html">Explore</a>
+                <a href="matches.html">Matches</a>
+                <a href="mylist.html">My List</a>
+                <a href="profile.html">Profile</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="wrap">
+            <p class="eyebrow">Your planning tools</p>
+            <h1>Stay on track</h1>
+            <p class="subtitle">Track your scores, your to-dos, and your deadlines in one place.</p>
+
+            <div id="improve-container">
+                <p style="color: var(--ink-faint); font-family: 'IBM Plex Mono', monospace;">Loading…</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="firebase-init.js"></script>
+    <script type="module">
+        const container = document.getElementById("improve-container");
+
+        if (!window.capitnjFirebase?.ready) {
+            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
+        }
+        const fb = await window.capitnjFirebase.ready;
+        const { doc, getDoc, setDoc } = fb.firestoreFns;
+        const db = fb.db;
+
+        fb.requireAuth(async (user) => {
+            const userDocRef = doc(db, "users", user.uid);
+            let data = { sat: "", act: "", todos: [], reminders: [] };
+
+            try {
+                const snap = await getDoc(userDocRef);
+                if (snap.exists() && snap.data().improveData) {
+                    data = { ...data, ...snap.data().improveData };
+                }
+            } catch (err) {
+                console.error("Error loading improve data:", err);
+            }
+
+            async function save() {
+                try {
+                    await setDoc(userDocRef, { improveData: data }, { merge: true });
+                } catch (err) {
+                    console.error("Error saving improve data:", err);
+                }
+            }
+
+            function uid() {
+                return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+            }
+
+            function render() {
+                container.innerHTML = `
+                    <div class="improve-grid">
+                        <div class="improve-card tracker-card">
+                            <h2>SAT / ACT scores</h2>
+                            <div class="score-row">
+                                <div class="score-field">
+                                    <label for="sat-input">SAT (out of 1600)</label>
+                                    <input type="number" id="sat-input" min="400" max="1600" value="${data.sat || ''}">
+                                </div>
+                                <div class="score-field">
+                                    <label for="act-input">ACT (out of 36)</label>
+                                    <input type="number" id="act-input" min="1" max="36" value="${data.act || ''}">
+                                </div>
+                            </div>
+                            <div class="score-save-row">
+                                <button id="save-score-btn">Save scores</button>
+                            </div>
+                            <p class="score-saved-note" id="score-note"></p>
+                        </div>
+
+                        <div class="improve-card">
+                            <h2>To-do list</h2>
+                            <div class="add-row">
+                                <input type="text" id="todo-input" placeholder="e.g. Draft the Common App essay">
+                                <button id="add-todo-btn">Add</button>
+                            </div>
+                            <ul class="todo-list" id="todo-list"></ul>
+                        </div>
+
+                        <div class="improve-card">
+                            <h2>Deadlines & reminders</h2>
+                            <div class="add-row">
+                                <input type="text" id="reminder-input" placeholder="e.g. Submit FAFSA">
+                                <input type="date" id="reminder-date-input">
+                                <button id="add-reminder-btn">Add</button>
+                            </div>
+                            <ul class="reminder-list" id="reminder-list"></ul>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById("save-score-btn").addEventListener("click", async () => {
+                    data.sat = document.getElementById("sat-input").value;
+                    data.act = document.getElementById("act-input").value;
+                    await save();
+                    const note = document.getElementById("score-note");
+                    note.textContent = "Saved.";
+                    setTimeout(() => { if (note) note.textContent = ""; }, 2000);
+                });
+
+                renderTodos();
+                renderReminders();
+
+                document.getElementById("add-todo-btn").addEventListener("click", addTodo);
+                document.getElementById("todo-input").addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") addTodo();
+                });
+
+                document.getElementById("add-reminder-btn").addEventListener("click", addReminder);
+                document.getElementById("reminder-input").addEventListener("keydown", (e) => {
+                    if (e.key === "Enter") addReminder();
+                });
+            }
+
+            function renderTodos() {
+                const list = document.getElementById("todo-list");
+                if (!data.todos.length) {
+                    list.innerHTML = `<li class="empty-mini">No tasks yet. Add your first one above.</li>`;
+                    return;
+                }
+                list.innerHTML = data.todos.map(t => `
+                    <li class="todo-item ${t.done ? 'done' : ''}" data-id="${t.id}">
+                        <input type="checkbox" ${t.done ? 'checked' : ''}>
+                        <span>${t.text}</span>
+                        <button class="remove-x">✕</button>
+                    </li>
+                `).join('');
+
+                list.querySelectorAll('.todo-item').forEach(item => {
+                    const id = item.getAttribute('data-id');
+                    item.querySelector('input[type="checkbox"]').addEventListener('change', async (e) => {
+                        const todo = data.todos.find(t => t.id === id);
+                        todo.done = e.target.checked;
+                        await save();
+                        renderTodos();
+                    });
+                    item.querySelector('.remove-x').addEventListener('click', async () => {
+                        data.todos = data.todos.filter(t => t.id !== id);
+                        await save();
+                        renderTodos();
+                    });
+                });
+            }
+
+            function renderReminders() {
+                const list = document.getElementById("reminder-list");
+                if (!data.reminders.length) {
+                    list.innerHTML = `<li class="empty-mini">No reminders yet. Add a deadline above.</li>`;
+                    return;
+                }
+
+                const sorted = [...data.reminders].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+                const today = new Date().toISOString().slice(0, 10);
+                const in7 = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+
+                list.innerHTML = sorted.map(r => {
+                    let dateClass = '';
+                    if (r.date && r.date < today) dateClass = 'overdue';
+                    else if (r.date && r.date <= in7) dateClass = 'soon';
+                    return `
+                        <li class="reminder-item" data-id="${r.id}">
+                            <span class="reminder-text">${r.text}</span>
+                            <span class="reminder-date ${dateClass}">${r.date || 'No date'}</span>
+                            <button class="remove-x">✕</button>
+                        </li>
+                    `;
+                }).join('');
+
+                list.querySelectorAll('.reminder-item').forEach(item => {
+                    const id = item.getAttribute('data-id');
+                    item.querySelector('.remove-x').addEventListener('click', async () => {
+                        data.reminders = data.reminders.filter(r => r.id !== id);
+                        await save();
+                        renderReminders();
+                    });
+                });
+            }
+
+            async function addTodo() {
+                const input = document.getElementById("todo-input");
+                const text = input.value.trim();
+                if (!text) return;
+                data.todos.push({ id: uid(), text, done: false });
+                input.value = "";
+                await save();
+                renderTodos();
+            }
+
+            async function addReminder() {
+                const textInput = document.getElementById("reminder-input");
+                const dateInput = document.getElementById("reminder-date-input");
+                const text = textInput.value.trim();
+                if (!text) return;
+                data.reminders.push({ id: uid(), text, date: dateInput.value || "" });
+                textInput.value = "";
+                dateInput.value = "";
+                await save();
+                renderReminders();
+            }
+
+            render();
+        });
+    </script>
+</body>
 </html>
