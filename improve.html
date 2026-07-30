@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,13 +9,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
-        .tracker-card { padding: 28px 26px; }
-        .tracker-card h2 {
+        /* Roomier grid: real gaps + soft card borders instead of the thin hairline grid */
+        .improve-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            background: none;
+            border: none;
+            margin-top: 36px;
+        }
+        .improve-card {
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 30px 28px;
+            box-shadow: 0 2px 10px rgba(11, 18, 32, 0.04);
+        }
+        @media (max-width: 640px) {
+            .improve-grid { grid-template-columns: 1fr; }
+        }
+
+        .improve-card h2 {
             font-family: 'Fraunces', serif;
             font-size: 19px;
-            margin: 0 0 16px;
+            margin: 0 0 18px;
         }
-        .score-row { display: flex; gap: 14px; margin-bottom: 8px; }
+
+        .score-row { display: flex; gap: 14px; margin-bottom: 10px; }
         .score-field { flex: 1; }
         .score-field label {
             display: block;
@@ -28,9 +49,9 @@
             font-size: 16px;
             padding: 10px 12px;
             border: 1px solid var(--line);
-            border-radius: 2px;
+            border-radius: 4px;
         }
-        .score-save-row { margin-top: 14px; }
+        .score-save-row { margin-top: 16px; }
         .score-save-row button {
             background: var(--accent);
             color: #fff;
@@ -39,22 +60,27 @@
             border-radius: 4px;
             font-size: 13px;
             cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
-        .score-saved-note { font-size: 12px; color: var(--ink-faint); margin-top: 8px; min-height: 16px; }
+        .score-save-row button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(30, 58, 95, 0.22);
+        }
+        .score-saved-note { font-size: 12px; color: var(--ink-faint); margin-top: 10px; min-height: 16px; }
 
-        .add-row { display: flex; gap: 8px; margin-bottom: 18px; }
+        .add-row { display: flex; gap: 8px; margin-bottom: 20px; }
         .add-row input[type="text"] {
             flex: 1;
             padding: 9px 12px;
             border: 1px solid var(--line);
-            border-radius: 2px;
+            border-radius: 4px;
             font-family: 'Inter', sans-serif;
             font-size: 13px;
         }
         .add-row input[type="date"] {
             padding: 9px 10px;
             border: 1px solid var(--line);
-            border-radius: 2px;
+            border-radius: 4px;
             font-family: 'Inter', sans-serif;
             font-size: 13px;
         }
@@ -67,6 +93,11 @@
             font-size: 13px;
             cursor: pointer;
             white-space: nowrap;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .add-row button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(30, 58, 95, 0.22);
         }
 
         .todo-list, .reminder-list { list-style: none; margin: 0; padding: 0; }
@@ -74,7 +105,7 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 0;
+            padding: 11px 0;
             border-top: 1px solid var(--line);
         }
         .todo-item:first-child, .reminder-item:first-child { border-top: none; }
@@ -96,9 +127,66 @@
             cursor: pointer;
             font-size: 15px;
             padding: 0 2px;
+            transition: color 0.15s ease, transform 0.15s ease;
         }
-        .remove-x:hover { color: #B3413A; }
+        .remove-x:hover { color: #B3413A; transform: scale(1.15); }
         .empty-mini { font-size: 13px; color: var(--ink-faint); padding: 8px 0; }
+
+        /* ---------- PROGRESS CARD ---------- */
+        .progress-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .progress-metric {
+            margin-bottom: 24px;
+        }
+        .progress-metric:last-child { margin-bottom: 0; }
+        .progress-metric-label {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            margin-bottom: 8px;
+        }
+        .progress-metric-value {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 30px;
+            font-weight: 600;
+            color: var(--accent);
+            line-height: 1;
+        }
+        .progress-metric-value span.unit {
+            font-size: 14px;
+            color: var(--ink-faint);
+            font-weight: 500;
+            margin-left: 4px;
+        }
+        .progress-bar-track {
+            height: 8px;
+            background: var(--surface);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 12px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent-light);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .progress-note {
+            font-size: 13px;
+            color: var(--ink-soft);
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+        .progress-divider {
+            border-top: 1px solid var(--line);
+            margin: 22px 0;
+        }
 
         .login-gate {
             text-align: center;
@@ -236,6 +324,11 @@
                             </div>
                             <ul class="reminder-list" id="reminder-list"></ul>
                         </div>
+
+                        <div class="improve-card progress-card">
+                            <h2>Your progress</h2>
+                            <div id="progress-body"></div>
+                        </div>
                     </div>
                 `;
 
@@ -250,6 +343,7 @@
 
                 renderTodos();
                 renderReminders();
+                renderProgress();
 
                 document.getElementById("add-todo-btn").addEventListener("click", addTodo);
                 document.getElementById("todo-input").addEventListener("keydown", (e) => {
@@ -283,11 +377,13 @@
                         todo.done = e.target.checked;
                         await save();
                         renderTodos();
+                        renderProgress();
                     });
                     item.querySelector('.remove-x').addEventListener('click', async () => {
                         data.todos = data.todos.filter(t => t.id !== id);
                         await save();
                         renderTodos();
+                        renderProgress();
                     });
                 });
             }
@@ -322,7 +418,64 @@
                         data.reminders = data.reminders.filter(r => r.id !== id);
                         await save();
                         renderReminders();
+                        renderProgress();
                     });
+                });
+            }
+
+            function renderProgress() {
+                const body = document.getElementById("progress-body");
+                if (!body) return;
+
+                const total = data.todos.length;
+                const done = data.todos.filter(t => t.done).length;
+                const pct = total ? Math.round((done / total) * 100) : 0;
+
+                let encourageMsg;
+                if (total === 0) encourageMsg = "Add a task above to start tracking your progress.";
+                else if (pct === 100) encourageMsg = "Everything's checked off. Nice work!";
+                else if (pct >= 50) encourageMsg = "More than halfway there. Keep going!";
+                else encourageMsg = "You're just getting started. Every task counts.";
+
+                const today = new Date().toISOString().slice(0, 10);
+                const upcoming = data.reminders
+                    .filter(r => r.date && r.date >= today)
+                    .sort((a, b) => a.date.localeCompare(b.date))[0];
+
+                let deadlineHTML;
+                if (upcoming) {
+                    const days = Math.round((new Date(upcoming.date) - new Date(today)) / 86400000);
+                    const dayLabel = days === 0 ? "Today" : days === 1 ? "1 day" : `${days} days`;
+                    deadlineHTML = `
+                        <div class="progress-metric-value">${dayLabel}${days > 1 ? '<span class="unit">left</span>' : ''}</div>
+                        <p class="progress-note">until "${upcoming.text}"</p>
+                    `;
+                } else {
+                    deadlineHTML = `
+                        <div class="progress-metric-value" style="font-size:20px;">No upcoming deadlines</div>
+                        <p class="progress-note">Add a deadline to see a countdown here.</p>
+                    `;
+                }
+
+                body.innerHTML = `
+                    <div class="progress-metric">
+                        <p class="progress-metric-label">To-dos completed</p>
+                        <div class="progress-metric-value">${done} <span class="unit">/ ${total}</span></div>
+                        <div class="progress-bar-track">
+                            <div class="progress-bar-fill" id="progress-bar-fill"></div>
+                        </div>
+                        <p class="progress-note">${encourageMsg}</p>
+                    </div>
+                    <div class="progress-divider"></div>
+                    <div class="progress-metric">
+                        <p class="progress-metric-label">Next deadline</p>
+                        ${deadlineHTML}
+                    </div>
+                `;
+
+                requestAnimationFrame(() => {
+                    const fill = document.getElementById("progress-bar-fill");
+                    if (fill) fill.style.width = pct + "%";
                 });
             }
 
@@ -334,6 +487,7 @@
                 input.value = "";
                 await save();
                 renderTodos();
+                renderProgress();
             }
 
             async function addReminder() {
@@ -346,6 +500,7 @@
                 dateInput.value = "";
                 await save();
                 renderReminders();
+                renderProgress();
             }
 
             render();
