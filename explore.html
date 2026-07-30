@@ -195,7 +195,8 @@
          try {
                 const fields = "school.name,latest.cost.net_price.overall.overall,latest.admissions.admission_rate.overall,latest.admissions.sat_scores.average.overall";
                 const url = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${SCORECARD_API_KEY}&school.name=${encodeURIComponent(college.name)}&_fields=${fields}&_per_page=10`;
-const data = await res.json();
+                const res = await fetch(url);
+                const data = await res.json();
 const candidates = data.results || [];
 const result = candidates.find(r => r["school.name"].toLowerCase() === college.name.toLowerCase()) || candidates[0];
 
