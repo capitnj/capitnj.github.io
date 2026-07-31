@@ -1,4 +1,4 @@
-// matching.js - College Scorecard live matching
+
 
 const API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
 
@@ -15,8 +15,8 @@ if (profileForm) {
 
     const userGPA = parseFloat(document.getElementById("gpa").value) || 3.0;
     const budgetCap = parseFloat(document.getElementById("max-tuition").value) || 999999;
-    const userLocation = document.getElementById("preferred-location").value; // any, north-nj, central-nj, south-nj, out-of-state
-    const userCollegeType = document.getElementById("school-type").value; // public, private, any
+    const userLocation = document.getElementById("preferred-location").value; 
+    const userCollegeType = document.getElementById("school-type").value; 
 
     const netPriceField = "latest.cost.net_price.overall.overall";
     let governmentApiUrl = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${API_KEY}&_fields=id,school.name,school.state,school.ownership,latest.admissions.admission_rate.overall,${netPriceField}&_sort=${netPriceField}&_per_page=100`;
@@ -34,7 +34,7 @@ if (profileForm) {
       const matchedResults = liveCollegesList.filter(college => {
         const liveNetPrice = college[netPriceField];
         const liveAdmissionRate = college["latest.admissions.admission_rate.overall"];
-        const ownershipType = college["school.ownership"]; // 1 = Public, 2 = Private Non-Profit
+        const ownershipType = college["school.ownership"]; 
 
         if (liveNetPrice && liveNetPrice > budgetCap) return false;
         if (userGPA < 3.0 && liveAdmissionRate && liveAdmissionRate < 0.20) return false;

@@ -1,4 +1,4 @@
-// This file initializes Firebase once and exposes the shared instances globally.
+
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {

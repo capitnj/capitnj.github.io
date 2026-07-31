@@ -129,9 +129,7 @@
 
             const maxBudget = parseFloat(data.maxTuition) || 999999;
 
-            // Budget is the only hard filter now — location no longer excludes
-            // whole categories, so Near Home / Outside NJ / Out of Country can
-            // all show up together.
+            
             const matchedColleges = (window.COLLEGES || []).filter(c => {
                 const netPrice = c.netPrice || FALLBACK_NET_PRICE;
                 return netPrice <= maxBudget;
