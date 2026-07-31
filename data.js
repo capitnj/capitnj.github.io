@@ -1,8 +1,3 @@
-Found it. Your actual data.js file has extra text stuck onto the end of it — a chunk of instructions and an HTML code block that were meant for matches.html, but got pasted into data.js instead. That text isn't valid JavaScript, so the whole file fails to parse, which means window.COLLEGES never gets set and the "database-ready" event never fires. That's why every college disappeared.
-
-Fix: replace your data.js with this (clean, nothing after loadGlobalCollegeDatabase();):
-
-javascript
 window.COLLEGES = [];
 
 const CURATED_INTERNATIONAL = [
@@ -12,10 +7,6 @@ const CURATED_INTERNATIONAL = [
     "University of Waterloo"
 ];
 
-// Exact-name whitelist for major NJ schools whose "state-province" field
-// is sometimes missing/blank in the source dataset. Using exact names
-// instead of loose substrings avoids false positives like
-// "Rowan-Cabarrus Community College" (NC) matching on "rowan".
 const NJ_EXACT_NAMES = [
     "Rutgers University-New Brunswick", "Rutgers University-Newark", "Rutgers University-Camden",
     "Princeton University", "Rowan University", "Kean University",
@@ -23,7 +14,7 @@ const NJ_EXACT_NAMES = [
     "Stockton University", "Seton Hall University", "Drew University",
     "William Paterson University", "The College of New Jersey",
     "Rider University", "Ramapo College of New Jersey",
-    "Fairleigh Dickinson University", "Monmouth University", "Saint Peter's University"
+    "Fairleigh Dickinson University", "Monmouth University", "Saint Peters University"
 ];
 
 const NEARBY_STATES = [
@@ -33,28 +24,24 @@ const NEARBY_STATES = [
 
 async function loadGlobalCollegeDatabase() {
     try {
-        const response = await fetch(
-            "https://cdn.jsdelivr.net/gh/Hipo/university-domains-list/world_universities_and_domains.json"
-        );
+        const response = await fetch("https://cdn.jsdelivr.net/gh/Hipo/university-domains-list/world_universities_and_domains.json");
 
-        if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
+        if (!response.ok) {
+            throw new Error("Fetch failed: " + response.status);
+        }
 
         const allSchools = await response.json();
 
-        const usSchools = allSchools.filter(s => s.country === "United States");
-        const intlSchools = allSchools.filter(s => CURATED_INTERNATIONAL.includes(s.name));
+        const usSchools = allSchools.filter(function(s) { return s.country === "United States"; });
+        const intlSchools = allSchools.filter(function(s) { return CURATED_INTERNATIONAL.includes(s.name); });
 
-        const combined = [...usSchools, ...intlSchools];
+        const combined = usSchools.concat(intlSchools);
 
-        window.COLLEGES = combined.map((school, index) => {
+        window.COLLEGES = combined.map(function(school, index) {
             const isUS = school.country === "United States";
             const apiState = (school["state-province"] || "").trim();
 
-            // Primary NJ check: real state field. Fallback: exact-name match
-            // (only for the small set of flagship schools that lack the field).
-            const isNJ =
-                apiState === "New Jersey" ||
-                NJ_EXACT_NAMES.includes(school.name);
+            const isNJ = apiState === "New Jersey" || NJ_EXACT_NAMES.includes(school.name);
 
             let stateValue = "NJ";
             let distanceTier = "local";
@@ -72,7 +59,7 @@ async function loadGlobalCollegeDatabase() {
             let estimatedNetPrice = isNJ ? 16500 : (isUS ? 24000 : 31000);
 
             return {
-                id: `school_${index}`,
+                id: "school_" + index,
                 name: school.name,
                 type: school.name.toLowerCase().includes("university") ? "University" : "College",
                 setting: isNJ ? "Suburban" : "Urban",
@@ -85,7 +72,7 @@ async function loadGlobalCollegeDatabase() {
         });
 
         window.dispatchEvent(new CustomEvent("database-ready"));
-        console.log(`Database initialized. Loaded ${window.COLLEGES.length} institutions.`);
+        console.log("Database initialized. Loaded " + window.COLLEGES.length + " institutions.");
     } catch (error) {
         console.error("Database loading failed:", error);
 
