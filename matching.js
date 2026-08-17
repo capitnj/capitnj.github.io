@@ -1,5 +1,3 @@
-
-
 const API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
 
 const profileForm = document.getElementById("preferences-form");
@@ -15,40 +13,65 @@ if (profileForm) {
 
     const userGPA = parseFloat(document.getElementById("gpa").value) || 3.0;
     const budgetCap = parseFloat(document.getElementById("max-tuition").value) || 999999;
-    const userLocation = document.getElementById("preferred-location").value; 
-    const userCollegeType = document.getElementById("school-type").value; 
-
-    const netPriceField = "latest.cost.net_price.overall.overall";
-    let governmentApiUrl = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${API_KEY}&_fields=id,school.name,school.state,school.ownership,latest.admissions.admission_rate.overall,${netPriceField}&_sort=${netPriceField}&_per_page=100`;
-
-    if (userLocation === "north-nj" || userLocation === "central-nj" || userLocation === "south-nj") {
-      governmentApiUrl += "&school.state=NJ";
-    }
+    const userZipCode = document.getElementById("preferred-location").value || "08540"; 
+    const userCollegeType = document.getElementById("school-type").value;
 
     try {
-      const response = await fetch(governmentApiUrl);
-      if (!response.ok) throw new Error(`Scorecard API returned ${response.status}`);
-      const resultData = await response.json();
-      const liveCollegesList = resultData.results || [];
+      
+      const nearbyColleges = window.getCollegesByZipCode(userZipCode, 50); 
 
-      const matchedResults = liveCollegesList.filter(college => {
-        const liveNetPrice = college[netPriceField];
-        const liveAdmissionRate = college["latest.admissions.admission_rate.overall"];
-        const ownershipType = college["school.ownership"]; 
+      if (nearbyColleges.length === 0) {
+        console.warn("No colleges found within 50 miles of zip code " + userZipCode);
+        alert("No colleges found near that zip code. Please try a different one.");
+        if (loader) loader.style.display = "none";
+        if (saveBtn) saveBtn.textContent = "Save Preferences";
+        return;
+      }
 
-        if (liveNetPrice && liveNetPrice > budgetCap) return false;
-        if (userGPA < 3.0 && liveAdmissionRate && liveAdmissionRate < 0.20) return false;
-        if (userCollegeType === "public" && ownershipType !== 1) return false;
-        if (userCollegeType === "private" && ownershipType !== 2) return false;
+      
+      const matchedResults = nearbyColleges.filter(college => {
+        
+        if (college.netPrice > budgetCap) return false;
+
+        
+        if (userGPA < 3.0 && college.state === "NJ") {
+          
+          return true;
+        }
+
+        
+        if (userCollegeType === "public" && college.type !== "Public") return false;
+        if (userCollegeType === "private" && college.type !== "Private") return false;
 
         return true;
       });
 
-      localStorage.setItem("userShortlist", JSON.stringify(matchedResults));
+      
+      const safetySchools = matchedResults.filter(c => c.netPrice < budgetCap * 0.6);
+      const matchSchools = matchedResults.filter(c => c.netPrice >= budgetCap * 0.6 && c.netPrice <= budgetCap);
+      const reachSchools = matchedResults.filter(c => c.netPrice > budgetCap * 0.8 && c.netPrice <= budgetCap);
+
+      const categorizedResults = {
+        safety: safetySchools,
+        match: matchSchools,
+        reach: reachSchools,
+        all: matchedResults
+      };
+
+      
+      localStorage.setItem("userShortlist", JSON.stringify(categorizedResults));
       localStorage.setItem("userGpa", userGPA);
+      localStorage.setItem("userZipCode", userZipCode);
+      localStorage.setItem("userBudget", budgetCap);
+
+      console.log("Matched " + matchedResults.length + " colleges near zip " + userZipCode);
+      console.log("Safety: " + safetySchools.length + ", Match: " + matchSchools.length + ", Reach: " + reachSchools.length);
+
+      
 
     } catch (err) {
-      console.error("Failed to sync with federal college data:", err);
+      console.error("Failed to match colleges:", err);
+      alert("Error matching colleges. Please try again.");
     } finally {
       if (loader) loader.style.display = "none";
       if (saveBtn) saveBtn.textContent = "Save Preferences";

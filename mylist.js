@@ -1,4 +1,4 @@
-// mylist.js — reads/removes saved colleges from users/{uid}/savedColleges (modular Firebase SDK)
+
 
 async function initMyList() {
   if (!window.capitnjFirebase?.ready) {
