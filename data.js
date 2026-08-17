@@ -1,6 +1,3 @@
-// ============================================
-// MATCHES PAGE - COMPLETE REPLACEMENT
-// ============================================
 
 document.addEventListener("DOMContentLoaded", function() {
   renderLiveCards();
