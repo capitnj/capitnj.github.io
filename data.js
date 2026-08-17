@@ -9,14 +9,14 @@ function renderLiveCards() {
   
   if (!container) return;
 
-  // Get user preferences from localStorage
+  
   const userZipcode = localStorage.getItem("userZipcode");
   const searchRadius = parseInt(localStorage.getItem("searchRadius") || 30);
   const userGPA = parseFloat(localStorage.getItem("userGpa") || 3.0);
   const userSAT = parseInt(localStorage.getItem("userSat") || 1000);
   const maxTuition = parseInt(localStorage.getItem("maxTuition") || 50000);
 
-  // Get colleges by zipcode
+  
   let matches = [];
   
   if (userZipcode && window.COLLEGES && window.COLLEGES.length > 0) {

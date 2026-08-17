@@ -124,3 +124,34 @@ async function saveCollegeToList(collegeName, location, acceptanceRate, uniqueId
 }
 
 window.onload = renderLiveCards;
+
+function getStateFromZip(zip) {
+  const zipToState = {
+    "00501": "NY", "00601": "PR", "01001": "MA", "02018": "MA", "02108": "MA",
+    "03031": "NH", "04001": "ME", "05001": "VT", "06001": "CT", "07001": "NJ",
+    "10001": "NY", "20001": "DC", "90001": "CA", "94101": "CA", "33101": "FL",
+    "60601": "IL", "73301": "TX", "80201": "CO", "94102": "CA", "85201": "AZ",
+    "99501": "AK"
+    
+  };
+  return zipToState[zip] || null;
+}
+
+document.getElementById('zipInput').addEventListener('change', () => {
+  const zip = document.getElementById('zipInput').value.trim();
+  const state = getStateFromZip(zip);
+  if (!state) {
+    alert("Invalid or unsupported ZIP code");
+    return;
+  }
+  filterCollegesByState(state);
+});
+
+function filterCollegesByState(state) {
+  const rawData = localStorage.getItem("userShortlist");
+  if (!rawData) return;
+  const colleges = JSON.parse(rawData);
+  const filtered = colleges.filter(college => college["school.state"] === state);
+  localStorage.setItem("userShortlist", JSON.stringify(filtered));
+  renderLiveCards();
+}
