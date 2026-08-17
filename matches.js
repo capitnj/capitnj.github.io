@@ -1,5 +1,3 @@
-
-
 function renderLiveCards() {
   const container = document.getElementById("matchesContainer");
   const rawData = localStorage.getItem("userShortlist");
@@ -115,7 +113,6 @@ async function saveCollegeToList(collegeName, location, acceptanceRate, uniqueId
       notes: noteContent,
       timestamp: new Date().toISOString()
     });
-
     alert(`🎉 Successfully saved ${collegeName} to your list!`);
   } catch (err) {
     console.error("Cloud storage sync failed:", err);
@@ -132,7 +129,6 @@ function getStateFromZip(zip) {
     "10001": "NY", "20001": "DC", "90001": "CA", "94101": "CA", "33101": "FL",
     "60601": "IL", "73301": "TX", "80201": "CO", "94102": "CA", "85201": "AZ",
     "99501": "AK"
-    
   };
   return zipToState[zip] || null;
 }
