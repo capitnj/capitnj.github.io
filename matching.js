@@ -1,5 +1,3 @@
-const API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
-
 function initializeMatching() {
     const profileForm = document.getElementById("preferences-form");
 
@@ -12,23 +10,26 @@ function initializeMatching() {
             if (loader) loader.style.display = "block";
             if (saveBtn) saveBtn.textContent = "Analyzing Fits...";
 
-            const userGPA = parseFloat(document.getElementById("gpa").value) || 3.0;
-            const budgetCap = parseFloat(document.getElementById("max-tuition").value) || 999999;
-            const userZipCode = document.getElementById("preferred-location").value || "08540";
-            const userCollegeType = document.getElementById("school-type").value;
+            const userGPA = parseFloat(document.getElementById("gpa")?.value) || 3.0;
+            const userSAT = parseFloat(document.getElementById("sat")?.value) || 1000;
+            const budgetCap = parseFloat(document.getElementById("max-tuition")?.value) || 999999;
+            const userZipCode = (document.getElementById("preferred-location")?.value || "").trim();
+            const searchRadius = parseFloat(document.getElementById("search-radius")?.value) || 50;
+            const userCollegeType = document.getElementById("school-type")?.value || "all";
 
             try {
                 if (!window.COLLEGES || window.COLLEGES.length === 0) {
                     throw new Error("College database not loaded. Please refresh the page.");
                 }
 
-                const nearbyColleges = window.getCollegesByZipCode(userZipCode, 50);
+                if (!userZipCode) {
+                    throw new Error("Please enter a valid zipcode.");
+                }
+
+                const nearbyColleges = window.getCollegesByZipCode(userZipCode, searchRadius);
 
                 if (nearbyColleges.length === 0) {
-                    alert("No colleges found within 50 miles of that zip code. Try a different one.");
-                    if (loader) loader.style.display = "none";
-                    if (saveBtn) saveBtn.textContent = "Save Preferences";
-                    return;
+                    throw new Error(`No colleges found within ${searchRadius} miles of zipcode ${userZipCode}. Try a larger radius or different zipcode.`);
                 }
 
                 const matchedResults = nearbyColleges.filter(college => {
@@ -38,10 +39,7 @@ function initializeMatching() {
                 });
 
                 if (matchedResults.length === 0) {
-                    alert("No colleges match your filters. Try adjusting your budget or school type.");
-                    if (loader) loader.style.display = "none";
-                    if (saveBtn) saveBtn.textContent = "Save Preferences";
-                    return;
+                    throw new Error("No colleges match your filters. Try adjusting your budget or school type.");
                 }
 
                 const safetySchools = matchedResults.filter(c => !c.netPrice || c.netPrice < budgetCap * 0.6);
@@ -57,13 +55,19 @@ function initializeMatching() {
 
                 localStorage.setItem("userShortlist", JSON.stringify(categorizedResults));
                 localStorage.setItem("userGpa", userGPA);
+                localStorage.setItem("userSat", userSAT);
                 localStorage.setItem("userZipCode", userZipCode);
                 localStorage.setItem("userBudget", budgetCap);
+                localStorage.setItem("searchRadius", searchRadius);
+                localStorage.setItem("userCollegeType", userCollegeType);
 
-                alert("Found " + matchedResults.length + " colleges! Safety: " + safetySchools.length + ", Match: " + matchSchools.length + ", Reach: " + reachSchools.length);
+                alert(`Found ${matchedResults.length} colleges! Safety: ${safetySchools.length}, Match: ${matchSchools.length}, Reach: ${reachSchools.length}`);
+
+                setTimeout(() => {
+                    window.location.href = "matches.html";
+                }, 500);
 
             } catch (err) {
-                console.error("Error matching colleges:", err);
                 alert("Error: " + err.message);
             } finally {
                 if (loader) loader.style.display = "none";
@@ -74,7 +78,11 @@ function initializeMatching() {
 }
 
 window.addEventListener("database-ready", initializeMatching);
-
 if (window.COLLEGES && window.COLLEGES.length > 0) {
     initializeMatching();
 }
+document.addEventListener("DOMContentLoaded", function() {
+    if (window.COLLEGES && window.COLLEGES.length > 0) {
+        initializeMatching();
+    }
+});

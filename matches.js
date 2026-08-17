@@ -1,89 +1,172 @@
+document.addEventListener("DOMContentLoaded", function() {
+  renderLiveCards();
+  setupFilterListeners();
+});
+
 function renderLiveCards() {
   const container = document.getElementById("matchesContainer");
-  const rawData = localStorage.getItem("userShortlist");
-
   if (!container) return;
 
-  if (!rawData || JSON.parse(rawData).length === 0) {
+  const userZipcode = localStorage.getItem("userZipCode");
+  const searchRadius = parseInt(localStorage.getItem("searchRadius") || 50);
+  const userGPA = parseFloat(localStorage.getItem("userGpa") || 3.0);
+  const userSAT = parseInt(localStorage.getItem("userSat") || 1000);
+  const maxTuition = parseInt(localStorage.getItem("userBudget") || 50000);
+
+  let matches = [];
+  
+  if (userZipcode && window.COLLEGES && window.COLLEGES.length > 0) {
+    matches = window.getCollegesByZipCode(userZipcode, searchRadius);
+  } else if (window.COLLEGES && window.COLLEGES.length > 0) {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa;">
-        <h3 style="font-family: 'Fraunces', serif; margin-bottom: 8px;">No direct matches found!</h3>
-        <p style="color: #666; font-size: 14px;">Try returning to your <a href="profile.html" style="color: #111; font-weight: 600;">Profile Questionnaire</a> and adjusting your academic scores or tuition budget limit parameters.</p>
+        <h3 style="font-family: 'Fraunces', serif; margin-bottom: 8px;">No Profile Found</h3>
+        <p style="color: #666; font-size: 14px;">Please set your preferences first on the <a href="profile.html" style="color: #111; font-weight: 600;">Profile page</a>.</p>
       </div>`;
     return;
   }
 
-  const matches = JSON.parse(rawData);
-  const userGPA = parseFloat(localStorage.getItem("userGpa") || 3.0);
+  matches = matches.filter(college => {
+    if (!college.netPrice) return true;
+    return college.netPrice <= maxTuition;
+  });
+
+  localStorage.setItem("userShortlist", JSON.stringify(matches));
+
   container.innerHTML = "";
 
-  matches.forEach(college => {
-    const name = college["school.name"];
-    const state = college["school.state"];
-    const ownership = college["school.ownership"] === 1 ? "Public University" : "Private University";
+  if (matches.length === 0) {
+    container.innerHTML = `
+      <div style="text-align: center; padding: 40px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa;">
+        <h3 style="font-family: 'Fraunces', serif; margin-bottom: 8px;">No colleges match your criteria</h3>
+        <p style="color: #666; font-size: 14px;">Try <a href="profile.html" style="color: #111; font-weight: 600;">adjusting your budget or location preferences</a>.</p>
+      </div>`;
+    return;
+  }
 
-    const rate = college["latest.admissions.admission_rate.overall"]
-      ? Math.round(college["latest.admissions.admission_rate.overall"] * 100) + "%"
-      : "Open Enrollment / High Acceptance";
-
-    let geoBadgeText = "Out of State";
-    let geoBadgeBg = "#f1f5f9";
-    let geoTextColor = "#475569";
-
-    if (state === "NJ") {
-      geoBadgeText = "Local / In-State";
-      geoBadgeBg = "#e0f2fe";
-      geoTextColor = "#0369a1";
-    }
-
-    let categoryBadgeText = "Target Fit";
-    let categoryBadgeColor = "#fff3cd";
-    let categoryTextColor = "#856404";
-
-    if (userGPA >= 3.8) {
-      categoryBadgeText = "Safety Option";
-      categoryBadgeColor = "#d4edda";
-      categoryTextColor = "#155724";
-    } else if (userGPA < 3.2) {
-      categoryBadgeText = "Reach Goal";
-      categoryBadgeColor = "#f8d7da";
-      categoryTextColor = "#721c24";
-    }
-
-    const card = document.createElement("div");
-    card.className = "college-card";
-    card.style = "background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #eaeaea; box-shadow: 0 2px 4px rgba(0,0,0,0.015); margin-bottom: 16px;";
-
-    card.innerHTML = `
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
-        <div>
-          <h3 style="margin: 0 0 8px 0; font-family: 'Fraunces', serif; font-size: 20px; color: #111;">${name}</h3>
-          <p style="margin: 4px 0; font-size: 14px; color: #555;">📍 <strong>Location:</strong> ${state} | 🏛️ <strong>Classification:</strong> ${ownership}</p>
-        </div>
-        <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
-          <span style="background: ${geoBadgeBg}; color: ${geoTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">${geoBadgeText}</span>
-          <span style="background: ${categoryBadgeColor}; color: ${categoryTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">${categoryBadgeText}</span>
-          <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">✓ Live Feed</span>
-        </div>
-      </div>
-      <hr style="border: 0; border-top: 1px solid #f5f5f5; margin: 12px 0;">
-      <p style="margin: 4px 0; font-size: 14px; color: #333;">🎯 <strong>Admissions Acceptance Rate:</strong> ${rate}</p>
-
-      <div style="margin-top: 15px; padding: 12px; background: #fafafa; border-radius: 6px; border: 1px dashed #ddd; display: flex; flex-direction: column; gap: 10px;">
-        <div style="display: flex; gap: 10px; align-items: center;">
-          <label style="font-size: 13px; font-weight: 500; color: #111;">Rank Priority:</label>
-          <select id="rank-${name.replace(/\s+/g, '')}" style="padding: 4px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
-            <option value="Top Choice">🥇 Top Choice / #1 Pick</option>
-            <option value="Target School" selected>🥈 Strong Target</option>
-            <option value="Safety Backup">🥉 Safety Backup</option>
-          </select>
-        </div>
-        <textarea id="notes-${name.replace(/\s+/g, '')}" placeholder="Add your research notes (e.g. Spoke to counselor, requires extra essays)" style="width: 100%; min-height: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
-        <button onclick="saveCollegeToList('${name.replace(/'/g, "\\'")}', '${state}', '${rate}', '${name.replace(/\s+/g, '')}')" style="background: #111; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; align-self: flex-start;">✨ Save to My List</button>
-      </div>
-    `;
+  matches.forEach((college, index) => {
+    const card = createCollegeCard(college, index, userGPA);
     container.appendChild(card);
   });
+}
+
+function createCollegeCard(college, index, userGPA) {
+  const card = document.createElement("div");
+  card.className = "match-card";
+  card.style.cssText = `
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+  `;
+
+  card.onmouseover = function() {
+    this.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
+    this.style.transform = "translateY(-2px)";
+  };
+
+  card.onmouseout = function() {
+    this.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
+    this.style.transform = "translateY(0)";
+  };
+
+  const collegeName = college["school.name"] || "Unknown College";
+  const collegeState = college["school.state"] || "Unknown";
+  const ownership = college["school.ownership"] === 1 ? "Public University" : "Private University";
+  const netPrice = college.netPrice ? `$${college.netPrice.toLocaleString()}` : "Price not available";
+
+  const acceptanceRate = college["latest.admissions.admission_rate.overall"]
+    ? Math.round(college["latest.admissions.admission_rate.overall"] * 100) + "%"
+    : "Open Enrollment / High Acceptance";
+
+  const userZipcode = localStorage.getItem("userZipCode");
+  const userState = getStateFromZipCodeForDisplay(userZipcode);
+  
+  let geoBadgeText = "Out of State";
+  let geoBadgeBg = "#f1f5f9";
+  let geoTextColor = "#475569";
+
+  if (collegeState === userState) {
+    geoBadgeText = "In-State";
+    geoBadgeBg = "#e0f2fe";
+    geoTextColor = "#0369a1";
+  }
+
+  let categoryBadgeText = "Target Fit";
+  let categoryBadgeColor = "#fff3cd";
+  let categoryTextColor = "#856404";
+
+  const admitRate = college["latest.admissions.admission_rate.overall"] || 0.5;
+  if (userGPA >= 3.8 && admitRate > 0.6) {
+    categoryBadgeText = "Safety Option";
+    categoryBadgeColor = "#d4edda";
+    categoryTextColor = "#155724";
+  } else if (userGPA < 3.2 && admitRate < 0.3) {
+    categoryBadgeText = "Reach Goal";
+    categoryBadgeColor = "#f8d7da";
+    categoryTextColor = "#721c24";
+  }
+
+  const safeId = collegeName.replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+
+  card.innerHTML = `
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
+      <div>
+        <h3 style="margin: 0 0 8px 0; font-family: 'Fraunces', serif; font-size: 20px; color: #111;">${collegeName}</h3>
+        <p style="margin: 4px 0; font-size: 14px; color: #555;">📍 <strong>Location:</strong> ${collegeState} | 🏛️ <strong>Type:</strong> ${ownership}</p>
+      </div>
+      <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+        <span style="background: ${geoBadgeBg}; color: ${geoTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">${geoBadgeText}</span>
+        <span style="background: ${categoryBadgeColor}; color: ${categoryTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">${categoryBadgeText}</span>
+      </div>
+    </div>
+    <hr style="border: 0; border-top: 1px solid #f5f5f5; margin: 12px 0;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+      <div>
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: #666; font-weight: 500; text-transform: uppercase;">Acceptance Rate</p>
+        <p style="margin: 0; font-size: 18px; font-weight: bold; color: #111;">${acceptanceRate}</p>
+      </div>
+      <div>
+        <p style="margin: 0 0 4px 0; font-size: 12px; color: #666; font-weight: 500; text-transform: uppercase;">Net Price</p>
+        <p style="margin: 0; font-size: 18px; font-weight: bold; color: #111;">${netPrice}</p>
+      </div>
+    </div>
+
+    <div style="margin-top: 15px; padding: 12px; background: #fafafa; border-radius: 6px; border: 1px dashed #ddd; display: flex; flex-direction: column; gap: 10px;">
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <label style="font-size: 13px; font-weight: 500; color: #111;">Save Priority:</label>
+        <select id="rank-${safeId}" style="padding: 6px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
+          <option value="Top Choice">🥇 Top Choice</option>
+          <option value="Target School" selected>🥈 Strong Target</option>
+          <option value="Safety Backup">🥉 Safety Backup</option>
+        </select>
+      </div>
+      <textarea id="notes-${safeId}" placeholder="Add research notes" style="width: 100%; min-height: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
+      <button onclick="saveCollegeToList('${collegeName.replace(/'/g, "\\'")}', '${collegeState}', '${acceptanceRate}', '${safeId}')" style="background: #111; color: #fff; border: none; padding: 10px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; align-self: flex-start;">✨ Save to My List</button>
+    </div>
+  `;
+
+  return card;
+}
+
+function getStateFromZipCodeForDisplay(zip) {
+  const zipToState = {
+    "00": "HI", "01": "MA", "02": "MA", "03": "NH", "04": "ME", "05": "VT", "06": "CT", "07": "NJ", "08": "NJ", "09": "PR",
+    "10": "NY", "11": "NY", "12": "NY", "13": "NY", "14": "NY", "15": "PA", "16": "PA", "17": "PA", "18": "PA", "19": "PA",
+    "20": "DC", "21": "MD", "22": "VA", "23": "VA", "24": "VA", "25": "WV", "26": "WV", "27": "NC", "28": "NC", "29": "SC",
+    "30": "GA", "31": "GA", "32": "FL", "33": "FL", "34": "FL", "35": "AL", "36": "AL", "37": "TN", "38": "TN", "39": "MS",
+    "40": "KY", "41": "KY", "42": "KY", "43": "OH", "44": "OH", "45": "OH", "46": "IN", "47": "TN", "48": "MI", "49": "MI",
+    "50": "IA", "51": "IA", "52": "IA", "53": "WI", "54": "WI", "55": "MN", "56": "MN", "57": "SD", "58": "ND", "59": "MT",
+    "60": "IL", "61": "IL", "62": "IL", "63": "MO", "64": "MO", "65": "MO", "66": "KS", "67": "KS", "68": "NE", "69": "NE",
+    "70": "LA", "71": "LA", "72": "AR", "73": "OK", "74": "OK", "75": "TX", "76": "TX", "77": "TX", "78": "TX", "79": "TX",
+    "80": "CO", "81": "CO", "82": "WY", "83": "ID", "84": "UT", "85": "AZ", "86": "AZ", "87": "NM", "88": "NM", "89": "NV",
+    "90": "CA", "91": "CA", "92": "CA", "93": "CA", "94": "CA", "95": "CA", "96": "HI", "97": "OR", "98": "WA", "99": "AK",
+  };
+  if (!zip) return "Unknown";
+  return zipToState[zip.substring(0, 2)] || "Other";
 }
 
 async function saveCollegeToList(collegeName, location, acceptanceRate, uniqueId) {
@@ -97,7 +180,7 @@ async function saveCollegeToList(collegeName, location, acceptanceRate, uniqueId
 
   const user = auth.currentUser;
   if (!user) {
-    alert("Please sign in first to save colleges to your dashboard list!");
+    alert("Please sign in first to save colleges to your list!");
     return;
   }
 
@@ -115,39 +198,13 @@ async function saveCollegeToList(collegeName, location, acceptanceRate, uniqueId
     });
     alert(`🎉 Successfully saved ${collegeName} to your list!`);
   } catch (err) {
-    console.error("Cloud storage sync failed:", err);
-    alert("Failed to save college data. Make sure you are signed in.");
+    alert("Failed to save college. Make sure you are signed in.");
   }
 }
 
-window.onload = renderLiveCards;
-
-function getStateFromZip(zip) {
-  const zipToState = {
-    "00501": "NY", "00601": "PR", "01001": "MA", "02018": "MA", "02108": "MA",
-    "03031": "NH", "04001": "ME", "05001": "VT", "06001": "CT", "07001": "NJ",
-    "10001": "NY", "20001": "DC", "90001": "CA", "94101": "CA", "33101": "FL",
-    "60601": "IL", "73301": "TX", "80201": "CO", "94102": "CA", "85201": "AZ",
-    "99501": "AK"
-  };
-  return zipToState[zip] || null;
-}
-
-document.getElementById('zipInput').addEventListener('change', () => {
-  const zip = document.getElementById('zipInput').value.trim();
-  const state = getStateFromZip(zip);
-  if (!state) {
-    alert("Invalid or unsupported ZIP code");
-    return;
-  }
-  filterCollegesByState(state);
-});
-
-function filterCollegesByState(state) {
-  const rawData = localStorage.getItem("userShortlist");
-  if (!rawData) return;
-  const colleges = JSON.parse(rawData);
-  const filtered = colleges.filter(college => college["school.state"] === state);
-  localStorage.setItem("userShortlist", JSON.stringify(filtered));
-  renderLiveCards();
+function setupFilterListeners() {
+  const filters = document.querySelectorAll("[data-filter]");
+  filters.forEach(filter => {
+    filter.addEventListener("change", renderLiveCards);
+  });
 }
