@@ -58,7 +58,7 @@ window.getCollegesByZipCode = function(userZipCode, searchRadiusMiles) {
 
   const userState = getStateFromZipCode(userZipCode);
   if (!userState) {
-    alert(`Zipcode ${userZipCode} is not supported.`);
+    console.warn(`Zipcode ${userZipCode} is not supported.`);
     return [];
   }
 
@@ -68,7 +68,7 @@ window.getCollegesByZipCode = function(userZipCode, searchRadiusMiles) {
   }
 
   const nearby = window.COLLEGES.filter(college => {
-    if (!college.latitude || !college.longitude) return false;
+    if (college.latitude === undefined || college.longitude === undefined) return false;
     const distance = haversineDistance(userCoords.lat, userCoords.lng, college.latitude, college.longitude);
     return distance <= searchRadiusMiles;
   });
@@ -80,5 +80,23 @@ window.getCollegesByZipCode = function(userZipCode, searchRadiusMiles) {
   return nearby;
 };
 
-window.addEventListener("database-ready", function() {});
-document.addEventListener("DOMContentLoaded", function() {});
+window.COLLEGES = [];
+
+fetch('https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json')
+  .then(response => response.json())
+  .then(data => {
+    window.COLLEGES = data.map(college => ({
+      name: college.name || '',
+      state: college.country === 'United States' ? college.state || '' : '',
+      country: college.country || '',
+      latitude: college.latitude || null,
+      longitude: college.longitude || null,
+      domains: college.domains || [],
+    })).filter(college => college.country === 'United States');
+    
+    window.dispatchEvent(new Event('database-ready'));
+  })
+  .catch(error => {
+    console.error('Error loading college data:', error);
+    window.dispatchEvent(new Event('database-ready'));
+  });
