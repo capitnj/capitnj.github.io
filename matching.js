@@ -32,28 +32,7 @@ function initializeMatching() {
                     throw new Error(`No colleges found within ${searchRadius} miles of zipcode ${userZipCode}. Try a larger radius or different zipcode.`);
                 }
 
-                const matchedResults = nearbyColleges.filter(college => {
-                    const withinBudget = !college.netPrice || college.netPrice <= budgetCap;
-                    const typeMatch = !userCollegeType || userCollegeType === "all" || college.type === userCollegeType;
-                    return withinBudget && typeMatch;
-                });
-
-                if (matchedResults.length === 0) {
-                    throw new Error("No colleges match your filters. Try adjusting your budget or school type.");
-                }
-
-                const safetySchools = matchedResults.filter(c => !c.netPrice || c.netPrice < budgetCap * 0.6);
-                const matchSchools = matchedResults.filter(c => c.netPrice >= budgetCap * 0.6 && c.netPrice <= budgetCap);
-                const reachSchools = matchedResults.filter(c => c.netPrice > budgetCap * 0.8 && c.netPrice <= budgetCap);
-
-                const categorizedResults = {
-                    safety: safetySchools,
-                    match: matchSchools,
-                    reach: reachSchools,
-                    all: matchedResults
-                };
-
-                localStorage.setItem("userShortlist", JSON.stringify(categorizedResults));
+                localStorage.setItem("matchedColleges", JSON.stringify(nearbyColleges));
                 localStorage.setItem("userGpa", userGPA);
                 localStorage.setItem("userSat", userSAT);
                 localStorage.setItem("userZipCode", userZipCode);
@@ -61,7 +40,7 @@ function initializeMatching() {
                 localStorage.setItem("searchRadius", searchRadius);
                 localStorage.setItem("userCollegeType", userCollegeType);
 
-                alert(`Found ${matchedResults.length} colleges! Safety: ${safetySchools.length}, Match: ${matchSchools.length}, Reach: ${reachSchools.length}`);
+                alert(`Found ${nearbyColleges.length} colleges!`);
 
                 setTimeout(() => {
                     window.location.href = "matches.html";

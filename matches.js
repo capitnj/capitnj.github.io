@@ -7,17 +7,11 @@ function renderLiveCards() {
   const container = document.getElementById("matchesContainer");
   if (!container) return;
 
+  const matchedCollegesJson = localStorage.getItem("matchedColleges");
   const userZipcode = localStorage.getItem("userZipCode");
-  const searchRadius = parseInt(localStorage.getItem("searchRadius") || 50);
   const userGPA = parseFloat(localStorage.getItem("userGpa") || 3.0);
-  const userSAT = parseInt(localStorage.getItem("userSat") || 1000);
-  const maxTuition = parseInt(localStorage.getItem("userBudget") || 50000);
 
-  let matches = [];
-  
-  if (userZipcode && window.COLLEGES && window.COLLEGES.length > 0) {
-    matches = window.getCollegesByZipCode(userZipcode, searchRadius);
-  } else if (window.COLLEGES && window.COLLEGES.length > 0) {
+  if (!matchedCollegesJson) {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa;">
         <h3 style="font-family: 'Fraunces', serif; margin-bottom: 8px;">No Profile Found</h3>
@@ -26,31 +20,26 @@ function renderLiveCards() {
     return;
   }
 
-  matches = matches.filter(college => {
-    if (!college.netPrice) return true;
-    return college.netPrice <= maxTuition;
-  });
-
+  const matches = JSON.parse(matchedCollegesJson);
   localStorage.setItem("userShortlist", JSON.stringify(matches));
-
   container.innerHTML = "";
 
   if (matches.length === 0) {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa;">
         <h3 style="font-family: 'Fraunces', serif; margin-bottom: 8px;">No colleges match your criteria</h3>
-        <p style="color: #666; font-size: 14px;">Try <a href="profile.html" style="color: #111; font-weight: 600;">adjusting your budget or location preferences</a>.</p>
+        <p style="color: #666; font-size: 14px;">Try <a href="profile.html" style="color: #111; font-weight: 600;">adjusting your location preferences</a>.</p>
       </div>`;
     return;
   }
 
   matches.forEach((college, index) => {
-    const card = createCollegeCard(college, index, userGPA);
+    const card = createCollegeCard(college, index, userGPA, userZipcode);
     container.appendChild(card);
   });
 }
 
-function createCollegeCard(college, index, userGPA) {
+function createCollegeCard(college, index, userGPA, userZipcode) {
   const card = document.createElement("div");
   card.className = "match-card";
   card.style.cssText = `
@@ -73,16 +62,8 @@ function createCollegeCard(college, index, userGPA) {
     this.style.transform = "translateY(0)";
   };
 
-  const collegeName = college["school.name"] || "Unknown College";
-  const collegeState = college["school.state"] || "Unknown";
-  const ownership = college["school.ownership"] === 1 ? "Public University" : "Private University";
-  const netPrice = college.netPrice ? `$${college.netPrice.toLocaleString()}` : "Price not available";
-
-  const acceptanceRate = college["latest.admissions.admission_rate.overall"]
-    ? Math.round(college["latest.admissions.admission_rate.overall"] * 100) + "%"
-    : "Open Enrollment / High Acceptance";
-
-  const userZipcode = localStorage.getItem("userZipCode");
+  const collegeName = college.name || "Unknown College";
+  const collegeState = college.state || "Unknown";
   const userState = getStateFromZipCodeForDisplay(userZipcode);
   
   let geoBadgeText = "Out of State";
@@ -95,46 +76,20 @@ function createCollegeCard(college, index, userGPA) {
     geoTextColor = "#0369a1";
   }
 
-  let categoryBadgeText = "Target Fit";
-  let categoryBadgeColor = "#fff3cd";
-  let categoryTextColor = "#856404";
-
-  const admitRate = college["latest.admissions.admission_rate.overall"] || 0.5;
-  if (userGPA >= 3.8 && admitRate > 0.6) {
-    categoryBadgeText = "Safety Option";
-    categoryBadgeColor = "#d4edda";
-    categoryTextColor = "#155724";
-  } else if (userGPA < 3.2 && admitRate < 0.3) {
-    categoryBadgeText = "Reach Goal";
-    categoryBadgeColor = "#f8d7da";
-    categoryTextColor = "#721c24";
-  }
-
   const safeId = collegeName.replace(/\s+/g, '-').replace(/[^\w-]/g, '');
 
   card.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
       <div>
         <h3 style="margin: 0 0 8px 0; font-family: 'Fraunces', serif; font-size: 20px; color: #111;">${collegeName}</h3>
-        <p style="margin: 4px 0; font-size: 14px; color: #555;">📍 <strong>Location:</strong> ${collegeState} | 🏛️ <strong>Type:</strong> ${ownership}</p>
+        <p style="margin: 4px 0; font-size: 14px; color: #555;">📍 <strong>Location:</strong> ${collegeState}</p>
       </div>
       <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
         <span style="background: ${geoBadgeBg}; color: ${geoTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">${geoBadgeText}</span>
-        <span style="background: ${categoryBadgeColor}; color: ${categoryTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">${categoryBadgeText}</span>
       </div>
     </div>
     <hr style="border: 0; border-top: 1px solid #f5f5f5; margin: 12px 0;">
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-      <div>
-        <p style="margin: 0 0 4px 0; font-size: 12px; color: #666; font-weight: 500; text-transform: uppercase;">Acceptance Rate</p>
-        <p style="margin: 0; font-size: 18px; font-weight: bold; color: #111;">${acceptanceRate}</p>
-      </div>
-      <div>
-        <p style="margin: 0 0 4px 0; font-size: 12px; color: #666; font-weight: 500; text-transform: uppercase;">Net Price</p>
-        <p style="margin: 0; font-size: 18px; font-weight: bold; color: #111;">${netPrice}</p>
-      </div>
-    </div>
-
+    
     <div style="margin-top: 15px; padding: 12px; background: #fafafa; border-radius: 6px; border: 1px dashed #ddd; display: flex; flex-direction: column; gap: 10px;">
       <div style="display: flex; gap: 10px; align-items: center;">
         <label style="font-size: 13px; font-weight: 500; color: #111;">Save Priority:</label>
@@ -145,7 +100,7 @@ function createCollegeCard(college, index, userGPA) {
         </select>
       </div>
       <textarea id="notes-${safeId}" placeholder="Add research notes" style="width: 100%; min-height: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
-      <button onclick="saveCollegeToList('${collegeName.replace(/'/g, "\\'")}', '${collegeState}', '${acceptanceRate}', '${safeId}')" style="background: #111; color: #fff; border: none; padding: 10px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; align-self: flex-start;">✨ Save to My List</button>
+      <button onclick="saveCollegeToList('${collegeName.replace(/'/g, "\\'")}', '${collegeState}', '${safeId}')" style="background: #111; color: #fff; border: none; padding: 10px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; align-self: flex-start;">✨ Save to My List</button>
     </div>
   `;
 
@@ -169,7 +124,7 @@ function getStateFromZipCodeForDisplay(zip) {
   return zipToState[zip.substring(0, 2)] || "Other";
 }
 
-async function saveCollegeToList(collegeName, location, acceptanceRate, uniqueId) {
+async function saveCollegeToList(collegeName, location, uniqueId) {
   if (!window.capitnjFirebase?.ready) {
     await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
   }
@@ -191,7 +146,6 @@ async function saveCollegeToList(collegeName, location, acceptanceRate, uniqueId
     await setDoc(doc(db, "users", user.uid, "savedColleges", uniqueId), {
       name: collegeName,
       state: location,
-      rate: acceptanceRate,
       priority: rankSelection,
       notes: noteContent,
       timestamp: new Date().toISOString()
