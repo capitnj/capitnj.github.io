@@ -351,227 +351,227 @@
     </div>
 
    <script type="module" src="firebase-init.js"></script>
-    <script>
-        (async () => {
-            const firebase = await window.capitnjFirebase.ready;
-            const { requireAuth, logOut, auth } = firebase;
-            const { doc, getDoc, setDoc, deleteDoc } = firebase.firestoreFns;
-            const { updateProfile, updateEmail, updatePassword, deleteUser, EmailAuthProvider, reauthenticateWithCredential } = firebase.authFns;
-            const db = firebase.db;
+   <script>
+window.addEventListener('firebase-ready', async () => {
+    const firebase = window.capitnjFirebase;
+    const { requireAuth, logOut } = firebase;
+    const { doc, getDoc, setDoc, deleteDoc } = firebase.firestoreFns;
+    const { updateProfile, updateEmail, updatePassword, deleteUser, EmailAuthProvider, reauthenticateWithCredential } = firebase.authFns;
+    const db = firebase.db;
 
-            const loadingEl = document.getElementById("loading");
-            const contentEl = document.getElementById("profile-content");
-            const logoutBtn = document.getElementById("logout-btn");
-            const nameEl = document.getElementById("user-name");
-            const emailEl = document.getElementById("user-email");
-            const greetingEl = document.getElementById("greeting-text");
+    const loadingEl = document.getElementById("loading");
+    const contentEl = document.getElementById("profile-content");
+    const logoutBtn = document.getElementById("logout-btn");
+    const nameEl = document.getElementById("user-name");
+    const emailEl = document.getElementById("user-email");
+    const greetingEl = document.getElementById("greeting-text");
 
-            const gpaInput = document.getElementById("gpa");
-            const satInput = document.getElementById("sat");
-            const locationInput = document.getElementById("preferred-location");
-            const searchRadiusSelect = document.getElementById("search-radius");
-            const tuitionInput = document.getElementById("max-tuition");
-            const typeSelect = document.getElementById("school-type");
-            const prefForm = document.getElementById("preferences-form");
-            const statusMsg = document.getElementById("status-message");
-            const matchingLoader = document.getElementById("matching-loader");
+    const gpaInput = document.getElementById("gpa");
+    const satInput = document.getElementById("sat");
+    const locationInput = document.getElementById("preferred-location");
+    const searchRadiusSelect = document.getElementById("search-radius");
+    const tuitionInput = document.getElementById("max-tuition");
+    const typeSelect = document.getElementById("school-type");
+    const prefForm = document.getElementById("preferences-form");
+    const statusMsg = document.getElementById("status-message");
+    const matchingLoader = document.getElementById("matching-loader");
 
-            const firstNameInput = document.getElementById("first-name");
-            const lastNameInput = document.getElementById("last-name");
-            const nameForm = document.getElementById("name-form");
-            const nameStatus = document.getElementById("name-status");
+    const firstNameInput = document.getElementById("first-name");
+    const lastNameInput = document.getElementById("last-name");
+    const nameForm = document.getElementById("name-form");
+    const nameStatus = document.getElementById("name-status");
 
-            const newEmailInput = document.getElementById("new-email");
-            const emailCurrentPwInput = document.getElementById("email-current-password");
-            const emailForm = document.getElementById("email-form");
-            const emailStatus = document.getElementById("email-status");
+    const newEmailInput = document.getElementById("new-email");
+    const emailCurrentPwInput = document.getElementById("email-current-password");
+    const emailForm = document.getElementById("email-form");
+    const emailStatus = document.getElementById("email-status");
 
-            const pwCurrentInput = document.getElementById("pw-current-password");
-            const newPwInput = document.getElementById("new-password");
-            const passwordForm = document.getElementById("password-form");
-            const passwordStatus = document.getElementById("password-status");
+    const pwCurrentInput = document.getElementById("pw-current-password");
+    const newPwInput = document.getElementById("new-password");
+    const passwordForm = document.getElementById("password-form");
+    const passwordStatus = document.getElementById("password-status");
 
-            const deleteAccountBtn = document.getElementById("delete-account-btn");
-            const deleteConfirmArea = document.getElementById("delete-confirm-area");
-            const deletePasswordInput = document.getElementById("delete-password");
-            const dangerStatus = document.getElementById("danger-status");
+    const deleteAccountBtn = document.getElementById("delete-account-btn");
+    const deleteConfirmArea = document.getElementById("delete-confirm-area");
+    const deletePasswordInput = document.getElementById("delete-password");
+    const dangerStatus = document.getElementById("danger-status");
 
-            logoutBtn.addEventListener("click", () => logOut());
+    logoutBtn.addEventListener("click", () => logOut());
 
-            function reauth(user, password) {
-                const credential = EmailAuthProvider.credential(user.email, password);
-                return reauthenticateWithCredential(user, credential);
+    function reauth(user, password) {
+        const credential = EmailAuthProvider.credential(user.email, password);
+        return reauthenticateWithCredential(user, credential);
+    }
+
+    function showStatus(element, message, isSuccess) {
+        element.textContent = message;
+        element.className = `status-msg ${isSuccess ? "success" : "error"}`;
+        element.style.display = "block";
+    }
+
+    requireAuth(async (user) => {
+        loadingEl.style.display = "none";
+        contentEl.style.display = "block";
+
+        const displayName = user.displayName || sessionStorage.getItem("capitnj_name") || "Student";
+        nameEl.textContent = displayName;
+        emailEl.textContent = user.email;
+        greetingEl.textContent = `Hi, ${displayName.split(" ")[0]}! Manage your account and college preferences here.`;
+
+        const [first, ...rest] = displayName.split(" ");
+        firstNameInput.value = first || "";
+        lastNameInput.value = rest.join(" ") || "";
+        newEmailInput.placeholder = user.email;
+
+        const userDocRef = doc(db, "users", user.uid);
+        try {
+            const docSnap = await getDoc(userDocRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.gpa) gpaInput.value = data.gpa;
+                if (data.sat) satInput.value = data.sat;
+                if (data.maxTuition) tuitionInput.value = data.maxTuition;
+                if (data.preferred_location) locationInput.value = data.preferred_location;
+                if (data.searchRadius) searchRadiusSelect.value = data.searchRadius;
+                if (data.schoolType) typeSelect.value = data.schoolType;
             }
+        } catch (error) {
+            console.error("Error fetching profile document:", error);
+        }
 
-            function showStatus(element, message, isSuccess) {
-                element.textContent = message;
-                element.className = `status-msg ${isSuccess ? "success" : "error"}`;
-                element.style.display = "block";
-            }
+        prefForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            matchingLoader.style.display = "block";
+            statusMsg.style.display = "block";
+            statusMsg.textContent = "Analyzing Fits...";
+            statusMsg.className = "status-msg";
 
-            requireAuth(async (user) => {
-                loadingEl.style.display = "none";
-                contentEl.style.display = "block";
-
-                const displayName = user.displayName || sessionStorage.getItem("capitnj_name") || "Student";
-                nameEl.textContent = displayName;
-                emailEl.textContent = user.email;
-                greetingEl.textContent = `Hi, ${displayName.split(" ")[0]}! Manage your account and college preferences here.`;
-
-                const [first, ...rest] = displayName.split(" ");
-                firstNameInput.value = first || "";
-                lastNameInput.value = rest.join(" ") || "";
-                newEmailInput.placeholder = user.email;
-
-                const userDocRef = doc(db, "users", user.uid);
-                try {
-                    const docSnap = await getDoc(userDocRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        if (data.gpa) gpaInput.value = data.gpa;
-                        if (data.sat) satInput.value = data.sat;
-                        if (data.maxTuition) tuitionInput.value = data.maxTuition;
-                        if (data.preferred_location) locationInput.value = data.preferred_location;
-                        if (data.searchRadius) searchRadiusSelect.value = data.searchRadius;
-                        if (data.schoolType) typeSelect.value = data.schoolType;
-                    }
-                } catch (error) {
-                    console.error("Error fetching profile document:", error);
+            try {
+                const zipCode = locationInput.value.trim();
+                if (!zipCode) {
+                    throw new Error("Please enter a zipcode");
                 }
 
-                prefForm.addEventListener("submit", async (event) => {
-                    event.preventDefault();
-                    matchingLoader.style.display = "block";
-                    statusMsg.style.display = "block";
-                    statusMsg.textContent = "Analyzing Fits...";
-                    statusMsg.className = "status-msg";
+                await setDoc(userDocRef, {
+                    gpa: gpaInput.value,
+                    sat: satInput.value,
+                    maxTuition: tuitionInput.value,
+                    preferred_location: zipCode,
+                    searchRadius: searchRadiusSelect.value,
+                    schoolType: typeSelect.value,
+                    email: user.email,
+                    updatedAt: new Date().toISOString()
+                }, { merge: true });
 
-                    try {
-                        const zipCode = locationInput.value.trim();
-                        if (!zipCode) {
-                            throw new Error("Please enter a zipcode");
-                        }
+                localStorage.setItem("userGpa", gpaInput.value);
+                localStorage.setItem("userSat", satInput.value);
+                localStorage.setItem("userBudget", tuitionInput.value);
+                localStorage.setItem("userZipCode", zipCode);
+                localStorage.setItem("searchRadius", searchRadiusSelect.value);
+                localStorage.setItem("userCollegeType", typeSelect.value);
 
-                        await setDoc(userDocRef, {
-                            gpa: gpaInput.value,
-                            sat: satInput.value,
-                            maxTuition: tuitionInput.value,
-                            preferred_location: zipCode,
-                            searchRadius: searchRadiusSelect.value,
-                            schoolType: typeSelect.value,
-                            email: user.email,
-                            updatedAt: new Date().toISOString()
-                        }, { merge: true });
+                setTimeout(() => {
+                    window.location.href = "matches.html";
+                }, 1000);
+            } catch (error) {
+                console.error("Error saving preferences:", error);
+                showStatus(statusMsg, `Error: ${error.message}`, false);
+                matchingLoader.style.display = "none";
+            }
+        });
 
-                        localStorage.setItem("userGpa", gpaInput.value);
-                        localStorage.setItem("userSat", satInput.value);
-                        localStorage.setItem("userBudget", tuitionInput.value);
-                        localStorage.setItem("userZipCode", zipCode);
-                        localStorage.setItem("searchRadius", searchRadiusSelect.value);
-                        localStorage.setItem("userCollegeType", typeSelect.value);
+        nameForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            nameStatus.style.display = "block";
+            nameStatus.textContent = "Saving...";
+            const fullName = `${firstNameInput.value.trim()} ${lastNameInput.value.trim()}`.trim();
+            try {
+                await updateProfile(user, { displayName: fullName });
+                await setDoc(userDocRef, { name: fullName }, { merge: true });
+                sessionStorage.setItem("capitnj_name", fullName);
+                nameEl.textContent = fullName;
+                greetingEl.textContent = `Hi, ${firstNameInput.value.trim()}! Manage your account and college preferences here.`;
+                showStatus(nameStatus, "✅ Name updated.", true);
+            } catch (error) {
+                console.error(error);
+                showStatus(nameStatus, "❌ Could not update name.", false);
+            }
+        });
 
-                        setTimeout(() => {
-                            window.location.href = "matches.html";
-                        }, 1000);
-                    } catch (error) {
-                        console.error("Error saving preferences:", error);
-                        showStatus(statusMsg, `Error: ${error.message}`, false);
-                        matchingLoader.style.display = "none";
-                    }
-                });
+        emailForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const newEmail = newEmailInput.value.trim();
+            const currentPw = emailCurrentPwInput.value;
+            if (!newEmail || !currentPw) {
+                showStatus(emailStatus, "❌ Enter a new email and your current password.", false);
+                return;
+            }
+            emailStatus.style.display = "block";
+            emailStatus.textContent = "Updating...";
+            try {
+                await reauth(user, currentPw);
+                await updateEmail(user, newEmail);
+                await setDoc(userDocRef, { email: newEmail }, { merge: true });
+                emailEl.textContent = newEmail;
+                showStatus(emailStatus, "✅ Email updated.", true);
+                emailCurrentPwInput.value = "";
+            } catch (error) {
+                console.error(error);
+                showStatus(emailStatus, "❌ Could not update email. Check your password and try again.", false);
+            }
+        });
 
-                nameForm.addEventListener("submit", async (event) => {
-                    event.preventDefault();
-                    nameStatus.style.display = "block";
-                    nameStatus.textContent = "Saving...";
-                    const fullName = `${firstNameInput.value.trim()} ${lastNameInput.value.trim()}`.trim();
-                    try {
-                        await updateProfile(user, { displayName: fullName });
-                        await setDoc(userDocRef, { name: fullName }, { merge: true });
-                        sessionStorage.setItem("capitnj_name", fullName);
-                        nameEl.textContent = fullName;
-                        greetingEl.textContent = `Hi, ${firstNameInput.value.trim()}! Manage your account and college preferences here.`;
-                        showStatus(nameStatus, "✅ Name updated.", true);
-                    } catch (error) {
-                        console.error(error);
-                        showStatus(nameStatus, "❌ Could not update name.", false);
-                    }
-                });
+        passwordForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const currentPw = pwCurrentInput.value;
+            const newPw = newPwInput.value;
+            if (!currentPw || !newPw) {
+                showStatus(passwordStatus, "❌ Fill in both password fields.", false);
+                return;
+            }
+            passwordStatus.style.display = "block";
+            passwordStatus.textContent = "Updating...";
+            try {
+                await reauth(user, currentPw);
+                await updatePassword(user, newPw);
+                showStatus(passwordStatus, "✅ Password updated.", true);
+                pwCurrentInput.value = "";
+                newPwInput.value = "";
+            } catch (error) {
+                console.error(error);
+                showStatus(passwordStatus, "❌ Could not update password. Check your current password.", false);
+            }
+        });
 
-                emailForm.addEventListener("submit", async (event) => {
-                    event.preventDefault();
-                    const newEmail = newEmailInput.value.trim();
-                    const currentPw = emailCurrentPwInput.value;
-                    if (!newEmail || !currentPw) {
-                        showStatus(emailStatus, "❌ Enter a new email and your current password.", false);
-                        return;
-                    }
-                    emailStatus.style.display = "block";
-                    emailStatus.textContent = "Updating...";
-                    try {
-                        await reauth(user, currentPw);
-                        await updateEmail(user, newEmail);
-                        await setDoc(userDocRef, { email: newEmail }, { merge: true });
-                        emailEl.textContent = newEmail;
-                        showStatus(emailStatus, "✅ Email updated.", true);
-                        emailCurrentPwInput.value = "";
-                    } catch (error) {
-                        console.error(error);
-                        showStatus(emailStatus, "❌ Could not update email. Check your password and try again.", false);
-                    }
-                });
-
-                passwordForm.addEventListener("submit", async (event) => {
-                    event.preventDefault();
-                    const currentPw = pwCurrentInput.value;
-                    const newPw = newPwInput.value;
-                    if (!currentPw || !newPw) {
-                        showStatus(passwordStatus, "❌ Fill in both password fields.", false);
-                        return;
-                    }
-                    passwordStatus.style.display = "block";
-                    passwordStatus.textContent = "Updating...";
-                    try {
-                        await reauth(user, currentPw);
-                        await updatePassword(user, newPw);
-                        showStatus(passwordStatus, "✅ Password updated.", true);
-                        pwCurrentInput.value = "";
-                        newPwInput.value = "";
-                    } catch (error) {
-                        console.error(error);
-                        showStatus(passwordStatus, "❌ Could not update password. Check your current password.", false);
-                    }
-                });
-
-                deleteAccountBtn.addEventListener("click", async () => {
-                    if (deleteConfirmArea.style.display === "none") {
-                        deleteConfirmArea.style.display = "block";
-                        dangerStatus.style.display = "block";
-                        dangerStatus.textContent = "Enter your password above, then click Delete Account again to confirm.";
-                        dangerStatus.className = "status-msg";
-                        return;
-                    }
-                    const pw = deletePasswordInput.value;
-                    if (!pw) {
-                        showStatus(dangerStatus, "❌ Please enter your password to confirm deletion.", false);
-                        return;
-                    }
-                    if (!confirm("This will permanently delete your account. Are you absolutely sure?")) return;
-                    dangerStatus.style.display = "block";
-                    dangerStatus.textContent = "Deleting...";
-                    try {
-                        await reauth(user, pw);
-                        await deleteDoc(userDocRef);
-                        await deleteUser(user);
-                        window.location.replace("login.html");
-                    } catch (error) {
-                        console.error(error);
-                        showStatus(dangerStatus, "❌ Could not delete account. Check your password and try again.", false);
-                    }
-                });
-            });
-        })();
-    </script>
+        deleteAccountBtn.addEventListener("click", async () => {
+            if (deleteConfirmArea.style.display === "none") {
+                deleteConfirmArea.style.display = "block";
+                dangerStatus.style.display = "block";
+                dangerStatus.textContent = "Enter your password above, then click Delete Account again to confirm.";
+                dangerStatus.className = "status-msg";
+                return;
+            }
+            const pw = deletePasswordInput.value;
+            if (!pw) {
+                showStatus(dangerStatus, "❌ Please enter your password to confirm deletion.", false);
+                return;
+            }
+            if (!confirm("This will permanently delete your account. Are you absolutely sure?")) return;
+            dangerStatus.style.display = "block";
+            dangerStatus.textContent = "Deleting...";
+            try {
+                await reauth(user, pw);
+                await deleteDoc(userDocRef);
+                await deleteUser(user);
+                window.location.replace("login.html");
+            } catch (error) {
+                console.error(error);
+                showStatus(dangerStatus, "❌ Could not delete account. Check your password and try again.", false);
+            }
+        });
+    });
+});
+</script>
     <script src="data.js"></script>
     <script src="matching.js"></script>
 </body>
