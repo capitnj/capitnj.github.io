@@ -581,5 +581,8 @@
     </script>
     <script src="data.js"></script>
     <script src="matching.js"></script>
+
+    initializeFirebase();
+    
 </body>
 </html>

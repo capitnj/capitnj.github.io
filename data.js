@@ -82,22 +82,55 @@ window.getCollegesByZipCode = function(userZipCode, searchRadiusMiles) {
 
 window.COLLEGES = [];
 
-fetch('https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json')
-  .then(response => response.json())
-  .then(data => {
-    window.COLLEGES = data
-      .filter(college => college.country === 'United States')
-      .map(college => ({
-        name: college.name || '',
-        state: college.state || '',
-        latitude: college.latitude || null,
-        longitude: college.longitude || null,
-        domains: college.domains || [],
-      }));
-    
+const cacheKey = 'capitnj_colleges_cache';
+const cacheExpiry = 'capitnj_colleges_expiry';
+const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000;
+
+function loadCollegesFromCache() {
+  const cached = localStorage.getItem(cacheKey);
+  const expiry = localStorage.getItem(cacheExpiry);
+  
+  if (cached && expiry && Date.now() < parseInt(expiry)) {
+    return JSON.parse(cached);
+  }
+  return null;
+}
+
+function saveCollegeesToCache(data) {
+  localStorage.setItem(cacheKey, JSON.stringify(data));
+  localStorage.setItem(cacheExpiry, (Date.now() + CACHE_DURATION).toString());
+}
+
+function initializeColleges() {
+  const cached = loadCollegesFromCache();
+  
+  if (cached) {
+    window.COLLEGES = cached;
     window.dispatchEvent(new Event('database-ready'));
-  })
-  .catch(error => {
-    console.error('Error loading college data:', error);
-    window.dispatchEvent(new Event('database-ready'));
-  });
+    return;
+  }
+
+  fetch('https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json')
+    .then(response => response.json())
+    .then(data => {
+      const filtered = data
+        .filter(college => college.country === 'United States')
+        .map(college => ({
+          name: college.name || '',
+          state: college.state || '',
+          latitude: college.latitude || null,
+          longitude: college.longitude || null,
+          domains: college.domains || [],
+        }));
+      
+      window.COLLEGES = filtered;
+      saveCollegeesToCache(filtered);
+      window.dispatchEvent(new Event('database-ready'));
+    })
+    .catch(error => {
+      console.error('Error loading college data:', error);
+      window.dispatchEvent(new Event('database-ready'));
+    });
+}
+
+initializeColleges();
