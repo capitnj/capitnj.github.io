@@ -9,6 +9,62 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+
+    <style>
+        #auth-prompt {
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 40px;
+            text-align: center;
+        }
+
+        #auth-prompt h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        #auth-prompt p {
+            color: #666;
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+
+        #auth-prompt .btn {
+            margin: 0 10px;
+        }
+
+        #profile-form {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 0 24px;
+        }
+
+        .form-section-title {
+            font-family: 'Fraunces', serif;
+            font-size: 20px;
+            margin: 40px 0 20px 0;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .form-section-title:first-child {
+            margin-top: 0;
+        }
+
+        #logout-section {
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 0 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        #logout-section .btn {
+            padding: 12px 24px;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -22,74 +78,88 @@
         </div>
     </nav>
 
-    <div id="loading" style="text-align: center; padding: 60px 20px; font-size: 16px; color: #666;">
-        <p>Loading your profile...</p>
+    <!-- NOT LOGGED IN STATE -->
+    <div id="auth-prompt" style="display: none;">
+        <h2>Create an account for personalized results.</h2>
+        <p>It's free. Get colleges matched to your stats, budget, and preferences.</p>
+        <a href="login.html" class="btn btn-primary">Sign In</a>
+        <a href="login.html" class="btn btn-outline">Create Account</a>
     </div>
 
-    <div id="profile-content" style="display: none;">
-        <div class="profile-shell">
-            <div class="profile-header">
-                <div>
-                    <h1 id="user-name" style="margin: 0;">Student</h1>
-                    <p class="profile-subtitle" id="user-email" style="margin: 8px 0 0;">email@example.com</p>
-                </div>
-                <button id="logout-btn" class="btn btn-outline" style="white-space: nowrap;">Log Out</button>
-            </div>
+    <!-- LOGGED IN STATE -->
+    <form id="profile-form" style="display: none;">
+        <h1 style="font-family: 'Fraunces', serif; margin-top: 40px;">Your Preferences</h1>
 
-            <div class="profile-card">
-                <h2>College Preferences</h2>
-                <form id="preferences-form">
-                    <div class="field">
-                        <label for="gpa">GPA</label>
-                        <input type="number" id="gpa" step="0.01" min="0" max="4.0" placeholder="3.8">
-                    </div>
-
-                    <div class="field">
-                        <label for="sat">SAT Score</label>
-                        <input type="number" id="sat" min="400" max="1600" placeholder="1200">
-                    </div>
-
-                    <div class="field">
-                        <label for="preferred-location">Home Zip Code</label>
-                        <input type="text" id="preferred-location" placeholder="08901" maxlength="5">
-                    </div>
-
-                    <div class="field">
-                        <label for="search-radius">Max Distance from Home</label>
-                        <select id="search-radius">
-                            <option value="50">50 miles</option>
-                            <option value="150">150 miles</option>
-                            <option value="300">300 miles</option>
-                            <option value="999">Anywhere</option>
-                        </select>
-                    </div>
-
-                    <div class="field">
-                        <label for="max-tuition">Max Annual Tuition ($)</label>
-                        <input type="number" id="max-tuition" min="0" step="1000" placeholder="50000">
-                    </div>
-
-                    <div class="field">
-                        <label for="school-type">School Type</label>
-                        <select id="school-type">
-                            <option value="all">Any</option>
-                            <option value="public">Public</option>
-                            <option value="private">Private</option>
-                        </select>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Find Colleges</button>
-                    <div id="status-message" class="status-msg" style="display: none;"></div>
-                </form>
-            </div>
-
-            <div class="profile-card">
-                <h2>Delete Account</h2>
-                <p style="color: #999; margin-bottom: 20px;">Permanently delete your account.</p>
-                <button id="delete-account-btn" class="btn" style="background: #B3413A; color: white;">Delete Account</button>
-                <div id="danger-status" class="status-msg" style="display: none;"></div>
-            </div>
+        <div class="form-section-title">Test Scores</div>
+        <div class="field">
+            <label for="gpa">GPA</label>
+            <input type="number" id="gpa" step="0.01" min="0" max="4.0" placeholder="3.8">
         </div>
+
+        <div class="field">
+            <label for="sat">SAT Score (optional)</label>
+            <input type="number" id="sat" min="400" max="1600" placeholder="1200">
+        </div>
+
+        <div class="form-section-title">Location & Distance</div>
+        <div class="field">
+            <label for="zip">Home Zip Code</label>
+            <input type="text" id="zip" placeholder="08901" maxlength="5">
+        </div>
+
+        <div class="field">
+            <label for="radius">Max Distance from Home</label>
+            <select id="radius">
+                <option value="50">50 miles</option>
+                <option value="150">150 miles</option>
+                <option value="300">300 miles</option>
+                <option value="999">Anywhere</option>
+            </select>
+        </div>
+
+        <div class="form-section-title">School Preferences</div>
+        <div class="field">
+            <label for="size">School Size</label>
+            <select id="size">
+                <option value="">Any</option>
+                <option value="small">Small (under 5,000)</option>
+                <option value="medium">Medium (5,000-15,000)</option>
+                <option value="large">Large (over 15,000)</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="setting">Campus Setting</label>
+            <select id="setting">
+                <option value="">Any</option>
+                <option value="urban">Urban</option>
+                <option value="suburban">Suburban</option>
+                <option value="rural">Rural</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="type">School Type</label>
+            <select id="type">
+                <option value="">Any</option>
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="budget">Max Annual Cost ($)</label>
+            <input type="number" id="budget" min="0" step="1000" placeholder="50000">
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 32px;">Find My Colleges</button>
+        <div id="status-msg" class="error" style="display: none; margin-top: 16px; text-align: center; color: #B3413A;"></div>
+    </form>
+
+    <!-- LOGOUT & DELETE SECTION -->
+    <div id="logout-section" style="display: none;">
+        <button id="logout-btn" class="btn btn-outline">Log Out</button>
+        <button id="delete-btn" class="btn" style="background: #B3413A; color: white; border: 1px solid #B3413A;">Delete Account</button>
     </div>
 
     <script>
@@ -106,109 +176,112 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
-        const loadingEl = document.getElementById("loading");
-        const contentEl = document.getElementById("profile-content");
-        const logoutBtn = document.getElementById("logout-btn");
-        const nameEl = document.getElementById("user-name");
-        const emailEl = document.getElementById("user-email");
+        const authPrompt = document.getElementById("auth-prompt");
+        const profileForm = document.getElementById("profile-form");
+        const logoutSection = document.getElementById("logout-section");
+        const statusMsg = document.getElementById("status-msg");
 
         const gpaInput = document.getElementById("gpa");
         const satInput = document.getElementById("sat");
-        const locationInput = document.getElementById("preferred-location");
-        const searchRadiusSelect = document.getElementById("search-radius");
-        const tuitionInput = document.getElementById("max-tuition");
-        const typeSelect = document.getElementById("school-type");
-        const prefForm = document.getElementById("preferences-form");
-        const statusMsg = document.getElementById("status-message");
-        const deleteAccountBtn = document.getElementById("delete-account-btn");
-        const dangerStatus = document.getElementById("danger-status");
+        const zipInput = document.getElementById("zip");
+        const radiusSelect = document.getElementById("radius");
+        const sizeSelect = document.getElementById("size");
+        const settingSelect = document.getElementById("setting");
+        const typeSelect = document.getElementById("type");
+        const budgetInput = document.getElementById("budget");
 
-        logoutBtn.addEventListener("click", () => {
-            auth.signOut().then(() => window.location.href = "login.html");
-        });
-
-        function showStatus(element, message, isSuccess) {
-            element.textContent = message;
-            element.className = `status-msg ${isSuccess ? "success" : "error"}`;
-            element.style.display = "block";
-        }
-
+        // Check auth state
         auth.onAuthStateChanged(async (user) => {
             if (!user) {
-                window.location.href = "login.html";
+                authPrompt.style.display = "block";
+                profileForm.style.display = "none";
+                logoutSection.style.display = "none";
                 return;
             }
 
-            loadingEl.style.display = "none";
-            contentEl.style.display = "block";
+            authPrompt.style.display = "none";
+            profileForm.style.display = "block";
+            logoutSection.style.display = "flex";
 
-            nameEl.textContent = user.displayName || "Student";
-            emailEl.textContent = user.email;
-
-            const userDocRef = db.collection("users").doc(user.uid);
+            // Load existing preferences
             try {
-                const docSnap = await userDocRef.get();
-                if (docSnap.exists) {
-                    const data = docSnap.data();
+                const doc = await db.collection("users").doc(user.uid).get();
+                if (doc.exists) {
+                    const data = doc.data();
                     if (data.gpa) gpaInput.value = data.gpa;
                     if (data.sat) satInput.value = data.sat;
-                    if (data.maxTuition) tuitionInput.value = data.maxTuition;
-                    if (data.preferred_location) locationInput.value = data.preferred_location;
-                    if (data.searchRadius) searchRadiusSelect.value = data.searchRadius;
-                    if (data.schoolType) typeSelect.value = data.schoolType;
+                    if (data.zip) zipInput.value = data.zip;
+                    if (data.radius) radiusSelect.value = data.radius;
+                    if (data.size) sizeSelect.value = data.size;
+                    if (data.setting) settingSelect.value = data.setting;
+                    if (data.type) typeSelect.value = data.type;
+                    if (data.budget) budgetInput.value = data.budget;
                 }
             } catch (error) {
-                console.error("Error fetching profile:", error);
+                console.error("Error loading preferences:", error);
             }
 
-            prefForm.addEventListener("submit", async (event) => {
-                event.preventDefault();
+            // Handle form submit
+            profileForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
 
-                const zipCode = locationInput.value.trim();
-                if (!zipCode) {
-                    showStatus(statusMsg, "Please enter a zipcode", false);
+                const zip = zipInput.value.trim();
+                if (!zip) {
+                    statusMsg.textContent = "Please enter your zip code";
+                    statusMsg.style.display = "block";
                     return;
                 }
 
                 try {
-                    await userDocRef.set({
+                    await db.collection("users").doc(user.uid).set({
                         gpa: gpaInput.value,
                         sat: satInput.value,
-                        maxTuition: tuitionInput.value,
-                        preferred_location: zipCode,
-                        searchRadius: searchRadiusSelect.value,
-                        schoolType: typeSelect.value,
+                        zip: zip,
+                        radius: radiusSelect.value,
+                        size: sizeSelect.value,
+                        setting: settingSelect.value,
+                        type: typeSelect.value,
+                        budget: budgetInput.value,
                     }, { merge: true });
 
                     localStorage.setItem("userGpa", gpaInput.value);
                     localStorage.setItem("userSat", satInput.value);
-                    localStorage.setItem("userBudget", tuitionInput.value);
-                    localStorage.setItem("userZipCode", zipCode);
-                    localStorage.setItem("searchRadius", searchRadiusSelect.value);
+                    localStorage.setItem("userZipCode", zip);
+                    localStorage.setItem("searchRadius", radiusSelect.value);
                     localStorage.setItem("userCollegeType", typeSelect.value);
+                    localStorage.setItem("userBudget", budgetInput.value);
 
                     setTimeout(() => {
                         window.location.href = "matches.html";
                     }, 500);
                 } catch (error) {
-                    showStatus(statusMsg, "Error saving preferences", false);
+                    statusMsg.textContent = "Error saving preferences";
+                    statusMsg.style.display = "block";
                 }
             });
 
-            deleteAccountBtn.addEventListener("click", async () => {
-                if (!confirm("Are you absolutely sure? This cannot be undone.")) return;
+            // Logout
+            document.getElementById("logout-btn").addEventListener("click", () => {
+                auth.signOut().then(() => {
+                    window.location.href = "login.html";
+                });
+            });
+
+            // Delete account
+            document.getElementById("delete-btn").addEventListener("click", async () => {
+                if (!confirm("Permanently delete your account? This cannot be undone.")) return;
                 
-                const password = prompt("Enter your password to confirm deletion:");
+                const password = prompt("Enter your password to confirm:");
                 if (!password) return;
 
                 try {
                     const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
                     await user.reauthenticateWithCredential(credential);
-                    await userDocRef.delete();
+                    await db.collection("users").doc(user.uid).delete();
                     await user.delete();
                     window.location.href = "login.html";
                 } catch (error) {
-                    showStatus(dangerStatus, "Error deleting account", false);
+                    alert("Error deleting account. Check your password.");
                 }
             });
         });
