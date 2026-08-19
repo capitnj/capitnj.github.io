@@ -1,96 +1,80 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
-  authDomain: "capitnj-73a53.firebaseapp.com",
-  projectId: "capitnj-73a53",
-  storageBucket: "capitnj-73a53.firebasestorage.app",
-  messagingSenderId: "1019609008991",
-  appId: "1:1019609008991:web:5f19dca479b475d221c4ea",
-  measurementId: "G-TGSCVHMGQZ"
-};
-
-const firebaseState = {
-  app: null,
-  auth: null,
-  db: null,
-  ready: null,
-  requireAuth: null,
-  logOut: null,
-  authFns: null,
-  firestoreFns: null
-};
-
-window.capitnjFirebase = firebaseState;
+let firebaseReady = false;
 
 function initializeFirebase() {
-  if (firebaseState.auth) {
-    return firebaseState;
+  if (typeof firebase === 'undefined') {
+    console.error('Firebase SDK not loaded');
+    setTimeout(initializeFirebase, 100);
+    return;
   }
 
-  const app = firebase.initializeApp(firebaseConfig);
+  const firebaseConfig = {
+    apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
+    authDomain: "capitnj-73a53.firebaseapp.com",
+    projectId: "capitnj-73a53",
+    storageBucket: "capitnj-73a53.firebasestorage.app",
+    messagingSenderId: "1019609008991",
+    appId: "1:1019609008991:web:5f19dca479b475d221c4ea",
+    measurementId: "G-TGSCVHMGQZ"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+
   const auth = firebase.auth();
   const db = firebase.firestore();
 
-  const requireAuth = (onReady) => {
-    firebase.auth().onAuthStateChanged((user) => {
-      if (!user) {
+  window.capitnjFirebase = {
+    auth: auth,
+    db: db,
+    authFns: {
+      signInWithEmail: (email, password) => auth.signInWithEmailAndPassword(email, password),
+      createUserWithEmail: (email, password) => auth.createUserWithEmailAndPassword(email, password),
+      signOut: () => auth.signOut(),
+      updateProfile: (user, data) => user.updateProfile(data),
+      updateEmail: (user, email) => user.updateEmail(email),
+      updatePassword: (user, password) => user.updatePassword(password),
+      deleteUser: (user) => user.delete(),
+      EmailAuthProvider: firebase.auth.EmailAuthProvider,
+      reauthenticateWithCredential: (user, credential) => user.reauthenticateWithCredential(credential),
+      onAuthStateChanged: (callback) => auth.onAuthStateChanged(callback)
+    },
+    firestoreFns: {
+      doc: (db, ...args) => firebase.firestore.doc(db, ...args),
+      getDoc: (docRef) => firebase.firestore.getDoc(docRef),
+      setDoc: (docRef, data, options) => firebase.firestore.setDoc(docRef, data, options),
+      updateDoc: (docRef, data) => firebase.firestore.updateDoc(docRef, data),
+      deleteDoc: (docRef) => firebase.firestore.deleteDoc(docRef),
+      collection: (db, name) => firebase.firestore.collection(db, name),
+      query: (...args) => firebase.firestore.query(...args),
+      where: (...args) => firebase.firestore.where(...args),
+      getDocs: (q) => firebase.firestore.getDocs(q)
+    },
+    requireAuth: (callback) => {
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          callback(user);
+        } else {
+          window.location.replace("login.html");
+        }
+      });
+    },
+    logOut: async () => {
+      try {
+        await auth.signOut();
+        sessionStorage.clear();
         window.location.replace("login.html");
-        return;
+      } catch (error) {
+        console.error("Logout error:", error);
       }
-      onReady(user);
-    });
+    }
   };
 
-  const logOut = () => {
-    firebase.auth().signOut()
-      .then(() => window.location.replace("login.html"))
-      .catch(() => window.location.replace("login.html"));
-  };
-
-  const authFns = {
-    onAuthStateChanged: firebase.auth().onAuthStateChanged,
-    createUserWithEmailAndPassword: firebase.auth().createUserWithEmailAndPassword,
-    signInWithEmailAndPassword: firebase.auth().signInWithEmailAndPassword,
-    sendPasswordResetEmail: firebase.auth().sendPasswordResetEmail,
-    updateProfile: firebase.auth().currentUser?.updateProfile,
-    updateEmail: firebase.auth().currentUser?.updateEmail,
-    updatePassword: firebase.auth().currentUser?.updatePassword,
-    deleteUser: firebase.auth().currentUser?.delete,
-    EmailAuthProvider: firebase.auth.EmailAuthProvider,
-    reauthenticateWithCredential: firebase.auth().currentUser?.reauthenticateWithCredential
-  };
-
-  const firestoreFns = {
-    doc: firebase.firestore.doc,
-    getDoc: firebase.firestore.getDoc,
-    setDoc: firebase.firestore.setDoc,
-    deleteDoc: firebase.firestore.deleteDoc,
-    collection: firebase.firestore.collection,
-    addDoc: firebase.firestore.addDoc,
-    getDocs: firebase.firestore.getDocs,
-    query: firebase.firestore.query,
-    orderBy: firebase.firestore.orderBy
-  };
-
-  firebaseState.app = app;
-  firebaseState.auth = auth;
-  firebaseState.db = db;
-  firebaseState.requireAuth = requireAuth;
-  firebaseState.logOut = logOut;
-  firebaseState.authFns = authFns;
-  firebaseState.firestoreFns = firestoreFns;
-
-  window.auth = auth;
-  window.db = db;
-  window.requireAuth = requireAuth;
-  window.logOut = logOut;
-  window.firebaseAuthFns = authFns;
-  window.firestoreFns = firestoreFns;
-
-  window.dispatchEvent(new Event("firebase-ready"));
-  return firebaseState;
+  firebaseReady = true;
+  window.dispatchEvent(new Event('firebase-ready'));
 }
 
-firebaseState.ready = Promise.resolve(initializeFirebase());
-window.capitnjFirebase = firebaseState;
-
-initializeFirebase();
+// Start initialization when page loads
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializeFirebase);
+} else {
+  initializeFirebase();
+}

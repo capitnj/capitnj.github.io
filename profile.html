@@ -4,108 +4,136 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - CapItNJ</title>
-    <link rel="stylesheet" href="style.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-    
     <style>
-        .profile-container {
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
             max-width: 900px;
             margin: 0 auto;
-            padding: 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
         }
 
-        .profile-header {
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
             text-align: center;
-            margin-bottom: 3rem;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 2rem;
         }
 
-        .profile-header h1 {
-            font-size: 2.5rem;
-            margin: 0.5rem 0;
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-details h2 {
             color: #333;
+            margin-bottom: 5px;
         }
 
-        .profile-header p {
-            font-size: 1.1rem;
+        .user-details p {
             color: #666;
-            margin: 0.5rem 0;
+            font-size: 0.95em;
         }
 
         .logout-btn {
-            background-color: #e74c3c;
+            background: #ff6b6b;
             color: white;
             border: none;
-            padding: 0.6rem 1.5rem;
-            border-radius: 4px;
+            padding: 10px 20px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 0.95rem;
-            margin-top: 1rem;
+            font-size: 1em;
+            transition: background 0.3s;
         }
 
         .logout-btn:hover {
-            background-color: #c0392b;
+            background: #ff5252;
         }
 
-        .form-section {
-            background: white;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        #loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #667eea;
         }
 
-        .form-section h2 {
-            font-size: 1.5rem;
-            margin-top: 0;
-            margin-bottom: 1.5rem;
+        #profile-content {
+            display: none;
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h3 {
             color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 0.5rem;
-        }
-
-        .form-section h3 {
-            margin-top: 0;
-            color: #555;
-            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+            font-size: 1.4em;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
+            margin-bottom: 8px;
             color: #333;
+            font-weight: 500;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 1rem;
-            box-sizing: border-box;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s;
         }
 
         .form-group input:focus,
         .form-group select:focus {
             outline: none;
-            border-color: #007bff;
-            box-shadow: 0 0 5px rgba(0,123,255,0.25);
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
+            gap: 20px;
         }
 
         @media (max-width: 600px) {
@@ -114,257 +142,234 @@
             }
         }
 
-        .btn-group {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 0.75rem 1.5rem;
+        button[type="submit"] {
+            background: #667eea;
+            color: white;
             border: none;
-            border-radius: 4px;
-            font-size: 1rem;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 1em;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background 0.3s;
+            margin-top: 10px;
         }
 
-        .btn-primary {
-            background-color: #007bff;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-
-        .btn-danger {
-            background-color: #e74c3c;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c0392b;
+        button[type="submit"]:hover {
+            background: #5568d3;
         }
 
         .status-msg {
-            margin-top: 1rem;
-            padding: 0.75rem;
-            border-radius: 4px;
-            text-align: center;
-            font-weight: 600;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            display: none;
+            font-weight: 500;
         }
 
         .status-msg.success {
-            background-color: #d4edda;
+            background: #d4edda;
             color: #155724;
             border: 1px solid #c3e6cb;
         }
 
         .status-msg.error {
-            background-color: #f8d7da;
+            background: #f8d7da;
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
 
-        #loading {
-            text-align: center;
-            padding: 3rem;
-            font-size: 1.2rem;
-            color: #666;
+        .danger-zone {
+            background: #ffe0e0;
+            border: 2px solid #ff6b6b;
+            padding: 20px;
+            border-radius: 6px;
         }
 
-        #profile-content {
+        .danger-zone h3 {
+            color: #ff6b6b;
+            border-bottom-color: #ff6b6b;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+        }
+
+        .delete-btn:hover {
+            background: #ff5252;
+        }
+
+        .delete-confirm {
             display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #ff6b6b;
         }
 
-        .danger-section {
-            border: 2px solid #e74c3c;
-            background-color: #fff5f5;
-        }
-
-        .danger-section h2 {
-            color: #c0392b;
-            border-bottom-color: #e74c3c;
-        }
-
-        #delete-confirm-area {
-            display: none;
-            margin-top: 1.5rem;
-            padding: 1.5rem;
-            background-color: #f8d7da;
-            border-radius: 4px;
-            border: 1px solid #f5c6cb;
-        }
-
-        #delete-confirm-area .form-group {
-            margin-bottom: 1rem;
+        .delete-confirm input {
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-logo">CapItNJ</a>
-            <ul class="nav-menu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="profile.html" class="active">Profile</a></li>
-                <li><a href="matches.html">Find Colleges</a></li>
-            </ul>
+    <div class="container">
+        <div class="header">
+            <h1>Your Profile</h1>
+            <p id="greeting-text">Manage your account settings</p>
         </div>
-    </nav>
 
-    <div id="loading">
-        <p>Loading your profile...</p>
-    </div>
-
-    <div id="profile-content">
-        <div class="profile-container">
-            <div class="profile-header">
-                <h1>Your Profile</h1>
-                <p id="greeting-text"></p>
-                <p><strong id="user-name"></strong></p>
-                <p id="user-email"></p>
-                <button id="logout-btn" class="logout-btn">Log Out</button>
+        <div class="user-info">
+            <div class="user-details">
+                <h2 id="user-name">Loading...</h2>
+                <p id="user-email">Loading...</p>
             </div>
+            <button id="logout-btn" class="logout-btn">Log Out</button>
+        </div>
 
-            <div class="form-section">
-                <h2>College Preferences</h2>
+        <div id="loading">
+            <p>Loading your profile...</p>
+        </div>
+
+        <div id="profile-content">
+            <!-- College Preferences Section -->
+            <div class="section">
+                <h3>College Preferences</h3>
                 <form id="preferences-form">
                     <div class="form-row">
                         <div class="form-group">
                             <label for="gpa">GPA</label>
-                            <input type="number" id="gpa" step="0.01" min="0" max="4.0" placeholder="3.8">
+                            <input type="number" id="gpa" step="0.01" min="0" max="4" placeholder="e.g., 3.5">
                         </div>
                         <div class="form-group">
                             <label for="sat">SAT Score</label>
-                            <input type="number" id="sat" min="400" max="1600" placeholder="1200">
+                            <input type="number" id="sat" min="0" max="1600" placeholder="e.g., 1400">
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="preferred-location">Home Zip Code</label>
-                            <input type="text" id="preferred-location" placeholder="08901" maxlength="5">
+                            <label for="preferred-location">Preferred Location (City/State)</label>
+                            <input type="text" id="preferred-location" placeholder="e.g., New York, NY">
                         </div>
                         <div class="form-group">
-                            <label for="search-radius">Max Distance from Home</label>
+                            <label for="search-radius">Search Radius</label>
                             <select id="search-radius">
                                 <option value="50">50 miles</option>
                                 <option value="150">150 miles</option>
                                 <option value="300">300 miles</option>
-                                <option value="999">Anywhere</option>
+                                <option value="9999">Anywhere</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="max-tuition">Max Annual Tuition ($)</label>
-                            <input type="number" id="max-tuition" min="0" step="1000" placeholder="50000">
+                            <label for="max-tuition">Max Tuition (Annual)</label>
+                            <input type="number" id="max-tuition" min="0" placeholder="e.g., 50000">
                         </div>
                         <div class="form-group">
                             <label for="school-type">School Type</label>
                             <select id="school-type">
-                                <option value="all">Any</option>
+                                <option value="any">Any</option>
                                 <option value="public">Public</option>
                                 <option value="private">Private</option>
                             </select>
                         </div>
                     </div>
 
-                    <div class="btn-group">
-                        <button type="submit" id="save-btn" class="btn btn-primary">Save Preferences</button>
-                    </div>
-                    <div id="status-message" class="status-msg" style="display: none;"></div>
+                    <button type="submit">Save Preferences</button>
+                    <div id="status-message" class="status-msg"></div>
                 </form>
             </div>
 
-            <div class="form-section">
-                <h2>Account Settings</h2>
+            <!-- Account Settings Section -->
+            <div class="section">
+                <h3>Account Settings</h3>
 
-                <form id="name-form">
-                    <h3>Update Name</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="first-name">First Name</label>
-                            <input type="text" id="first-name" placeholder="First Name">
+                <!-- Update Name -->
+                <div style="margin-bottom: 30px;">
+                    <h4 style="color: #555; margin-bottom: 15px;">Update Name</h4>
+                    <form id="name-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first-name">First Name</label>
+                                <input type="text" id="first-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="last-name">Last Name</label>
+                                <input type="text" id="last-name" required>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="last-name">Last Name</label>
-                            <input type="text" id="last-name" placeholder="Last Name">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update Name</button>
-                    <div id="name-status" class="status-msg" style="display: none;"></div>
-                </form>
-
-                <form id="email-form" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #ddd;">
-                    <h3>Update Email</h3>
-                    <div class="form-group">
-                        <label for="new-email">New Email Address</label>
-                        <input type="email" id="new-email" placeholder="your-new-email@example.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="email-current-password">Current Password</label>
-                        <input type="password" id="email-current-password" placeholder="Enter your password">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update Email</button>
-                    <div id="email-status" class="status-msg" style="display: none;"></div>
-                </form>
-
-                <form id="password-form" style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid #ddd;">
-                    <h3>Change Password</h3>
-                    <div class="form-group">
-                        <label for="pw-current-password">Current Password</label>
-                        <input type="password" id="pw-current-password" placeholder="Enter your current password">
-                    </div>
-                    <div class="form-group">
-                        <label for="new-password">New Password</label>
-                        <input type="password" id="new-password" placeholder="Enter a new password">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Change Password</button>
-                    <div id="password-status" class="status-msg" style="display: none;"></div>
-                </form>
-            </div>
-
-            <div class="form-section danger-section">
-                <h2>Danger Zone</h2>
-                <p style="color: #c0392b; margin-bottom: 1.5rem;">
-                    <strong>Warning:</strong> Actions in this section cannot be undone.
-                </p>
-                <button id="delete-account-btn" class="btn btn-danger">Delete Account</button>
-                <div id="delete-confirm-area">
-                    <div class="form-group">
-                        <label for="delete-password">Confirm with Your Password</label>
-                        <input type="password" id="delete-password" placeholder="Enter your password to confirm">
-                    </div>
-                    <p style="color: #721c24; font-weight: 600;">This action is permanent and cannot be reversed.</p>
+                        <button type="submit">Update Name</button>
+                        <div id="name-status" class="status-msg"></div>
+                    </form>
                 </div>
-                <div id="danger-status" class="status-msg" style="display: none;"></div>
+
+                <!-- Update Email -->
+                <div style="margin-bottom: 30px;">
+                    <h4 style="color: #555; margin-bottom: 15px;">Update Email</h4>
+                    <form id="email-form">
+                        <div class="form-group">
+                            <label for="new-email">New Email</label>
+                            <input type="email" id="new-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email-current-password">Current Password</label>
+                            <input type="password" id="email-current-password" required>
+                        </div>
+                        <button type="submit">Update Email</button>
+                        <div id="email-status" class="status-msg"></div>
+                    </form>
+                </div>
+
+                <!-- Change Password -->
+                <div style="margin-bottom: 30px;">
+                    <h4 style="color: #555; margin-bottom: 15px;">Change Password</h4>
+                    <form id="password-form">
+                        <div class="form-group">
+                            <label for="pw-current-password">Current Password</label>
+                            <input type="password" id="pw-current-password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">New Password</label>
+                            <input type="password" id="new-password" required>
+                        </div>
+                        <button type="submit">Change Password</button>
+                        <div id="password-status" class="status-msg"></div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="section danger-zone">
+                <h3>Danger Zone</h3>
+                <p style="margin-bottom: 15px; color: #333;">Permanently delete your account. This action cannot be undone.</p>
+                <button id="delete-account-btn" class="delete-btn" type="button">Delete Account</button>
+                <div id="delete-confirm-area" class="delete-confirm">
+                    <div class="form-group">
+                        <label for="delete-password">Enter your password to confirm:</label>
+                        <input type="password" id="delete-password">
+                    </div>
+                </div>
+                <div id="danger-status" class="status-msg"></div>
             </div>
         </div>
     </div>
 
+    <!-- Firebase SDK from CDN -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
+
+    <!-- Initialize Firebase -->
     <script src="firebase-init.js"></script>
+
+    <!-- Profile Logic -->
     <script>
         window.addEventListener('firebase-ready', async () => {
-            const firebase = window.capitnjFirebase;
-            const { requireAuth, logOut } = firebase;
-            const { doc, getDoc, setDoc, deleteDoc } = firebase.firestoreFns;
-            const { updateProfile, updateEmail, updatePassword, deleteUser, EmailAuthProvider, reauthenticateWithCredential } = firebase.authFns;
-            const db = firebase.db;
-
+            const { auth, db, authFns, firestoreFns, requireAuth, logOut } = window.capitnjFirebase;
+            
             const loadingEl = document.getElementById("loading");
             const contentEl = document.getElementById("profile-content");
             const logoutBtn = document.getElementById("logout-btn");
@@ -378,6 +383,8 @@
             const searchRadiusSelect = document.getElementById("search-radius");
             const tuitionInput = document.getElementById("max-tuition");
             const typeSelect = document.getElementById("school-type");
+            const preferencesForm = document.getElementById("preferences-form");
+            const statusMessage = document.getElementById("status-message");
 
             const firstNameInput = document.getElementById("first-name");
             const lastNameInput = document.getElementById("last-name");
@@ -402,14 +409,17 @@
             logoutBtn.addEventListener("click", () => logOut());
 
             function reauth(user, password) {
-                const credential = EmailAuthProvider.credential(user.email, password);
-                return reauthenticateWithCredential(user, credential);
+                const credential = authFns.EmailAuthProvider.credential(user.email, password);
+                return authFns.reauthenticateWithCredential(user, credential);
             }
 
             function showStatus(element, message, isSuccess) {
                 element.textContent = message;
                 element.className = `status-msg ${isSuccess ? "success" : "error"}`;
                 element.style.display = "block";
+                setTimeout(() => {
+                    element.style.display = "none";
+                }, 4000);
             }
 
             requireAuth(async (user) => {
@@ -426,9 +436,9 @@
                 lastNameInput.value = rest.join(" ") || "";
                 newEmailInput.placeholder = user.email;
 
-                const userDocRef = doc(db, "users", user.uid);
+                const userDocRef = firestoreFns.doc(db, "users", user.uid);
                 try {
-                    const docSnap = await getDoc(userDocRef);
+                    const docSnap = await firestoreFns.getDoc(userDocRef);
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         if (data.gpa) gpaInput.value = data.gpa;
@@ -439,102 +449,4 @@
                         if (data.schoolType) typeSelect.value = data.schoolType;
                     }
                 } catch (error) {
-                    console.error("Error fetching profile document:", error);
-                }
-
-                nameForm.addEventListener("submit", async (event) => {
-                    event.preventDefault();
-                    nameStatus.style.display = "block";
-                    nameStatus.textContent = "Saving...";
-                    const fullName = `${firstNameInput.value.trim()} ${lastNameInput.value.trim()}`.trim();
-                    try {
-                        await updateProfile(user, { displayName: fullName });
-                        await setDoc(userDocRef, { name: fullName }, { merge: true });
-                        sessionStorage.setItem("capitnj_name", fullName);
-                        nameEl.textContent = fullName;
-                        greetingEl.textContent = `Hi, ${firstNameInput.value.trim()}! Manage your account and college preferences here.`;
-                        showStatus(nameStatus, "✅ Name updated.", true);
-                    } catch (error) {
-                        console.error(error);
-                        showStatus(nameStatus, "❌ Could not update name.", false);
-                    }
-                });
-
-                emailForm.addEventListener("submit", async (event) => {
-                    event.preventDefault();
-                    const newEmail = newEmailInput.value.trim();
-                    const currentPw = emailCurrentPwInput.value;
-                    if (!newEmail || !currentPw) {
-                        showStatus(emailStatus, "❌ Enter a new email and your current password.", false);
-                        return;
-                    }
-                    emailStatus.style.display = "block";
-                    emailStatus.textContent = "Updating...";
-                    try {
-                        await reauth(user, currentPw);
-                        await updateEmail(user, newEmail);
-                        await setDoc(userDocRef, { email: newEmail }, { merge: true });
-                        emailEl.textContent = newEmail;
-                        showStatus(emailStatus, "✅ Email updated.", true);
-                        emailCurrentPwInput.value = "";
-                    } catch (error) {
-                        console.error(error);
-                        showStatus(emailStatus, "❌ Could not update email. Check your password and try again.", false);
-                    }
-                });
-
-                passwordForm.addEventListener("submit", async (event) => {
-                    event.preventDefault();
-                    const currentPw = pwCurrentInput.value;
-                    const newPw = newPwInput.value;
-                    if (!currentPw || !newPw) {
-                        showStatus(passwordStatus, "❌ Fill in both password fields.", false);
-                        return;
-                    }
-                    passwordStatus.style.display = "block";
-                    passwordStatus.textContent = "Updating...";
-                    try {
-                        await reauth(user, currentPw);
-                        await updatePassword(user, newPw);
-                        showStatus(passwordStatus, "✅ Password updated.", true);
-                        pwCurrentInput.value = "";
-                        newPwInput.value = "";
-                    } catch (error) {
-                        console.error(error);
-                        showStatus(passwordStatus, "❌ Could not update password. Check your current password.", false);
-                    }
-                });
-
-                deleteAccountBtn.addEventListener("click", async () => {
-                    if (deleteConfirmArea.style.display === "none") {
-                        deleteConfirmArea.style.display = "block";
-                        dangerStatus.style.display = "block";
-                        dangerStatus.textContent = "Enter your password above, then click Delete Account again to confirm.";
-                        dangerStatus.className = "status-msg";
-                        return;
-                    }
-                    const pw = deletePasswordInput.value;
-                    if (!pw) {
-                        showStatus(dangerStatus, "❌ Please enter your password to confirm deletion.", false);
-                        return;
-                    }
-                    if (!confirm("This will permanently delete your account. Are you absolutely sure?")) return;
-                    dangerStatus.style.display = "block";
-                    dangerStatus.textContent = "Deleting...";
-                    try {
-                        await reauth(user, pw);
-                        await deleteDoc(userDocRef);
-                        await deleteUser(user);
-                        window.location.replace("login.html");
-                    } catch (error) {
-                        console.error(error);
-                        showStatus(dangerStatus, "❌ Could not delete account. Check your password and try again.", false);
-                    }
-                });
-            });
-        });
-    </script>
-    <script src="data.js"></script>
-    <script src="matching.js"></script>
-</body>
-</html>
+                    console.error("Error fet

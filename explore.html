@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CapItNJ — Explore Colleges</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="fonts.googleapis.com">
+    <link href="fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         .btn-details, .btn-save {
@@ -61,34 +61,6 @@
             font-size: 22px;
         }
         #details-content p { margin: 6px 0; font-size: 14px; color: #333; }
-
-        .zip-input-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            align-items: center;
-        }
-        .zip-input-group input {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            flex: 1;
-            max-width: 120px;
-        }
-        .zip-input-group button {
-            padding: 8px 12px;
-            background: #1e3a8a;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        .zip-input-group button:hover {
-            background: #1e40af;
-        }
     </style>
 </head>
 <body>
@@ -112,20 +84,14 @@
             <h1>Every school in CapItNJ</h1>
             <p class="subtitle">No profile needed — filter freely, or <a href="login.html" style="text-decoration:underline">log in</a> to get a ranked, personalized list instead.</p>
 
-            <div class="zip-input-group">
-                <input type="text" id="zip-code-input" placeholder="Enter zip code (e.g., 08540)" maxlength="5">
-                <button id="set-zip-btn">Set Location</button>
-                <span id="current-zip-display" style="font-size: 13px; color: #666;"></span>
-            </div>
-
             <div class="explore-controls">
                 <input type="text" id="search" placeholder="Search by name, state, or country…">
                 <select id="filter-region">
                     <option value="all">All regions</option>
-                    <option value="local">Within 50 miles</option>
-                    <option value="regional">50–150 miles</option>
-                    <option value="far">150+ miles</option>
-                    <option value="international">International</option>
+                    <option value="local">Near home (NJ)</option>
+                    <option value="regional">Nearby states</option>
+                    <option value="far">Elsewhere in the US</option>
+                    <option value="international">Out of country</option>
                 </select>
                 <select id="filter-type">
                     <option value="all">Public + Private</option>
@@ -149,16 +115,9 @@
     <script type="module" src="firebase-init.js"></script>
     <script type="module">
         const SCORECARD_API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
-        const REGION_LABEL = { 
-            local: "Within 50 miles", 
-            regional: "50–150 miles", 
-            far: "150+ miles", 
-            international: "International" 
-        };
+        const REGION_LABEL = { local: "Near home", regional: "Nearby state", far: "Elsewhere in US", international: "Out of country" };
         const collegeByName = {};
         let currentUser = null;
-        let userZipCode = null;
-        let collegesWithDistance = [];
 
         (async () => {
             if (!window.capitnjFirebase?.ready) {
@@ -170,71 +129,14 @@
             });
         })();
 
-        
-        function loadStoredZipCode() {
-            const stored = localStorage.getItem("userZipCode");
-            if (stored) {
-                userZipCode = stored;
-                document.getElementById("zip-code-input").value = stored;
-                updateZipDisplay();
-            }
-        }
-
-        function updateZipDisplay() {
-            const display = document.getElementById("current-zip-display");
-            if (userZipCode) {
-                display.textContent = `📍 ${userZipCode}`;
-                display.style.color = "#16a34a";
-            } else {
-                display.textContent = "No zip set";
-                display.style.color = "#999";
-            }
-        }
-
-        
-        function getDistanceTier(college) {
-            if (college.country !== "United States" || !college.country) {
-                return "international";
-            }
-
-            if (!userZipCode) {
-                return "all";
-            }
-
-            const distance = college.distanceFromUser || Infinity;
-
-            if (distance <= 50) return "local";
-            if (distance <= 150) return "regional";
-            return "far";
-        }
-
-        
-        function enrichCollegesWithDistance() {
-            const dataPool = window.COLLEGES || [];
-            collegesWithDistance = dataPool.map((c) => {
-                let distance = Infinity;
-                if (userZipCode && c.country === "United States") {
-                    
-                    const nearby = window.getCollegesByZipCode ? window.getCollegesByZipCode(userZipCode, 500) : [];
-                    const found = nearby.find(nc => nc.name.toLowerCase() === c.name.toLowerCase());
-                    distance = found ? found.distance : Infinity;
-                }
-                return {
-                    ...c,
-                    distanceFromUser: distance,
-                    distanceTier: getDistanceTier({ ...c, distanceFromUser: distance })
-                };
-            });
-        }
-
         function render() {
             const q = document.getElementById('search').value.trim().toLowerCase();
             const region = document.getElementById('filter-region').value;
             const type = document.getElementById('filter-type').value;
 
-            enrichCollegesWithDistance();
+            const dataPool = window.COLLEGES || [];
 
-            const filtered = collegesWithDistance.filter((c) => {
+            const filtered = dataPool.filter((c) => {
                 const matchesQuery = !q || c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q) || c.country.toLowerCase().includes(q);
                 const matchesRegion = region === 'all' || c.distanceTier === region;
                 const matchesType = type === 'all' || c.type.toLowerCase() === type;
@@ -247,12 +149,11 @@
             list.innerHTML = filtered.slice(0, 150).map((c) => {
                 collegeByName[c.name] = c;
                 const key = encodeURIComponent(c.name);
-                const distanceStr = c.distanceFromUser !== Infinity ? ` · ${Math.round(c.distanceFromUser)} mi` : '';
                 return `
                 <div class="explore-row">
                     <div>
                         <div class="explore-row-name">${c.name}</div>
-                        <div class="explore-row-meta">${c.type} · ${c.setting} · ${c.state}, ${c.country}${distanceStr}</div>
+                        <div class="explore-row-meta">${c.type} · ${c.setting} · ${c.state}, ${c.country}</div>
                     </div>
                     <div class="explore-row-actions">
                         <div class="explore-row-tag">${REGION_LABEL[c.distanceTier] || "Global Option"}</div>
@@ -275,26 +176,6 @@
             });
         }
 
-        
-        document.getElementById('set-zip-btn').addEventListener('click', () => {
-            const input = document.getElementById('zip-code-input').value.trim();
-            if (!input || input.length !== 5 || isNaN(input)) {
-                alert("Please enter a valid 5-digit zip code.");
-                return;
-            }
-            userZipCode = input;
-            localStorage.setItem("userZipCode", userZipCode);
-            updateZipDisplay();
-            render();
-        });
-
-        
-        document.getElementById('zip-code-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                document.getElementById('set-zip-btn').click();
-            }
-        });
-
         async function showDetails(key) {
             const name = decodeURIComponent(key);
             const college = collegeByName[name];
@@ -311,13 +192,13 @@
                 return;
             }
 
-            try {
+         try {
                 const fields = "school.name,latest.cost.net_price.overall.overall,latest.admissions.admission_rate.overall,latest.admissions.sat_scores.average.overall";
-                const url = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${SCORECARD_API_KEY}&school.name=${encodeURIComponent(college.name)}&_fields=${fields}&_per_page=10`;
+                const url = `api.data.gov/ed/collegescorecard/v1/schools?api_key=${SCORECARD_API_KEY}&school.name=${encodeURIComponent(college.name)}&_fields=${fields}&_per_page=10`;
                 const res = await fetch(url);
                 const data = await res.json();
-                const candidates = data.results || [];
-                const result = candidates.find(r => r["school.name"].toLowerCase() === college.name.toLowerCase()) || candidates[0];
+const candidates = data.results || [];
+const result = candidates.find(r => r["school.name"].toLowerCase() === college.name.toLowerCase()) || candidates[0];
 
                 if (!result) {
                     content.innerHTML = `<h2>${college.name}</h2><p>No federal data found for this school.</p>`;
@@ -376,5 +257,10 @@
         document.getElementById('filter-region').addEventListener('change', render);
         document.getElementById('filter-type').addEventListener('change', render);
 
-        window.addEventListener('database-ready', () => {
-            load
+        window.addEventListener('database-ready', render);
+        if (window.COLLEGES && window.COLLEGES.length > 0) {
+            render();
+        }
+    </script>
+</body>
+</html>
