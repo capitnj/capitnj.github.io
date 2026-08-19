@@ -17,7 +17,7 @@ if (profileForm) {
     const userCollegeType = document.getElementById("school-type").value; 
 
     const netPriceField = "latest.cost.net_price.overall.overall";
-    let governmentApiUrl = `api.data.gov/ed/collegescorecard/v1/schools?api_key=${API_KEY}&_fields=id,school.name,school.state,school.ownership,latest.admissions.admission_rate.overall,${netPriceField}&_sort=${netPriceField}&_per_page=100`;
+    let governmentApiUrl = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${API_KEY}&_fields=id,school.name,school.state,school.ownership,latest.admissions.admission_rate.overall,${netPriceField}&_sort=${netPriceField}&_per_page=100`;
 
     if (userLocation === "north-nj" || userLocation === "central-nj" || userLocation === "south-nj") {
       governmentApiUrl += "&school.state=NJ";

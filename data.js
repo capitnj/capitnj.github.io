@@ -24,7 +24,7 @@ const NEARBY_STATES = [
 
 async function loadGlobalCollegeDatabase() {
     try {
-        const response = await fetch("cdn.jsdelivr.net/gh/Hipo/university-domains-list/world_universities_and_domains.json");
+        const response = await fetch("https://cdn.jsdelivr.net/gh/Hipo/university-domains-list/world_universities_and_domains.json");
 
         if (!response.ok) {
             throw new Error("Fetch failed: " + response.status);
