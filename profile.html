@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - CapItNJ</title>
     <link rel="stylesheet" href="style.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
 </head>
 <body>
     <nav class="navbar">
@@ -32,7 +36,6 @@
                 <button id="logout-btn" class="btn btn-outline" style="white-space: nowrap;">Log Out</button>
             </div>
 
-            <!-- College Preferences Form -->
             <div class="profile-card">
                 <h2>College Preferences</h2>
                 <form id="preferences-form">
@@ -80,128 +83,133 @@
                 </form>
             </div>
 
-            <!-- Delete Account -->
             <div class="profile-card">
                 <h2>Delete Account</h2>
-                <p style="color: #999; margin-bottom: 20px;">Permanently delete your account and all data.</p>
+                <p style="color: #999; margin-bottom: 20px;">Permanently delete your account.</p>
                 <button id="delete-account-btn" class="btn" style="background: #B3413A; color: white;">Delete Account</button>
                 <div id="danger-status" class="status-msg" style="display: none;"></div>
             </div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
-
-    <script src="firebase-init.js"></script>
     <script>
-        window.addEventListener('firebase-ready', async () => {
-            const firebase = window.capitnjFirebase;
-            const { requireAuth, logOut } = firebase;
-            const { doc, getDoc, setDoc, deleteDoc } = firebase.firestoreFns;
-            const { deleteUser, EmailAuthProvider, reauthenticateWithCredential } = firebase.authFns;
-            const db = firebase.db;
+        const firebaseConfig = {
+            apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
+            authDomain: "capitnj-73a53.firebaseapp.com",
+            projectId: "capitnj-73a53",
+            storageBucket: "capitnj-73a53.firebasestorage.app",
+            messagingSenderId: "1019609008991",
+            appId: "1:1019609008991:web:5f19dca479b475d221c4ea",
+        };
 
-            const loadingEl = document.getElementById("loading");
-            const contentEl = document.getElementById("profile-content");
-            const logoutBtn = document.getElementById("logout-btn");
-            const nameEl = document.getElementById("user-name");
-            const emailEl = document.getElementById("user-email");
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-            const gpaInput = document.getElementById("gpa");
-            const satInput = document.getElementById("sat");
-            const locationInput = document.getElementById("preferred-location");
-            const searchRadiusSelect = document.getElementById("search-radius");
-            const tuitionInput = document.getElementById("max-tuition");
-            const typeSelect = document.getElementById("school-type");
-            const prefForm = document.getElementById("preferences-form");
-            const statusMsg = document.getElementById("status-message");
+        const loadingEl = document.getElementById("loading");
+        const contentEl = document.getElementById("profile-content");
+        const logoutBtn = document.getElementById("logout-btn");
+        const nameEl = document.getElementById("user-name");
+        const emailEl = document.getElementById("user-email");
 
-            const deleteAccountBtn = document.getElementById("delete-account-btn");
-            const dangerStatus = document.getElementById("danger-status");
+        const gpaInput = document.getElementById("gpa");
+        const satInput = document.getElementById("sat");
+        const locationInput = document.getElementById("preferred-location");
+        const searchRadiusSelect = document.getElementById("search-radius");
+        const tuitionInput = document.getElementById("max-tuition");
+        const typeSelect = document.getElementById("school-type");
+        const prefForm = document.getElementById("preferences-form");
+        const statusMsg = document.getElementById("status-message");
+        const deleteAccountBtn = document.getElementById("delete-account-btn");
+        const dangerStatus = document.getElementById("danger-status");
 
-            logoutBtn.addEventListener("click", () => logOut());
+        logoutBtn.addEventListener("click", () => {
+            auth.signOut().then(() => window.location.href = "login.html");
+        });
 
-            function showStatus(element, message, isSuccess) {
-                element.textContent = message;
-                element.className = `status-msg ${isSuccess ? "success" : "error"}`;
-                element.style.display = "block";
+        function showStatus(element, message, isSuccess) {
+            element.textContent = message;
+            element.className = `status-msg ${isSuccess ? "success" : "error"}`;
+            element.style.display = "block";
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
             }
 
-            requireAuth(async (user) => {
-                loadingEl.style.display = "none";
-                contentEl.style.display = "block";
+            loadingEl.style.display = "none";
+            contentEl.style.display = "block";
 
-                nameEl.textContent = user.displayName || "Student";
-                emailEl.textContent = user.email;
+            nameEl.textContent = user.displayName || "Student";
+            emailEl.textContent = user.email;
 
-                const userDocRef = doc(db, "users", user.uid);
-                try {
-                    const docSnap = await getDoc(userDocRef);
-                    if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        if (data.gpa) gpaInput.value = data.gpa;
-                        if (data.sat) satInput.value = data.sat;
-                        if (data.maxTuition) tuitionInput.value = data.maxTuition;
-                        if (data.preferred_location) locationInput.value = data.preferred_location;
-                        if (data.searchRadius) searchRadiusSelect.value = data.searchRadius;
-                        if (data.schoolType) typeSelect.value = data.schoolType;
-                    }
-                } catch (error) {
-                    console.error("Error fetching profile:", error);
+            const userDocRef = db.collection("users").doc(user.uid);
+            try {
+                const docSnap = await userDocRef.get();
+                if (docSnap.exists) {
+                    const data = docSnap.data();
+                    if (data.gpa) gpaInput.value = data.gpa;
+                    if (data.sat) satInput.value = data.sat;
+                    if (data.maxTuition) tuitionInput.value = data.maxTuition;
+                    if (data.preferred_location) locationInput.value = data.preferred_location;
+                    if (data.searchRadius) searchRadiusSelect.value = data.searchRadius;
+                    if (data.schoolType) typeSelect.value = data.schoolType;
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+            }
+
+            prefForm.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                const zipCode = locationInput.value.trim();
+                if (!zipCode) {
+                    showStatus(statusMsg, "Please enter a zipcode", false);
+                    return;
                 }
 
-                prefForm.addEventListener("submit", async (event) => {
-                    event.preventDefault();
+                try {
+                    await userDocRef.set({
+                        gpa: gpaInput.value,
+                        sat: satInput.value,
+                        maxTuition: tuitionInput.value,
+                        preferred_location: zipCode,
+                        searchRadius: searchRadiusSelect.value,
+                        schoolType: typeSelect.value,
+                    }, { merge: true });
 
-                    const zipCode = locationInput.value.trim();
-                    if (!zipCode) {
-                        showStatus(statusMsg, "Please enter a zipcode", false);
-                        return;
-                    }
+                    localStorage.setItem("userGpa", gpaInput.value);
+                    localStorage.setItem("userSat", satInput.value);
+                    localStorage.setItem("userBudget", tuitionInput.value);
+                    localStorage.setItem("userZipCode", zipCode);
+                    localStorage.setItem("searchRadius", searchRadiusSelect.value);
+                    localStorage.setItem("userCollegeType", typeSelect.value);
 
-                    try {
-                        await setDoc(userDocRef, {
-                            gpa: gpaInput.value,
-                            sat: satInput.value,
-                            maxTuition: tuitionInput.value,
-                            preferred_location: zipCode,
-                            searchRadius: searchRadiusSelect.value,
-                            schoolType: typeSelect.value,
-                        }, { merge: true });
+                    setTimeout(() => {
+                        window.location.href = "matches.html";
+                    }, 500);
+                } catch (error) {
+                    showStatus(statusMsg, "Error saving preferences", false);
+                }
+            });
 
-                        localStorage.setItem("userGpa", gpaInput.value);
-                        localStorage.setItem("userSat", satInput.value);
-                        localStorage.setItem("userBudget", tuitionInput.value);
-                        localStorage.setItem("userZipCode", zipCode);
-                        localStorage.setItem("searchRadius", searchRadiusSelect.value);
-                        localStorage.setItem("userCollegeType", typeSelect.value);
+            deleteAccountBtn.addEventListener("click", async () => {
+                if (!confirm("Are you absolutely sure? This cannot be undone.")) return;
+                
+                const password = prompt("Enter your password to confirm deletion:");
+                if (!password) return;
 
-                        setTimeout(() => {
-                            window.location.href = "matches.html";
-                        }, 500);
-                    } catch (error) {
-                        showStatus(statusMsg, "Error saving preferences", false);
-                    }
-                });
-
-                deleteAccountBtn.addEventListener("click", async () => {
-                    if (!confirm("Are you absolutely sure? This cannot be undone.")) return;
-                    
-                    const password = prompt("Enter your password to confirm deletion:");
-                    if (!password) return;
-
-                    try {
-                        const credential = EmailAuthProvider.credential(user.email, password);
-                        await reauthenticateWithCredential(user, credential);
-                        await deleteDoc(userDocRef);
-                        await deleteUser(user);
-                        window.location.replace("login.html");
-                    } catch (error) {
-                        showStatus(dangerStatus, "Error deleting account. Check your password.", false);
-                    }
-                });
+                try {
+                    const credential = firebase.auth.EmailAuthProvider.credential(user.email, password);
+                    await user.reauthenticateWithCredential(credential);
+                    await userDocRef.delete();
+                    await user.delete();
+                    window.location.href = "login.html";
+                } catch (error) {
+                    showStatus(dangerStatus, "Error deleting account", false);
+                }
             });
         });
     </script>
