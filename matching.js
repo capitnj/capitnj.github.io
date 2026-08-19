@@ -29,7 +29,7 @@ function initializeMatching() {
                 const nearbyColleges = window.getCollegesByZipCode(userZipCode, searchRadius);
 
                 if (nearbyColleges.length === 0) {
-                    throw new Error(`No colleges found within ${searchRadius} miles of zipcode ${userZipCode}. Try a larger radius or different zipcode.`);
+                    throw new Error(`No colleges found for zipcode ${userZipCode}. Try a different one.`);
                 }
 
                 localStorage.setItem("matchedColleges", JSON.stringify(nearbyColleges));

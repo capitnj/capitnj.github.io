@@ -14,8 +14,8 @@ function renderLiveCards() {
   if (!matchedCollegesJson) {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa;">
-        <h3 style="font-family: 'Fraunces', serif; margin-bottom: 8px;">No Profile Found</h3>
-        <p style="color: #666; font-size: 14px;">Please set your preferences first on the <a href="profile.html" style="color: #111; font-weight: 600;">Profile page</a>.</p>
+        <h3>No Profile Found</h3>
+        <p>Please set your preferences first on the <a href="profile.html">Profile page</a>.</p>
       </div>`;
     return;
   }
@@ -27,8 +27,8 @@ function renderLiveCards() {
   if (matches.length === 0) {
     container.innerHTML = `
       <div style="text-align: center; padding: 40px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa;">
-        <h3 style="font-family: 'Fraunces', serif; margin-bottom: 8px;">No colleges match your criteria</h3>
-        <p style="color: #666; font-size: 14px;">Try <a href="profile.html" style="color: #111; font-weight: 600;">adjusting your location preferences</a>.</p>
+        <h3>No colleges found</h3>
+        <p>Try a different zipcode on the <a href="profile.html">Profile page</a>.</p>
       </div>`;
     return;
   }
@@ -76,31 +76,13 @@ function createCollegeCard(college, index, userGPA, userZipcode) {
     geoTextColor = "#0369a1";
   }
 
-  const safeId = collegeName.replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-
   card.innerHTML = `
     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;">
       <div>
         <h3 style="margin: 0 0 8px 0; font-family: 'Fraunces', serif; font-size: 20px; color: #111;">${collegeName}</h3>
-        <p style="margin: 4px 0; font-size: 14px; color: #555;">📍 <strong>Location:</strong> ${collegeState}</p>
+        <p style="margin: 4px 0; font-size: 14px; color: #555;">📍 ${collegeState}</p>
       </div>
-      <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
-        <span style="background: ${geoBadgeBg}; color: ${geoTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-family: 'IBM Plex Mono', monospace; font-weight: bold; white-space: nowrap;">${geoBadgeText}</span>
-      </div>
-    </div>
-    <hr style="border: 0; border-top: 1px solid #f5f5f5; margin: 12px 0;">
-    
-    <div style="margin-top: 15px; padding: 12px; background: #fafafa; border-radius: 6px; border: 1px dashed #ddd; display: flex; flex-direction: column; gap: 10px;">
-      <div style="display: flex; gap: 10px; align-items: center;">
-        <label style="font-size: 13px; font-weight: 500; color: #111;">Save Priority:</label>
-        <select id="rank-${safeId}" style="padding: 6px 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 13px;">
-          <option value="Top Choice">🥇 Top Choice</option>
-          <option value="Target School" selected>🥈 Strong Target</option>
-          <option value="Safety Backup">🥉 Safety Backup</option>
-        </select>
-      </div>
-      <textarea id="notes-${safeId}" placeholder="Add research notes" style="width: 100%; min-height: 50px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
-      <button onclick="saveCollegeToList('${collegeName.replace(/'/g, "\\'")}', '${collegeState}', '${safeId}')" style="background: #111; color: #fff; border: none; padding: 10px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; align-self: flex-start;">✨ Save to My List</button>
+      <span style="background: ${geoBadgeBg}; color: ${geoTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${geoBadgeText}</span>
     </div>
   `;
 
@@ -122,38 +104,6 @@ function getStateFromZipCodeForDisplay(zip) {
   };
   if (!zip) return "Unknown";
   return zipToState[zip.substring(0, 2)] || "Other";
-}
-
-async function saveCollegeToList(collegeName, location, uniqueId) {
-  if (!window.capitnjFirebase?.ready) {
-    await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
-  }
-  const firebase = await window.capitnjFirebase.ready;
-  const auth = firebase.auth;
-  const db = firebase.db;
-  const { doc, setDoc } = firebase.firestoreFns;
-
-  const user = auth.currentUser;
-  if (!user) {
-    alert("Please sign in first to save colleges to your list!");
-    return;
-  }
-
-  const rankSelection = document.getElementById(`rank-${uniqueId}`).value;
-  const noteContent = document.getElementById(`notes-${uniqueId}`).value;
-
-  try {
-    await setDoc(doc(db, "users", user.uid, "savedColleges", uniqueId), {
-      name: collegeName,
-      state: location,
-      priority: rankSelection,
-      notes: noteContent,
-      timestamp: new Date().toISOString()
-    });
-    alert(`🎉 Successfully saved ${collegeName} to your list!`);
-  } catch (err) {
-    alert("Failed to save college. Make sure you are signed in.");
-  }
 }
 
 function setupFilterListeners() {
