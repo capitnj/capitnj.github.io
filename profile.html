@@ -4,378 +4,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - CapItNJ</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
-
-        .user-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-bottom: 1px solid #e0e0e0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .user-details h2 {
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .user-details p {
-            color: #666;
-            font-size: 0.95em;
-        }
-
-        .logout-btn {
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em;
-            transition: background 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #ff5252;
-        }
-
-        #loading {
-            text-align: center;
-            padding: 40px;
-            font-size: 1.2em;
-            color: #667eea;
-        }
-
-        #profile-content {
-            display: none;
-            padding: 40px;
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .section h3 {
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #667eea;
-            font-size: 1.4em;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        @media (max-width: 600px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        button[type="submit"] {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 6px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-top: 10px;
-        }
-
-        button[type="submit"]:hover {
-            background: #5568d3;
-        }
-
-        .status-msg {
-            padding: 12px 15px;
-            border-radius: 6px;
-            margin-top: 10px;
-            display: none;
-            font-weight: 500;
-        }
-
-        .status-msg.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .status-msg.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .danger-zone {
-            background: #ffe0e0;
-            border: 2px solid #ff6b6b;
-            padding: 20px;
-            border-radius: 6px;
-        }
-
-        .danger-zone h3 {
-            color: #ff6b6b;
-            border-bottom-color: #ff6b6b;
-        }
-
-        .delete-btn {
-            background: #ff6b6b;
-        }
-
-        .delete-btn:hover {
-            background: #ff5252;
-        }
-
-        .delete-confirm {
-            display: none;
-            margin-top: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid #ff6b6b;
-        }
-
-        .delete-confirm input {
-            margin-bottom: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>Your Profile</h1>
-            <p id="greeting-text">Manage your account settings</p>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-logo">CapItNJ</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="profile.html" class="active">Profile</a></li>
+                <li><a href="matches.html">Find Colleges</a></li>
+            </ul>
         </div>
+    </nav>
 
-        <div class="user-info">
-            <div class="user-details">
-                <h2 id="user-name">Loading...</h2>
-                <p id="user-email">Loading...</p>
+    <div id="loading" style="text-align: center; padding: 60px 20px; font-size: 16px; color: #666;">
+        <p>Loading your profile...</p>
+    </div>
+
+    <div id="profile-content" style="display: none;">
+        <div class="profile-shell">
+            <div class="profile-header">
+                <div>
+                    <h1 id="user-name" style="margin: 0;">Student</h1>
+                    <p class="profile-subtitle" id="user-email" style="margin: 8px 0 0;">email@example.com</p>
+                </div>
+                <button id="logout-btn" class="btn btn-outline" style="white-space: nowrap;">Log Out</button>
             </div>
-            <button id="logout-btn" class="logout-btn">Log Out</button>
-        </div>
 
-        <div id="loading">
-            <p>Loading your profile...</p>
-        </div>
-
-        <div id="profile-content">
-            <!-- College Preferences Section -->
-            <div class="section">
-                <h3>College Preferences</h3>
+            <!-- College Preferences Form -->
+            <div class="profile-card">
+                <h2>College Preferences</h2>
                 <form id="preferences-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="gpa">GPA</label>
-                            <input type="number" id="gpa" step="0.01" min="0" max="4" placeholder="e.g., 3.5">
-                        </div>
-                        <div class="form-group">
-                            <label for="sat">SAT Score</label>
-                            <input type="number" id="sat" min="0" max="1600" placeholder="e.g., 1400">
-                        </div>
+                    <div class="field">
+                        <label for="gpa">GPA</label>
+                        <input type="number" id="gpa" step="0.01" min="0" max="4.0" placeholder="3.8">
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="preferred-location">Preferred Location (City/State)</label>
-                            <input type="text" id="preferred-location" placeholder="e.g., New York, NY">
-                        </div>
-                        <div class="form-group">
-                            <label for="search-radius">Search Radius</label>
-                            <select id="search-radius">
-                                <option value="50">50 miles</option>
-                                <option value="150">150 miles</option>
-                                <option value="300">300 miles</option>
-                                <option value="9999">Anywhere</option>
-                            </select>
-                        </div>
+                    <div class="field">
+                        <label for="sat">SAT Score</label>
+                        <input type="number" id="sat" min="400" max="1600" placeholder="1200">
                     </div>
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="max-tuition">Max Tuition (Annual)</label>
-                            <input type="number" id="max-tuition" min="0" placeholder="e.g., 50000">
-                        </div>
-                        <div class="form-group">
-                            <label for="school-type">School Type</label>
-                            <select id="school-type">
-                                <option value="any">Any</option>
-                                <option value="public">Public</option>
-                                <option value="private">Private</option>
-                            </select>
-                        </div>
+                    <div class="field">
+                        <label for="preferred-location">Home Zip Code</label>
+                        <input type="text" id="preferred-location" placeholder="08901" maxlength="5">
                     </div>
 
-                    <button type="submit">Save Preferences</button>
-                    <div id="status-message" class="status-msg"></div>
+                    <div class="field">
+                        <label for="search-radius">Max Distance from Home</label>
+                        <select id="search-radius">
+                            <option value="50">50 miles</option>
+                            <option value="150">150 miles</option>
+                            <option value="300">300 miles</option>
+                            <option value="999">Anywhere</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="max-tuition">Max Annual Tuition ($)</label>
+                        <input type="number" id="max-tuition" min="0" step="1000" placeholder="50000">
+                    </div>
+
+                    <div class="field">
+                        <label for="school-type">School Type</label>
+                        <select id="school-type">
+                            <option value="all">Any</option>
+                            <option value="public">Public</option>
+                            <option value="private">Private</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Find Colleges</button>
+                    <div id="status-message" class="status-msg" style="display: none;"></div>
                 </form>
             </div>
 
-            <!-- Account Settings Section -->
-            <div class="section">
-                <h3>Account Settings</h3>
-
-                <!-- Update Name -->
-                <div style="margin-bottom: 30px;">
-                    <h4 style="color: #555; margin-bottom: 15px;">Update Name</h4>
-                    <form id="name-form">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="first-name">First Name</label>
-                                <input type="text" id="first-name" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="last-name">Last Name</label>
-                                <input type="text" id="last-name" required>
-                            </div>
-                        </div>
-                        <button type="submit">Update Name</button>
-                        <div id="name-status" class="status-msg"></div>
-                    </form>
-                </div>
-
-                <!-- Update Email -->
-                <div style="margin-bottom: 30px;">
-                    <h4 style="color: #555; margin-bottom: 15px;">Update Email</h4>
-                    <form id="email-form">
-                        <div class="form-group">
-                            <label for="new-email">New Email</label>
-                            <input type="email" id="new-email" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email-current-password">Current Password</label>
-                            <input type="password" id="email-current-password" required>
-                        </div>
-                        <button type="submit">Update Email</button>
-                        <div id="email-status" class="status-msg"></div>
-                    </form>
-                </div>
-
-                <!-- Change Password -->
-                <div style="margin-bottom: 30px;">
-                    <h4 style="color: #555; margin-bottom: 15px;">Change Password</h4>
-                    <form id="password-form">
-                        <div class="form-group">
-                            <label for="pw-current-password">Current Password</label>
-                            <input type="password" id="pw-current-password" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="new-password">New Password</label>
-                            <input type="password" id="new-password" required>
-                        </div>
-                        <button type="submit">Change Password</button>
-                        <div id="password-status" class="status-msg"></div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Danger Zone -->
-            <div class="section danger-zone">
-                <h3>Danger Zone</h3>
-                <p style="margin-bottom: 15px; color: #333;">Permanently delete your account. This action cannot be undone.</p>
-                <button id="delete-account-btn" class="delete-btn" type="button">Delete Account</button>
-                <div id="delete-confirm-area" class="delete-confirm">
-                    <div class="form-group">
-                        <label for="delete-password">Enter your password to confirm:</label>
-                        <input type="password" id="delete-password">
-                    </div>
-                </div>
-                <div id="danger-status" class="status-msg"></div>
+            <!-- Delete Account -->
+            <div class="profile-card">
+                <h2>Delete Account</h2>
+                <p style="color: #999; margin-bottom: 20px;">Permanently delete your account and all data.</p>
+                <button id="delete-account-btn" class="btn" style="background: #B3413A; color: white;">Delete Account</button>
+                <div id="danger-status" class="status-msg" style="display: none;"></div>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK from CDN -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"></script>
 
-    <!-- Initialize Firebase -->
     <script src="firebase-init.js"></script>
-
-    <!-- Profile Logic -->
     <script>
         window.addEventListener('firebase-ready', async () => {
-            const { auth, db, authFns, firestoreFns, requireAuth, logOut } = window.capitnjFirebase;
-            
+            const firebase = window.capitnjFirebase;
+            const { requireAuth, logOut } = firebase;
+            const { doc, getDoc, setDoc, deleteDoc } = firebase.firestoreFns;
+            const { deleteUser, EmailAuthProvider, reauthenticateWithCredential } = firebase.authFns;
+            const db = firebase.db;
+
             const loadingEl = document.getElementById("loading");
             const contentEl = document.getElementById("profile-content");
             const logoutBtn = document.getElementById("logout-btn");
             const nameEl = document.getElementById("user-name");
             const emailEl = document.getElementById("user-email");
-            const greetingEl = document.getElementById("greeting-text");
 
             const gpaInput = document.getElementById("gpa");
             const satInput = document.getElementById("sat");
@@ -383,62 +115,30 @@
             const searchRadiusSelect = document.getElementById("search-radius");
             const tuitionInput = document.getElementById("max-tuition");
             const typeSelect = document.getElementById("school-type");
-            const preferencesForm = document.getElementById("preferences-form");
-            const statusMessage = document.getElementById("status-message");
-
-            const firstNameInput = document.getElementById("first-name");
-            const lastNameInput = document.getElementById("last-name");
-            const nameForm = document.getElementById("name-form");
-            const nameStatus = document.getElementById("name-status");
-
-            const newEmailInput = document.getElementById("new-email");
-            const emailCurrentPwInput = document.getElementById("email-current-password");
-            const emailForm = document.getElementById("email-form");
-            const emailStatus = document.getElementById("email-status");
-
-            const pwCurrentInput = document.getElementById("pw-current-password");
-            const newPwInput = document.getElementById("new-password");
-            const passwordForm = document.getElementById("password-form");
-            const passwordStatus = document.getElementById("password-status");
+            const prefForm = document.getElementById("preferences-form");
+            const statusMsg = document.getElementById("status-message");
 
             const deleteAccountBtn = document.getElementById("delete-account-btn");
-            const deleteConfirmArea = document.getElementById("delete-confirm-area");
-            const deletePasswordInput = document.getElementById("delete-password");
             const dangerStatus = document.getElementById("danger-status");
 
             logoutBtn.addEventListener("click", () => logOut());
-
-            function reauth(user, password) {
-                const credential = authFns.EmailAuthProvider.credential(user.email, password);
-                return authFns.reauthenticateWithCredential(user, credential);
-            }
 
             function showStatus(element, message, isSuccess) {
                 element.textContent = message;
                 element.className = `status-msg ${isSuccess ? "success" : "error"}`;
                 element.style.display = "block";
-                setTimeout(() => {
-                    element.style.display = "none";
-                }, 4000);
             }
 
             requireAuth(async (user) => {
                 loadingEl.style.display = "none";
                 contentEl.style.display = "block";
 
-                const displayName = user.displayName || sessionStorage.getItem("capitnj_name") || "Student";
-                nameEl.textContent = displayName;
+                nameEl.textContent = user.displayName || "Student";
                 emailEl.textContent = user.email;
-                greetingEl.textContent = `Hi, ${displayName.split(" ")[0]}! Manage your account and college preferences here.`;
 
-                const [first, ...rest] = displayName.split(" ");
-                firstNameInput.value = first || "";
-                lastNameInput.value = rest.join(" ") || "";
-                newEmailInput.placeholder = user.email;
-
-                const userDocRef = firestoreFns.doc(db, "users", user.uid);
+                const userDocRef = doc(db, "users", user.uid);
                 try {
-                    const docSnap = await firestoreFns.getDoc(userDocRef);
+                    const docSnap = await getDoc(userDocRef);
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         if (data.gpa) gpaInput.value = data.gpa;
@@ -449,4 +149,63 @@
                         if (data.schoolType) typeSelect.value = data.schoolType;
                     }
                 } catch (error) {
-                    console.error("Error fet
+                    console.error("Error fetching profile:", error);
+                }
+
+                prefForm.addEventListener("submit", async (event) => {
+                    event.preventDefault();
+
+                    const zipCode = locationInput.value.trim();
+                    if (!zipCode) {
+                        showStatus(statusMsg, "Please enter a zipcode", false);
+                        return;
+                    }
+
+                    try {
+                        await setDoc(userDocRef, {
+                            gpa: gpaInput.value,
+                            sat: satInput.value,
+                            maxTuition: tuitionInput.value,
+                            preferred_location: zipCode,
+                            searchRadius: searchRadiusSelect.value,
+                            schoolType: typeSelect.value,
+                        }, { merge: true });
+
+                        localStorage.setItem("userGpa", gpaInput.value);
+                        localStorage.setItem("userSat", satInput.value);
+                        localStorage.setItem("userBudget", tuitionInput.value);
+                        localStorage.setItem("userZipCode", zipCode);
+                        localStorage.setItem("searchRadius", searchRadiusSelect.value);
+                        localStorage.setItem("userCollegeType", typeSelect.value);
+
+                        setTimeout(() => {
+                            window.location.href = "matches.html";
+                        }, 500);
+                    } catch (error) {
+                        showStatus(statusMsg, "Error saving preferences", false);
+                    }
+                });
+
+                deleteAccountBtn.addEventListener("click", async () => {
+                    if (!confirm("Are you absolutely sure? This cannot be undone.")) return;
+                    
+                    const password = prompt("Enter your password to confirm deletion:");
+                    if (!password) return;
+
+                    try {
+                        const credential = EmailAuthProvider.credential(user.email, password);
+                        await reauthenticateWithCredential(user, credential);
+                        await deleteDoc(userDocRef);
+                        await deleteUser(user);
+                        window.location.replace("login.html");
+                    } catch (error) {
+                        showStatus(dangerStatus, "Error deleting account. Check your password.", false);
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="data.js"></script>
+    <script src="matching.js"></script>
+</body>
+</html>
