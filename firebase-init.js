@@ -1,5 +1,3 @@
-let firebaseReady = false;
-
 const firebaseConfig = {
   apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
   authDomain: "capitnj-73a53.firebaseapp.com",
@@ -10,16 +8,12 @@ const firebaseConfig = {
   measurementId: "G-TGSCVHMGQZ"
 };
 
-function initializeFirebase() {
-  if (typeof firebase === "undefined") {
-    console.error(
-      "Firebase SDK not loaded. Make sure the compat Firebase scripts load before firebase-init.js."
-    );
-    return;
-  }
-
+if (typeof firebase === "undefined") {
+  console.error(
+    "Firebase failed to load. Check that the three -compat.js scripts appear before firebase-init.js."
+  );
+} else {
   try {
-    // Prevent "Firebase app already exists" errors.
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
@@ -41,8 +35,7 @@ function initializeFirebase() {
         sendPasswordResetEmail: (email) =>
           auth.sendPasswordResetEmail(email),
 
-        signOut: () =>
-          auth.signOut(),
+        signOut: () => auth.signOut(),
 
         updateProfile: (user, data) =>
           user.updateProfile(data),
@@ -56,11 +49,10 @@ function initializeFirebase() {
         deleteUser: (user) =>
           user.delete(),
 
-        EmailAuthProvider:
-          firebase.auth.EmailAuthProvider,
+        EmailAuthProvider: firebase.auth.EmailAuthProvider,
 
         reauthenticateWithCredential: (user, credential) =>
-          user.reauthenticateWithCredential(credential),
+          user.reauthenticateWithCredential(user, credential),
 
         onAuthStateChanged: (callback) =>
           auth.onAuthStateChanged(callback)
@@ -89,13 +81,10 @@ function initializeFirebase() {
       }
     };
 
-    firebaseReady = true;
+    console.log("Firebase initialized successfully.");
     window.dispatchEvent(new Event("firebase-ready"));
 
-    console.log("Firebase initialized successfully.");
   } catch (error) {
     console.error("Firebase initialization error:", error);
   }
 }
-
-initializeFirebase();
