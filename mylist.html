@@ -1,205 +1,484 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My College List — CapItNJ</title>
-    <link rel="preconnect" href="https://googleapis.com">
-    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My College List — CapItNJ</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .list-header {
+      margin-bottom: 28px;
+    }
+
+    .list-header h1 {
+      margin-bottom: 8px;
+    }
+
+    .list-subtitle {
+      color: var(--ink-soft);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .saved-college-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+
+    .saved-college-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .saved-college-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .saved-college-meta {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin-top: 5px;
+    }
+
+    .priority-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--accent-bg);
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    .saved-notes {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.5;
+    }
+
+    .saved-actions {
+      margin-top: 14px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .remove-btn {
+      background: transparent;
+      color: #b3413a;
+      border: 1px solid #e3c9c7;
+      padding: 7px 11px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .remove-btn:hover {
+      background: #fff5f4;
+    }
+
+    .list-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .stat-box {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .stat-label {
+      margin-top: 5px;
+      color: var(--ink-faint);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .empty-list {
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      padding: 48px 24px;
+      text-align: center;
+      background: var(--surface);
+    }
+
+    .empty-list h2 {
+      font-family: 'Fraunces', serif;
+      margin: 0 0 8px;
+    }
+
+    .empty-list p {
+      color: var(--ink-soft);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 650px) {
+      .list-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .saved-college-top {
+        flex-direction: column;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <header class="nav">
-        <div class="nav-inner">
-            <a href="index.html" class="wordmark">CapItNJ</a>
-            <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="improve.html">Improve</a>
-                <a href="explore.html">Explore</a>
-                <a href="matches.html">Matches</a>
-                <a href="mylist.html" class="active">My List</a>
-                <a href="profile.html">Profile</a>
-                <a href="login.html" id="nav-login-btn">Log in</a>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="wordmark">CapItNJ</a>
+
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="improve.html">Improve</a>
+      <a href="explore.html">Explore</a>
+      <a href="matches.html">Matches</a>
+      <a href="mylist.html" class="active">My List</a>
+      <a href="profile.html">Profile</a>
+      <a href="support.html">Support</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="list-header">
+      <p class="eyebrow">Your list</p>
+      <h1>Saved colleges</h1>
+      <p class="list-subtitle">Everything you save from Explore and Matches appears here.</p>
+    </div>
+
+    <div id="login-gate" class="empty-list" style="display:none;">
+      <h2>Log in to see your list</h2>
+      <p>Your saved colleges are connected to your account.</p>
+      <a href="login.html" class="btn">Log in</a>
+    </div>
+
+    <div id="loading-state" class="empty-list">
+      Loading your saved colleges...
+    </div>
+
+    <div id="empty-state" class="empty-list" style="display:none;">
+      <h2>Your list is empty</h2>
+      <p>Save colleges from Explore or Matches and they'll show up here.</p>
+
+      <div style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+        <a href="explore.html" class="btn">Explore colleges</a>
+        <a href="matches.html" class="btn-outline">See matches</a>
+      </div>
+    </div>
+
+    <div id="list-section" style="display:none;">
+
+      <div class="list-stats">
+        <div class="stat-box">
+          <div id="stat-total" class="stat-number">0</div>
+          <div class="stat-label">Total saved</div>
+        </div>
+
+        <div class="stat-box">
+          <div id="stat-top" class="stat-number">0</div>
+          <div class="stat-label">Top choices</div>
+        </div>
+
+        <div class="stat-box">
+          <div id="stat-considering" class="stat-number">0</div>
+          <div class="stat-label">Considering</div>
+        </div>
+
+        <div class="stat-box">
+          <div id="stat-safety" class="stat-number">0</div>
+          <div class="stat-label">Safety backup</div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <p id="list-count" style="margin:0; color:var(--ink-soft); font-size:13px;"></p>
+
+        <button id="clear-list-btn"
+          class="remove-btn">
+          Clear list
+        </button>
+      </div>
+
+      <div id="colleges-container"></div>
+
+    </div>
+
+  </div>
+</main>
+
+<footer class="home-footer">
+  <div class="wrap">
+    <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+  </div>
+</footer>
+
+
+<!-- Firebase MUST load in this order -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script src="firebase-init.js"></script>
+
+<script>
+let currentUser = null;
+let savedColleges = [];
+
+const loginGate = document.getElementById("login-gate");
+const loadingState = document.getElementById("loading-state");
+const emptyState = document.getElementById("empty-state");
+const listSection = document.getElementById("list-section");
+const collegesContainer = document.getElementById("colleges-container");
+
+function escapeHtml(value) {
+  const div = document.createElement("div");
+  div.textContent = value || "";
+  return div.innerHTML;
+}
+
+function showOnly(element) {
+  [loginGate, loadingState, emptyState, listSection].forEach(el => {
+    el.style.display = "none";
+  });
+
+  element.style.display = element === listSection ? "block" : "block";
+}
+
+window.addEventListener("firebase-ready", () => {
+  startMyList();
+}, { once: true });
+
+if (window.capitnjFirebase) {
+  startMyList();
+}
+
+function startMyList() {
+  const fb = window.capitnjFirebase;
+
+  if (!fb) {
+    console.error("Firebase did not initialize.");
+    return;
+  }
+
+  fb.authFns.onAuthStateChanged(async (user) => {
+    currentUser = user;
+
+    if (!user) {
+      showOnly(loginGate);
+      return;
+    }
+
+    showOnly(loadingState);
+    await loadList();
+  });
+}
+
+async function loadList() {
+  if (!currentUser) return;
+
+  const fb = window.capitnjFirebase;
+  const { collection, getDocs } = fb.firestoreFns;
+
+  try {
+    const savedRef = collection(
+      fb.db,
+      "users",
+      currentUser.uid,
+      "savedColleges"
+    );
+
+    const snapshot = await getDocs(savedRef);
+
+    savedColleges = [];
+
+    snapshot.forEach((docSnap) => {
+      savedColleges.push({
+        id: docSnap.id,
+        ...docSnap.data()
+      });
+    });
+
+    savedColleges.sort((a, b) => {
+      const aTime = new Date(a.timestamp || 0).getTime();
+      const bTime = new Date(b.timestamp || 0).getTime();
+      return bTime - aTime;
+    });
+
+    if (savedColleges.length === 0) {
+      showOnly(emptyState);
+      return;
+    }
+
+    renderList();
+
+  } catch (error) {
+    console.error("Error loading saved colleges:", error);
+
+    loadingState.innerHTML = `
+      <h2 style="font-family:'Fraunces',serif;">Couldn't load your list</h2>
+      <p style="color:var(--ink-soft);">
+        Check your Firebase Firestore rules and try again.
+      </p>
+    `;
+  }
+}
+
+function renderList() {
+  showOnly(listSection);
+
+  document.getElementById("stat-total").textContent = savedColleges.length;
+
+  document.getElementById("stat-top").textContent =
+    savedColleges.filter(c => c.priority === "Top Choice").length;
+
+  document.getElementById("stat-considering").textContent =
+    savedColleges.filter(c => !c.priority || c.priority === "Considering").length;
+
+  document.getElementById("stat-safety").textContent =
+    savedColleges.filter(c => c.priority === "Safety Backup").length;
+
+  document.getElementById("list-count").textContent =
+    `${savedColleges.length} college${savedColleges.length === 1 ? "" : "s"} saved`;
+
+  collegesContainer.innerHTML = savedColleges.map(college => {
+    const priority = college.priority || "Considering";
+
+    return `
+      <div class="saved-college-card">
+
+        <div class="saved-college-top">
+          <div>
+            <div class="saved-college-name">
+              ${escapeHtml(college.name)}
             </div>
+
+            <div class="saved-college-meta">
+              ${escapeHtml(college.state || "Location unavailable")}
+              ${college.rate && college.rate !== "N/A"
+                ? ` · Acceptance rate: ${escapeHtml(college.rate)}`
+                : ""}
+            </div>
+          </div>
+
+          <span class="priority-badge">
+            ${escapeHtml(priority)}
+          </span>
         </div>
-    </header>
- 
-    <main>
-        <div class="wrap">
-            <!-- EMPTY STATE -->
-            <section id="empty-state" style="display:none;">
-                <div style="background: var(--accent); color: #fff; padding: 48px 24px; margin: 0 -24px 0; margin-bottom: 32px;">
-                    <div style="max-width: var(--max-w); margin: 0 auto;">
-                        <p class="eyebrow" style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">YOUR LIST</p>
-                        <h1 style="color: #fff; margin: 0;">Your list is empty</h1>
-                        <p style="color: rgba(255,255,255,0.85); font-size: 15px; margin: 12px 0 0; max-width: 460px;">Save colleges from <a href="explore.html" style="color: #fff; text-decoration: underline;">Explore</a> or <a href="matches.html" style="color: #fff; text-decoration: underline;">Matches</a> to build your list.</p>
-                    </div>
-                </div>
- 
-                <div style="text-align: center; padding: 60px 24px;">
-                    <div style="max-width: 360px; margin: 0 auto;">
-                        <div class="empty-state" style="border: none; padding: 0; background: none;">
-                            <div style="display: flex; gap: 12px; flex-direction: column;">
-                                <a href="explore.html" class="btn" style="text-align: center; padding: 12px 22px;">Browse Colleges</a>
-                                <a href="matches.html" class="link-btn" style="text-align: center; padding: 12px; font-size: 13px;">See your matches →</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
- 
-            <!-- LIST VIEW -->
-            <section id="list-section" style="display:none;">
-                <div style="background: var(--accent); color: #fff; padding: 48px 24px; margin: 0 -24px 0; margin-bottom: 32px;">
-                    <div style="max-width: var(--max-w); margin: 0 auto;">
-                        <p class="eyebrow" style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">YOUR LIST</p>
-                        <h1 style="color: #fff; margin: 0;">Saved colleges</h1>
-                        <p id="list-count" style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 12px 0 0; font-family: var(--font-mono); letter-spacing: 0.03em;"></p>
-                    </div>
-                </div>
- 
-                <!-- STATS -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 28px;">
-                    <div style="background: var(--surface); border: 1px solid var(--line); padding: 16px; border-radius: 2px; text-align: center;">
-                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: var(--accent); margin: 0;" id="stat-total">0</p>
-                        <p style="font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin: 6px 0 0;">Total Saved</p>
-                    </div>
-                    <div style="background: var(--surface); border: 1px solid var(--line); padding: 16px; border-radius: 2px; text-align: center;">
-                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: #FF8B5A; margin: 0;" id="stat-reach">0</p>
-                        <p style="font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin: 6px 0 0;">Reach</p>
-                    </div>
-                    <div style="background: var(--surface); border: 1px solid var(--line); padding: 16px; border-radius: 2px; text-align: center;">
-                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: #51CF66; margin: 0;" id="stat-match">0</p>
-                        <p style="font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin: 6px 0 0;">Match</p>
-                    </div>
-                    <div style="background: var(--surface); border: 1px solid var(--line); padding: 16px; border-radius: 2px; text-align: center;">
-                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: #4DABF7; margin: 0;" id="stat-safety">0</p>
-                        <p style="font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin: 6px 0 0;">Safety</p>
-                    </div>
-                </div>
- 
-                <!-- ACTION -->
-                <div style="margin-bottom: 28px; display: flex; gap: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                    <p style="margin: 0; font-size: 13px; color: var(--ink-soft);"><strong id="saved-count">0</strong> colleges saved</p>
-                    <button class="btn-outline" style="color: #B3413A; border: 1px solid #E3C9C7; padding: 8px 14px; font-size: 12px; cursor: pointer; background: white; border-radius: 2px;" onclick="clearAllList()">Clear List</button>
-                </div>
- 
-                <!-- COLLEGES -->
-                <section id="colleges-container" style="padding: 0;">
-                    <p style="text-align: center; color: var(--ink-faint); padding: 40px 0;">Loading...</p>
-                </section>
-            </section>
+
+        ${college.notes ? `
+          <div class="saved-notes">
+            <strong>Notes:</strong> ${escapeHtml(college.notes)}
+          </div>
+        ` : ""}
+
+        <div class="saved-actions">
+          <button
+            class="remove-btn"
+            onclick="removeCollege('${college.id}')">
+            Remove
+          </button>
         </div>
-    </main>
- 
-    <footer class="home-footer">
-        <div class="wrap">
-            <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
-        </div>
-    </footer>
- 
-    <script src="data.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            loadList();
-        });
- 
-        function loadList() {
-            const saved = JSON.parse(localStorage.getItem('savedColleges') || '[]');
- 
-            if (saved.length === 0) {
-                document.getElementById('empty-state').style.display = 'block';
-                document.getElementById('list-section').style.display = 'none';
-                return;
-            }
- 
-            document.getElementById('empty-state').style.display = 'none';
-            document.getElementById('list-section').style.display = 'block';
- 
-            const colleges = saved
-                .map(s => collegesData ? collegesData.find(c => c.id === s.id) : null)
-                .filter(c => c);
- 
-            displayList(colleges, saved);
-            updateStats(colleges);
-        }
- 
-        function displayList(colleges, saved) {
-            const container = document.getElementById('colleges-container');
-            const userProfile = JSON.parse(localStorage.getItem('userProfile') || 'null');
- 
-            if (colleges.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--ink-faint); padding: 40px 0;">No colleges found.</p>';
-                return;
-            }
- 
-            let html = '';
-            colleges.forEach(college => {
-                let category = 'match';
-                if (userProfile) {
-                    const gpaGap = (college.avgGPA || 3.5) - userProfile.gpa;
-                    if (gpaGap > 0.5) category = 'reach';
-                    else if (gpaGap < -0.5) category = 'safety';
-                }
- 
-                const badgeColor = category === 'reach' ? '#FF8B5A' : category === 'match' ? '#51CF66' : '#4DABF7';
- 
-                html += `
-                    <div class="explore-row" style="padding: 20px 0;">
-                        <div style="flex: 1;">
-                            <div class="explore-row-name" style="position: relative; padding-left: 60px;">
-                                <span style="position: absolute; left: 0; top: 0; font-family: var(--font-mono); font-size: 10px; background: ${badgeColor}; color: white; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.05em; font-weight: 600;">${category.toUpperCase()}</span>
-                                ${college.name}
-                            </div>
-                            <div class="explore-row-meta">${college.type || 'University'} · ${college.city || 'N/A'} · ${college.state}</div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                            <span class="explore-row-tag">${college.state}</span>
-                            <button class="btn-outline" style="color: #B3413A; border: 1px solid #E3C9C7; padding: 8px 14px; font-size: 12px; cursor: pointer;" onclick="removeCollege('${college.id}')">Remove</button>
-                        </div>
-                    </div>
-                `;
-            });
- 
-            container.innerHTML = html;
-            document.getElementById('saved-count').textContent = colleges.length;
-            document.getElementById('list-count').textContent = colleges.length + ' colleges';
-        }
- 
-        function updateStats(colleges) {
-            const userProfile = JSON.parse(localStorage.getItem('userProfile') || 'null');
-            let reach = 0, match = 0, safety = 0;
- 
-            colleges.forEach(college => {
-                if (!userProfile) {
-                    match++;
-                    return;
-                }
-                const gpaGap = (college.avgGPA || 3.5) - userProfile.gpa;
-                if (gpaGap > 0.5) reach++;
-                else if (gpaGap < -0.5) safety++;
-                else match++;
-            });
- 
-            document.getElementById('stat-total').textContent = colleges.length;
-            document.getElementById('stat-reach').textContent = reach;
-            document.getElementById('stat-match').textContent = match;
-            document.getElementById('stat-safety').textContent = safety;
-        }
- 
-        function removeCollege(collegeId) {
-            let saved = JSON.parse(localStorage.getItem('savedColleges') || '[]');
-            saved = saved.filter(c => c.id !== collegeId);
-            localStorage.setItem('savedColleges', JSON.stringify(saved));
-            loadList();
-        }
- 
-        function clearAllList() {
-            if (confirm('Clear your entire list?')) {
-                localStorage.setItem('savedColleges', JSON.stringify([]));
-                loadList();
-            }
-        }
-    </script>
+
+      </div>
+    `;
+  }).join("");
+}
+
+async function removeCollege(collegeId) {
+  if (!currentUser) return;
+
+  try {
+    const fb = window.capitnjFirebase;
+    const { doc, deleteDoc } = fb.firestoreFns;
+
+    await deleteDoc(
+      doc(
+        fb.db,
+        "users",
+        currentUser.uid,
+        "savedColleges",
+        collegeId
+      )
+    );
+
+    savedColleges = savedColleges.filter(c => c.id !== collegeId);
+
+    if (savedColleges.length === 0) {
+      showOnly(emptyState);
+    } else {
+      renderList();
+    }
+
+  } catch (error) {
+    console.error("Error removing college:", error);
+    alert("Couldn't remove that college. Please try again.");
+  }
+}
+
+document.getElementById("clear-list-btn").addEventListener("click", async () => {
+  if (!currentUser || savedColleges.length === 0) return;
+
+  if (!confirm("Clear your entire saved college list?")) return;
+
+  try {
+    const fb = window.capitnjFirebase;
+    const { doc, deleteDoc } = fb.firestoreFns;
+
+    await Promise.all(
+      savedColleges.map(college =>
+        deleteDoc(
+          doc(
+            fb.db,
+            "users",
+            currentUser.uid,
+            "savedColleges",
+            college.id
+          )
+        )
+      )
+    );
+
+    savedColleges = [];
+    showOnly(emptyState);
+
+  } catch (error) {
+    console.error("Error clearing list:", error);
+    alert("Couldn't clear your list. Please try again.");
+  }
+});
+</script>
+
 </body>
 </html>

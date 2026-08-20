@@ -10,10 +10,11 @@ const firebaseConfig = {
 
 if (typeof firebase === "undefined") {
   console.error(
-    "Firebase failed to load. Check that the three -compat.js scripts appear before firebase-init.js."
+    "Firebase failed to load. Make sure firebase-app-compat.js, firebase-auth-compat.js, and firebase-firestore-compat.js load before firebase-init.js."
   );
 } else {
   try {
+    // Prevent duplicate Firebase initialization
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
@@ -25,6 +26,9 @@ if (typeof firebase === "undefined") {
       auth: auth,
       db: db,
 
+      // =========================
+      // AUTH FUNCTIONS
+      // =========================
       authFns: {
         signInWithEmail: (email, password) =>
           auth.signInWithEmailAndPassword(email, password),
@@ -35,7 +39,8 @@ if (typeof firebase === "undefined") {
         sendPasswordResetEmail: (email) =>
           auth.sendPasswordResetEmail(email),
 
-        signOut: () => auth.signOut(),
+        signOut: () =>
+          auth.signOut(),
 
         updateProfile: (user, data) =>
           user.updateProfile(data),
@@ -52,12 +57,70 @@ if (typeof firebase === "undefined") {
         EmailAuthProvider: firebase.auth.EmailAuthProvider,
 
         reauthenticateWithCredential: (user, credential) =>
-          user.reauthenticateWithCredential(user, credential),
+          user.reauthenticateWithCredential(credential),
 
         onAuthStateChanged: (callback) =>
           auth.onAuthStateChanged(callback)
       },
 
+      // =========================
+      // FIRESTORE FUNCTIONS
+      // =========================
+      firestoreFns: {
+        collection: (...args) =>
+          db.collection(...args),
+
+        doc: (...args) =>
+          db.doc(...args),
+
+        addDoc: (collectionRef, data) =>
+          collectionRef.add(data),
+
+        getDoc: (docRef) =>
+          docRef.get(),
+
+        getDocs: (queryRef) =>
+          queryRef.get(),
+
+        setDoc: (docRef, data, options) =>
+          options
+            ? docRef.set(data, options)
+            : docRef.set(data),
+
+        updateDoc: (docRef, data) =>
+          docRef.update(data),
+
+        deleteDoc: (docRef) =>
+          docRef.delete(),
+
+        // Creates a query from Firestore where constraints
+        query: (collectionRef, ...constraints) => {
+          let q = collectionRef;
+
+          constraints.forEach((constraint) => {
+            if (constraint.type === "where") {
+              q = q.where(
+                constraint.field,
+                constraint.operator,
+                constraint.value
+              );
+            }
+          });
+
+          return q;
+        },
+
+        where: (field, operator, value) => ({
+          type: "where",
+          field: field,
+          operator: operator,
+          value: value
+        })
+      },
+
+      // =========================
+      // REQUIRE LOGIN
+      // =========================
       requireAuth: (callback) => {
         auth.onAuthStateChanged((user) => {
           if (user) {
@@ -68,12 +131,15 @@ if (typeof firebase === "undefined") {
         });
       },
 
+      // =========================
+      // LOG OUT
+      // =========================
       logOut: async () => {
         try {
           await auth.signOut();
-          localStorage.removeItem("userLoggedIn");
-          localStorage.removeItem("userProfile");
+
           sessionStorage.clear();
+
           window.location.replace("login.html");
         } catch (error) {
           console.error("Logout error:", error);
@@ -81,8 +147,10 @@ if (typeof firebase === "undefined") {
       }
     };
 
-    console.log("Firebase initialized successfully.");
+    // Tell all pages Firebase is ready
     window.dispatchEvent(new Event("firebase-ready"));
+
+    console.log("Firebase initialized successfully.");
 
   } catch (error) {
     console.error("Firebase initialization error:", error);

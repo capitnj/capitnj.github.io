@@ -122,8 +122,14 @@
 
 
     <script src="data.js"></script>
-    <script type="module" src="firebase-init.js"></script>
-    <script type="module">
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script src="firebase-init.js"></script>
+
+<script>
         const SCORECARD_API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
         const REGION_LABEL = { local: "Near home", regional: "Nearby state", far: "Elsewhere in US", international: "Out of country" };
         const collegeByName = {};
@@ -419,15 +425,15 @@ apItNJ — Explore Colleges</title>
         let currentUser = null;
 
 
-        (async () => {
-            if (!window.capitnjFirebase?.ready) {
-                await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
-            }
-            const fb = await window.capitnjFirebase.ready;
-            fb.authFns.onAuthStateChanged(fb.auth, (user) => {
-                currentUser = user;
-            });
-        })();
+     const fb = window.capitnjFirebase;
+
+if (!fb) {
+  console.error("Firebase is not initialized.");
+} else {
+  fb.authFns.onAuthStateChanged((user) => {
+    currentUser = user;
+  });
+}
 
 
         function render() {
