@@ -1,862 +1,919 @@
-<style>
-    .match-summary {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin: 24px 0;
-    }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapItNJ — Matches</title>
 
-    .summary-card {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 18px;
-    }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
 
-    .summary-number {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 24px;
-      font-weight: 600;
-      color: var(--ink);
-    }
+    <link rel="stylesheet" href="style.css">
 
-    .summary-label {
-      margin-top: 5px;
-      color: var(--ink-soft);
-      font-size: 12px;
-    }
+    <style>
+        /* fallback so this page doesn't become ugly/default-looking */
+        :root {
+            --ink: #172033;
+            --ink-soft: #657084;
+            --ink-faint: #8d96a5;
+            --bg: #f8f8f6;
+            --surface: #ffffff;
+            --line: #e2e4e8;
+            --accent: #1e3a8a;
+            --accent-bg: #eef2ff;
+            --max-w: 1100px;
+        }
 
-    .profile-used {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin: 0 0 28px;
-    }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+        }
 
-    .profile-pill {
-      border: 1px solid var(--line);
-      background: var(--surface);
-      border-radius: 999px;
-      padding: 6px 10px;
-      font-size: 12px;
-      color: var(--ink-soft);
-    }
+        .nav {
+            background: var(--surface);
+            border-bottom: 1px solid var(--line);
+        }
 
-    .match-section {
-      margin-top: 32px;
-    }
+        .nav-inner {
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
 
-    .match-section-title {
-      font-family: "Fraunces", serif;
-      font-size: 23px;
-      margin: 0 0 5px;
-    }
+        .wordmark {
+            color: var(--ink);
+            text-decoration: none;
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            font-weight: 700;
+        }
 
-    .match-section-description {
-      color: var(--ink-soft);
-      font-size: 13px;
-      margin: 0 0 14px;
-    }
+        .nav-links {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
 
-    .match-card {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 18px;
-      margin-bottom: 12px;
-    }
+        .nav-links a {
+            color: var(--ink-soft);
+            text-decoration: none;
+            font-size: 14px;
+        }
 
-    .match-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-    }
+        .nav-links a.active,
+        .nav-links a:hover {
+            color: var(--accent);
+        }
 
-    .match-name {
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--ink);
-    }
+        main {
+            min-height: calc(100vh - 70px);
+        }
 
-    .match-location {
-      color: var(--ink-soft);
-      font-size: 13px;
-      margin-top: 4px;
-    }
+        .wrap {
+            max-width: var(--max-w);
+            margin: 0 auto;
+            padding: 48px 24px;
+        }
 
-    .match-score {
-      flex-shrink: 0;
-      text-align: right;
-    }
+        .eyebrow {
+            color: var(--accent);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-weight: 500;
+            margin: 0 0 12px;
+        }
 
-    .match-score-number {
-      font-family: "IBM Plex Mono", monospace;
-      font-size: 20px;
-      font-weight: 600;
-    }
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 42px;
+            margin: 0 0 12px;
+        }
 
-    .match-score-label {
-      color: var(--ink-faint);
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      margin-top: 2px;
-    }
+        .subtitle {
+            color: var(--ink-soft);
+            max-width: 700px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
 
-    .match-reasons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 7px;
-      margin-top: 14px;
-    }
+        .empty-state,
+        .login-gate {
+            text-align: center;
+            padding: 45px 24px;
+            border: 1px dashed var(--line);
+            background: var(--surface);
+            border-radius: 8px;
+        }
 
-    .reason {
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 5px 9px;
-      font-size: 11px;
-      color: var(--ink-soft);
-    }
+        .empty-state a,
+        .login-gate a {
+            color: var(--accent);
+        }
 
-    .match-data {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px;
-      margin-top: 14px;
-      padding-top: 13px;
-      border-top: 1px solid var(--line);
-      color: var(--ink-soft);
-      font-size: 12px;
-    }
+        .btn {
+            display: inline-block;
+            background: var(--accent);
+            color: white !important;
+            padding: 10px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+        }
 
-    .match-actions {
-      margin-top: 14px;
-      display: flex;
-      justify-content: flex-end;
-    }
+        .match-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            padding: 20px;
+            margin-bottom: 12px;
+        }
 
-    .save-match-btn {
-      border: 1px solid var(--line);
-      background: transparent;
-      color: var(--ink);
-      border-radius: 6px;
-      padding: 7px 12px;
-      cursor: pointer;
-      font-size: 12px;
-    }
+        .match-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
 
-    .save-match-btn:hover {
-      background: var(--accent-bg);
-    }
+        .college-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
 
-    .empty-state,
-    .login-gate {
-      text-align: center;
-      padding: 48px 24px;
-      border: 1px dashed var(--line);
-      border-radius: 10px;
-      background: var(--surface);
-      margin-top: 24px;
-    }
+        .college-meta {
+            color: var(--ink-soft);
+            font-size: 13px;
+            margin-top: 5px;
+        }
 
-    @media (max-width: 650px) {
-      .match-summary {
-        grid-template-columns: 1fr;
-      }
+        .match-score {
+            text-align: right;
+            flex-shrink: 0;
+        }
 
-      .match-top {
-        flex-direction: column;
-      }
+        .match-score strong {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 20px;
+        }
 
-      .match-score {
-        text-align: left;
-      }
-    }
-  </style>
+        .match-score span {
+            display: block;
+            color: var(--ink-faint);
+            font-size: 10px;
+            text-transform: uppercase;
+            margin-top: 3px;
+        }
+
+        .match-reasons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 15px;
+        }
+
+        .match-reason {
+            background: var(--accent-bg);
+            color: var(--accent);
+            font-size: 12px;
+            padding: 5px 9px;
+            border-radius: 3px;
+        }
+
+        .match-details {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+            padding-top: 13px;
+            border-top: 1px solid var(--line);
+            font-size: 12px;
+            color: var(--ink-soft);
+        }
+
+        .match-actions {
+            margin-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .save-btn {
+            background: #22A84A;
+            color: white;
+            border: 1px solid #22A84A;
+            padding: 8px 16px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .save-btn:disabled {
+            opacity: .65;
+            cursor: default;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .filter-btn {
+            border: 1px solid var(--line);
+            background: white;
+            color: var(--ink);
+            padding: 9px 14px;
+            border-radius: 2px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .summary {
+            font-family: 'IBM Plex Mono', monospace;
+            color: var(--ink-soft);
+            font-size: 12px;
+            margin-bottom: 22px;
+        }
+
+        @media (max-width: 700px) {
+            .nav-inner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .match-card-top {
+                flex-direction: column;
+            }
+
+            .match-score {
+                text-align: left;
+            }
+
+            h1 {
+                font-size: 34px;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <header class="nav">
-  <div class="nav-inner">
-    <a href="index.html" class="wordmark">CapItNJ</a>
+    <div class="nav-inner">
+        <a href="index.html" class="wordmark">CapItNJ</a>
 
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="improve.html">Improve</a>
-      <a href="explore.html">Explore</a>
-      <a href="matches.html" class="active">Matches</a>
-      <a href="mylist.html">My List</a>
-      <a href="profile.html">Profile</a>
-      <a href="support.html">Support</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="improve.html">Improve</a>
+            <a href="explore.html">Explore</a>
+            <a href="matches.html" class="active">Matches</a>
+            <a href="mylist.html">My List</a>
+            <a href="profile.html">Profile</a>
+            <a href="support.html">Support</a>
+        </div>
     </div>
-  </div>
 </header>
 
 <main>
-  <div class="wrap">
+    <div class="wrap">
 
-    <p class="eyebrow">Your matches</p>
-    <h1>Colleges ranked for you</h1>
-    <p class="subtitle">
-      We compare your saved profile with each college's available information.
-    </p>
+        <p class="eyebrow">Your matches</p>
+        <h1>Ranked for you</h1>
+        <p class="subtitle">
+            Colleges matched using your saved profile, including your GPA,
+            budget, location preferences, and available college information.
+        </p>
 
-    <div id="matches-content">
-      <div class="empty-state">
-        Loading your profile and finding matches...
-      </div>
+        <div id="matches-content">
+            <div class="empty-state">
+                Loading your profile and matches...
+            </div>
+        </div>
+
     </div>
-
-  </div>
 </main>
 
 
-<!-- Firebase: exact compat order -->
+<!-- Firebase compat scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script src="firebase-init.js"></script>
-
-<!-- College database -->
 <script src="data.js"></script>
 
 <script>
-let currentUser = null;
-let currentProfile = null;
-
-/* -----------------------------------------
-   HELPERS
------------------------------------------ */
-
-function escapeHtml(value) {
-  const div = document.createElement("div");
-  div.textContent = value ?? "";
-  return div.innerHTML;
-}
-
-function formatCurrency(value) {
-  const number = Number(value);
-
-  if (!Number.isFinite(number)) return "N/A";
-
-  return "$" + Math.round(number).toLocaleString();
-}
-
-function getCollegeList() {
-  /*
-    Handles a few common data.js variable names.
-    Your current data.js is expected to expose one of these.
-  */
-  if (typeof colleges !== "undefined" && Array.isArray(colleges)) {
-    return colleges;
-  }
-
-  if (typeof collegeData !== "undefined" && Array.isArray(collegeData)) {
-    return collegeData;
-  }
-
-  if (typeof schools !== "undefined" && Array.isArray(schools)) {
-    return schools;
-  }
-
-  if (typeof window.colleges !== "undefined" && Array.isArray(window.colleges)) {
-    return window.colleges;
-  }
-
-  return [];
-}
-
-function getNumber(object, keys) {
-  for (const key of keys) {
-    const value = object[key];
-
-    if (
-      value !== undefined &&
-      value !== null &&
-      value !== "" &&
-      Number.isFinite(Number(value))
-    ) {
-      return Number(value);
-    }
-  }
-
-  return null;
-}
-
-function normalizeText(value) {
-  return String(value || "")
-    .trim()
-    .toLowerCase();
-}
-
-function locationMatches(profile, college) {
-  const preferred = normalizeText(profile.preferredLocation);
-
-  if (!preferred) return null;
-
-  const state = normalizeText(college.state);
-  const country = normalizeText(college.country);
-  const location = normalizeText(
-    `${college.city || ""} ${college.state || ""} ${college.country || ""}`
-  );
-
-  if (preferred === state) return true;
-  if (preferred === country) return true;
-  if (location.includes(preferred)) return true;
-
-  /*
-    Handles values such as:
-    "New Jersey"
-    "NJ"
-    "Northeast"
-    "Anywhere"
-  */
-  if (preferred === "anywhere" || preferred === "any location") {
-    return true;
-  }
-
-  if (
-    (preferred === "nj" || preferred === "new jersey") &&
-    (state === "nj" || state === "new jersey")
-  ) {
-    return true;
-  }
-
-  return false;
-}
+    let currentUser = null;
+    let userProfile = null;
+    let allMatches = [];
+    let currentFilter = "all";
 
 
-/* -----------------------------------------
-   MATCH SCORING
------------------------------------------ */
-
-function calculateMatch(profile, college) {
-  let score = 0;
-  let possible = 0;
-  const reasons = [];
-
-  const budget = Number(profile.budget);
-  const gpa = Number(profile.gpa);
-  const sat = Number(profile.sat);
-  const act = Number(profile.act);
-
-  /*
-    Supports several possible college data field names.
-  */
-  const price = getNumber(college, [
-    "netPrice",
-    "net_price",
-    "tuition",
-    "cost",
-    "price",
-    "avgCost",
-    "averageCost",
-    "maxTuition"
-  ]);
-
-  const collegeGpa = getNumber(college, [
-    "gpa",
-    "avgGpa",
-    "averageGpa",
-    "minGpa",
-    "recommendedGpa"
-  ]);
-
-  const collegeSat = getNumber(college, [
-    "sat",
-    "avgSat",
-    "averageSat",
-    "satAverage",
-    "satMin"
-  ]);
-
-  const collegeAct = getNumber(college, [
-    "act",
-    "avgAct",
-    "averageAct",
-    "actAverage",
-    "actMin"
-  ]);
-
-  /*
-    BUDGET
-  */
-  if (Number.isFinite(budget) && budget > 0 && price !== null) {
-    possible += 30;
-
-    if (price <= budget) {
-      score += 30;
-      reasons.push("Within your budget");
-    } else if (price <= budget * 1.15) {
-      score += 20;
-      reasons.push("Slightly above your budget");
-    } else if (price <= budget * 1.35) {
-      score += 8;
-      reasons.push("Above your budget");
-    }
-  }
-
-  /*
-    GPA
-  */
-  if (Number.isFinite(gpa) && gpa > 0 && collegeGpa !== null) {
-    possible += 25;
-
-    if (gpa >= collegeGpa + 0.25) {
-      score += 25;
-      reasons.push("GPA is above this school's typical range");
-    } else if (gpa >= collegeGpa) {
-      score += 22;
-      reasons.push("GPA fits this school's typical range");
-    } else if (gpa >= collegeGpa - 0.25) {
-      score += 14;
-      reasons.push("GPA is close to this school's typical range");
-    } else {
-      score += 4;
-      reasons.push("GPA makes this more of a reach");
-    }
-  }
-
-  /*
-    SAT
-  */
-  if (Number.isFinite(sat) && sat > 0 && collegeSat !== null) {
-    possible += 20;
-
-    if (sat >= collegeSat + 80) {
-      score += 20;
-      reasons.push("SAT is above the school's typical score");
-    } else if (sat >= collegeSat) {
-      score += 18;
-      reasons.push("SAT fits the school's typical score");
-    } else if (sat >= collegeSat - 80) {
-      score += 11;
-      reasons.push("SAT is close to the school's typical score");
-    } else {
-      score += 3;
-      reasons.push("SAT makes this more competitive");
-    }
-  }
-
-  /*
-    ACT
-  */
-  if (Number.isFinite(act) && act > 0 && collegeAct !== null) {
-    possible += 15;
-
-    if (act >= collegeAct + 2) {
-      score += 15;
-      reasons.push("ACT is above the school's typical score");
-    } else if (act >= collegeAct) {
-      score += 13;
-      reasons.push("ACT fits the school's typical score");
-    } else if (act >= collegeAct - 2) {
-      score += 8;
-      reasons.push("ACT is close to the school's typical score");
-    } else {
-      score += 2;
-      reasons.push("ACT makes this more competitive");
-    }
-  }
-
-  /*
-    LOCATION
-  */
-  const locationFit = locationMatches(profile, college);
-
-  if (locationFit !== null) {
-    possible += 10;
-
-    if (locationFit) {
-      score += 10;
-      reasons.push("Matches your location preference");
-    }
-  }
-
-  /*
-    If the database does not contain score/price fields,
-    don't punish the student by treating missing data as a zero.
-  */
-  const percentage =
-    possible > 0
-      ? Math.round((score / possible) * 100)
-      : 50;
-
-  return {
-    score: Math.max(0, Math.min(100, percentage)),
-    reasons: reasons
-  };
-}
-
-
-/* -----------------------------------------
-   LOAD PROFILE + MATCHES
------------------------------------------ */
-
-function startMatches() {
-  const fb = window.capitnjFirebase;
-  const container = document.getElementById("matches-content");
-
-  if (!fb) {
-    container.innerHTML = `
-      <div class="empty-state">
-        Firebase couldn't initialize. Refresh the page and try again.
-      </div>
-    `;
-    return;
-  }
-
-  fb.authFns.onAuthStateChanged(async (user) => {
-    if (!user) {
-      container.innerHTML = `
-        <div class="login-gate">
-          <h2>Log in to get your matches</h2>
-          <p>
-            Your GPA, test scores, budget, and location preferences are used
-            to personalize this page.
-          </p>
-          <a href="login.html" class="btn">Log in</a>
-        </div>
-      `;
-      return;
+    function escapeHtml(value) {
+        const div = document.createElement("div");
+        div.textContent = value == null ? "" : value;
+        return div.innerHTML;
     }
 
-    currentUser = user;
 
-    try {
-      const profileRef = fb.db
-        .collection("users")
-        .doc(user.uid);
+    function getColleges() {
+        /*
+         * YOUR project uses collegesData.
+         * These fallbacks are here in case another version uses a different name.
+         */
+        if (typeof collegesData !== "undefined" && Array.isArray(collegesData)) {
+            return collegesData;
+        }
 
-      const profileSnap = await profileRef.get();
+        if (window.collegesData && Array.isArray(window.collegesData)) {
+            return window.collegesData;
+        }
 
-      if (!profileSnap.exists) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <h2>Finish your profile first</h2>
-            <p>
-              Add your academic and preference information so we can rank
-              colleges for you.
-            </p>
-            <a href="profile.html" class="btn">Complete profile</a>
-          </div>
-        `;
-        return;
-      }
+        if (window.COLLEGES && Array.isArray(window.COLLEGES)) {
+            return window.COLLEGES;
+        }
 
-      currentProfile = profileSnap.data();
-
-      const hasProfileData =
-        currentProfile.gpa ||
-        currentProfile.sat ||
-        currentProfile.act ||
-        currentProfile.budget ||
-        currentProfile.preferredLocation;
-
-      if (!hasProfileData) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <h2>Your profile needs a few details</h2>
-            <p>
-              Add your GPA, budget, test scores, or location preference
-              to get personalized matches.
-            </p>
-            <a href="profile.html" class="btn">Edit profile</a>
-          </div>
-        `;
-        return;
-      }
-
-      renderMatches();
-
-    } catch (error) {
-      console.error("Error loading profile for matches:", error);
-
-      container.innerHTML = `
-        <div class="empty-state">
-          <h2>Couldn't load your profile</h2>
-          <p>Please refresh and try again.</p>
-        </div>
-      `;
+        return [];
     }
-  });
-}
 
 
-/* -----------------------------------------
-   RENDER MATCHES
------------------------------------------ */
+    function formatMoney(value) {
+        const number = Number(value);
 
-function renderMatches() {
-  const container = document.getElementById("matches-content");
-  const collegeList = getCollegeList();
+        if (!Number.isFinite(number) || number <= 0) {
+            return "N/A";
+        }
 
-  if (!collegeList.length) {
-    console.error(
-      "No college array found. Check the variable exported by data.js."
-    );
-
-    container.innerHTML = `
-      <div class="empty-state">
-        <h2>College data couldn't load</h2>
-        <p>Check that data.js loads correctly before Matches.</p>
-      </div>
-    `;
-    return;
-  }
-
-  const matched = collegeList
-    .map((college) => {
-      const match = calculateMatch(currentProfile, college);
-
-      return {
-        ...college,
-        matchScore: match.score,
-        reasons: match.reasons
-      };
-    })
-    .sort((a, b) => b.matchScore - a.matchScore);
-
-  const strongMatches = matched
-    .filter(college => college.matchScore >= 75)
-    .slice(0, 20);
-
-  const possibleMatches = matched
-    .filter(college =>
-      college.matchScore >= 50 &&
-      college.matchScore < 75
-    )
-    .slice(0, 20);
-
-  const reachMatches = matched
-    .filter(college => college.matchScore < 50)
-    .slice(0, 20);
-
-  const profilePills = [];
-
-  if (currentProfile.gpa) {
-    profilePills.push(
-      `<span class="profile-pill">GPA: ${escapeHtml(currentProfile.gpa)}</span>`
-    );
-  }
-
-  if (currentProfile.sat) {
-    profilePills.push(
-      `<span class="profile-pill">SAT: ${escapeHtml(currentProfile.sat)}</span>`
-    );
-  }
-
-  if (currentProfile.act) {
-    profilePills.push(
-      `<span class="profile-pill">ACT: ${escapeHtml(currentProfile.act)}</span>`
-    );
-  }
-
-  if (currentProfile.budget) {
-    profilePills.push(
-      `<span class="profile-pill">Budget: ${formatCurrency(currentProfile.budget)}</span>`
-    );
-  }
-
-  if (currentProfile.preferredLocation) {
-    profilePills.push(
-      `<span class="profile-pill">Location: ${escapeHtml(currentProfile.preferredLocation)}</span>`
-    );
-  }
-
-  container.innerHTML = `
-    <div class="profile-used">
-      ${profilePills.join("")}
-    </div>
-
-    <div class="match-summary">
-      <div class="summary-card">
-        <div class="summary-number">${strongMatches.length}</div>
-        <div class="summary-label">Strong matches</div>
-      </div>
-
-      <div class="summary-card">
-        <div class="summary-number">${possibleMatches.length}</div>
-        <div class="summary-label">Possible matches</div>
-      </div>
-
-      <div class="summary-card">
-        <div class="summary-number">${reachMatches.length}</div>
-        <div class="summary-label">Reach matches</div>
-      </div>
-    </div>
-
-    ${renderGroup(
-      "Strong matches",
-      "The highest-scoring fits based on the information available.",
-      strongMatches
-    )}
-
-    ${renderGroup(
-      "Possible matches",
-      "Schools that fit some of your profile factors well.",
-      possibleMatches
-    )}
-
-    ${renderGroup(
-      "Reach matches",
-      "These may be more competitive or less aligned with your preferences.",
-      reachMatches
-    )}
-  `;
-
-  document.querySelectorAll(".save-match-btn").forEach((button) => {
-    button.addEventListener("click", () => {
-      const index = Number(button.dataset.index);
-      saveMatch(matched[index], button);
-    });
-  });
-}
+        return "$" + Math.round(number).toLocaleString();
+    }
 
 
-function renderGroup(title, description, collegesInGroup) {
-  if (!collegesInGroup.length) return "";
+    function normalize(value) {
+        return String(value || "")
+            .trim()
+            .toLowerCase();
+    }
 
-  return `
-    <section class="match-section">
-      <h2 class="match-section-title">${title}</h2>
-      <p class="match-section-description">${description}</p>
 
-      ${collegesInGroup.map((college) => {
-        const originalIndex = getCollegeList().findIndex(
-          item => item.name === college.name
+    function getProfileBudget(profile) {
+        return Number(
+            profile.budget ||
+            profile.maxTuition ||
+            profile.maxBudget ||
+            0
+        );
+    }
+
+
+    function getCollegeGPA(college) {
+        return Number(
+            college.avgGPA ||
+            college.avgGpa ||
+            college.gpa ||
+            0
+        );
+    }
+
+
+    function getCollegePrice(college) {
+        return Number(
+            college.netPrice ||
+            college.tuition ||
+            college.cost ||
+            0
+        );
+    }
+
+
+    function locationFits(profile, college) {
+        const preference = normalize(
+            profile.preferredLocation ||
+            profile.location ||
+            profile.state
         );
 
-        return `
-          <article class="match-card">
+        if (!preference || preference === "flexible" || preference === "anywhere") {
+            return null;
+        }
 
-            <div class="match-top">
-              <div>
-                <div class="match-name">
-                  ${escapeHtml(college.name || "Unnamed college")}
-                </div>
+        const collegeState = normalize(college.state);
+        const collegeCountry = normalize(college.country);
 
-                <div class="match-location">
-                  ${escapeHtml(
-                    [college.city, college.state, college.country]
-                      .filter(Boolean)
-                      .join(", ") || "Location unavailable"
-                  )}
-                </div>
-              </div>
+        if (preference === collegeState) return true;
 
-              <div class="match-score">
-                <div class="match-score-number">
-                  ${college.matchScore}%
+        if (
+            (preference === "new jersey" || preference === "nj") &&
+            (collegeState === "new jersey" || collegeState === "nj")
+        ) {
+            return true;
+        }
+
+        if (preference === collegeCountry) return true;
+
+        return false;
+    }
+
+
+    function calculateMatch(profile, college) {
+        let score = 50;
+        const reasons = [];
+
+        const studentGPA = Number(profile.gpa || 0);
+        const collegeGPA = getCollegeGPA(college);
+
+        const budget = getProfileBudget(profile);
+        const price = getCollegePrice(college);
+
+        /*
+         * GPA matching
+         */
+        if (studentGPA > 0 && collegeGPA > 0) {
+            const gap = studentGPA - collegeGPA;
+
+            if (gap >= 0.5) {
+                score += 25;
+                reasons.push("Your GPA is well above this school's typical range");
+            } else if (gap >= 0) {
+                score += 20;
+                reasons.push("Your GPA is a strong fit");
+            } else if (gap >= -0.25) {
+                score += 12;
+                reasons.push("Your GPA is close to this school's range");
+            } else if (gap >= -0.5) {
+                score += 3;
+                reasons.push("This is a competitive GPA match");
+            } else {
+                score -= 18;
+                reasons.push("Your GPA makes this more of a reach");
+            }
+        }
+
+        /*
+         * Budget matching
+         */
+        if (budget > 0 && price > 0) {
+            if (price <= budget * 0.8) {
+                score += 20;
+                reasons.push("Comfortably within your budget");
+            } else if (price <= budget) {
+                score += 15;
+                reasons.push("Fits within your budget");
+            } else if (price <= budget * 1.15) {
+                score += 5;
+                reasons.push("Slightly above your budget");
+            } else {
+                score -= 15;
+                reasons.push("Above your budget");
+            }
+        }
+
+        /*
+         * Location preference
+         */
+        const locationMatch = locationFits(profile, college);
+
+        if (locationMatch === true) {
+            score += 10;
+            reasons.push("Matches your location preference");
+        } else if (locationMatch === false) {
+            score -= 3;
+        }
+
+        score = Math.max(1, Math.min(99, Math.round(score)));
+
+        let category;
+
+        if (score < 45) {
+            category = "reach";
+        } else if (score >= 75) {
+            category = "safety";
+        } else {
+            category = "match";
+        }
+
+        return {
+            score: score,
+            category: category,
+            reasons: reasons
+        };
+    }
+
+
+    function buildMatches() {
+        const colleges = getColleges();
+
+        if (!colleges.length) {
+            console.error("No colleges found. Expected collegesData in data.js.");
+
+            document.getElementById("matches-content").innerHTML = `
+                <div class="empty-state">
+                    <h2>College data isn't available yet</h2>
+                    <p>We couldn't find the college list from data.js.</p>
                 </div>
-                <div class="match-score-label">Match score</div>
-              </div>
+            `;
+
+            return;
+        }
+
+        allMatches = colleges.map(college => {
+            const result = calculateMatch(userProfile, college);
+
+            return {
+                ...college,
+                matchScore: result.score,
+                category: result.category,
+                reasons: result.reasons
+            };
+        });
+
+        /*
+         * Highest fit first
+         */
+        allMatches.sort((a, b) => b.matchScore - a.matchScore);
+
+        renderPage();
+    }
+
+
+    function categoryColor(category) {
+        if (category === "reach") return "#FF8B5A";
+        if (category === "safety") return "#4DABF7";
+        return "#51CF66";
+    }
+
+
+    function renderPage() {
+        const budget = getProfileBudget(userProfile);
+
+        const profileText = [];
+
+        if (userProfile.gpa) {
+            profileText.push("GPA " + userProfile.gpa);
+        }
+
+        if (budget) {
+            profileText.push("Budget " + formatMoney(budget) + "/yr");
+        }
+
+        if (userProfile.preferredLocation) {
+            profileText.push(userProfile.preferredLocation);
+        }
+
+        document.getElementById("matches-content").innerHTML = `
+            <div class="summary">
+                ${escapeHtml(
+                    profileText.length
+                        ? profileText.join(" · ")
+                        : "Using your saved profile"
+                )}
             </div>
 
-            ${
-              college.reasons.length
-                ? `
-                  <div class="match-reasons">
-                    ${college.reasons
-                      .map(reason =>
-                        `<span class="reason">${escapeHtml(reason)}</span>`
-                      )
-                      .join("")}
-                  </div>
-                `
-                : ""
+            <div class="filter-bar">
+                <button class="filter-btn active" id="filter-all">
+                    All Matches
+                </button>
+
+                <button class="filter-btn" id="filter-reach">
+                    Reach
+                </button>
+
+                <button class="filter-btn" id="filter-match">
+                    Match
+                </button>
+
+                <button class="filter-btn" id="filter-safety">
+                    Safety
+                </button>
+            </div>
+
+            <section id="matches-container"></section>
+        `;
+
+        document.getElementById("filter-all").onclick = () => setFilter("all");
+        document.getElementById("filter-reach").onclick = () => setFilter("reach");
+        document.getElementById("filter-match").onclick = () => setFilter("match");
+        document.getElementById("filter-safety").onclick = () => setFilter("safety");
+
+        renderMatches();
+    }
+
+
+    function setFilter(filter) {
+        currentFilter = filter;
+
+        document.querySelectorAll(".filter-btn").forEach(button => {
+            button.classList.remove("active");
+        });
+
+        const activeButton = document.getElementById("filter-" + filter);
+
+        if (activeButton) {
+            activeButton.classList.add("active");
+        }
+
+        renderMatches();
+    }
+
+
+    function renderMatches() {
+        const container = document.getElementById("matches-container");
+
+        let matches = allMatches;
+
+        if (currentFilter !== "all") {
+            matches = allMatches.filter(
+                college => college.category === currentFilter
+            );
+        }
+
+        if (!matches.length) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    No matches in this category yet.
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = matches.map(college => {
+            const badgeColor = categoryColor(college.category);
+            const price = getCollegePrice(college);
+
+            return `
+                <article class="match-card">
+
+                    <div class="match-card-top">
+
+                        <div>
+                            <div class="college-name">
+                                ${escapeHtml(college.name)}
+                            </div>
+
+                            <div class="college-meta">
+                                ${escapeHtml(
+                                    [
+                                        college.type || "University",
+                                        college.city,
+                                        college.state,
+                                        college.country
+                                    ]
+                                    .filter(Boolean)
+                                    .join(" · ")
+                                )}
+                            </div>
+                        </div>
+
+                        <div class="match-score">
+                            <strong>${college.matchScore}%</strong>
+                            <span>profile fit</span>
+                        </div>
+
+                    </div>
+
+                    <div class="match-reasons">
+                        <span
+                            class="match-reason"
+                            style="background:${badgeColor}; color:white;"
+                        >
+                            ${escapeHtml(college.category.toUpperCase())}
+                        </span>
+
+                        ${
+                            college.reasons.length
+                                ? college.reasons.map(reason => `
+                                    <span class="match-reason">
+                                        ${escapeHtml(reason)}
+                                    </span>
+                                `).join("")
+                                : `
+                                    <span class="match-reason">
+                                        General profile match
+                                    </span>
+                                `
+                        }
+                    </div>
+
+                    <div class="match-details">
+                        <span>
+                            Typical GPA:
+                            ${college.avgGPA || college.avgGpa || "N/A"}
+                        </span>
+
+                        <span>
+                            Est. cost:
+                            ${formatMoney(price)}
+                        </span>
+
+                        ${
+                            college.state
+                                ? `<span>${escapeHtml(college.state)}</span>`
+                                : ""
+                        }
+                    </div>
+
+                    <div class="match-actions">
+                        <button
+                            class="save-btn"
+                            data-id="${escapeHtml(college.id || college.name)}"
+                            data-name="${encodeURIComponent(college.name || "")}"
+                        >
+                            Save
+                        </button>
+                    </div>
+
+                </article>
+            `;
+        }).join("");
+
+        document.querySelectorAll(".save-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                const college = allMatches.find(item =>
+                    String(item.id || item.name) === button.dataset.id
+                );
+
+                saveCollege(college, button);
+            });
+        });
+    }
+
+
+    async function saveCollege(college, button) {
+        if (!college || !currentUser) return;
+
+        try {
+            button.disabled = true;
+            button.textContent = "Saving...";
+
+            const fb = window.capitnjFirebase;
+
+            /*
+             * Use the SAME localStorage list structure as Explore/My List.
+             */
+            let saved = JSON.parse(
+                localStorage.getItem("savedColleges") || "[]"
+            );
+
+            const alreadySaved = saved.some(
+                item => String(item.id) === String(college.id)
+            );
+
+            if (!alreadySaved) {
+                saved.push({
+                    id: college.id,
+                    name: college.name
+                });
+
+                localStorage.setItem(
+                    "savedColleges",
+                    JSON.stringify(saved)
+                );
             }
 
-            <div class="match-data">
-              ${
-                getNumber(college, ["netPrice", "net_price", "tuition", "cost", "price", "avgCost", "averageCost", "maxTuition"]) !== null
-                  ? `<span>Cost: ${formatCurrency(getNumber(college, ["netPrice", "net_price", "tuition", "cost", "price", "avgCost", "averageCost", "maxTuition"]))}</span>`
-                  : ""
-              }
+            /*
+             * Also save to Firebase.
+             */
+            const uid = String(college.id || college.name)
+                .replace(/[\/.#$[\]]/g, "_");
 
-              ${
-                getNumber(college, ["avgSat", "averageSat", "sat", "satAverage"]) !== null
-                  ? `<span>Typical SAT: ${getNumber(college, ["avgSat", "averageSat", "sat", "satAverage"])}</span>`
-                  : ""
-              }
+            const docRef = fb.firestoreFns.doc(
+                fb.db,
+                "users",
+                currentUser.uid,
+                "savedColleges",
+                uid
+            );
 
-              ${
-                getNumber(college, ["avgAct", "averageAct", "act", "actAverage"]) !== null
-                  ? `<span>Typical ACT: ${getNumber(college, ["avgAct", "averageAct", "act", "actAverage"])}</span>`
-                  : ""
-              }
-            </div>
+            await fb.firestoreFns.setDoc(docRef, {
+                id: college.id || "",
+                name: college.name || "",
+                state: college.state || "",
+                priority: "Considering",
+                source: "Matches",
+                timestamp: new Date().toISOString()
+            });
 
-            <div class="match-actions">
-              <button
-                class="save-match-btn"
-                data-index="${originalIndex}">
-                Save to My List
-              </button>
-            </div>
+            button.textContent = "Saved ✓";
 
-          </article>
-        `;
-      }).join("")}
-
-    </section>
-  `;
-}
+        } catch (error) {
+            console.error("Error saving college:", error);
+            button.disabled = false;
+            button.textContent = "Save";
+        }
+    }
 
 
-/* -----------------------------------------
-   SAVE TO FIRESTORE
------------------------------------------ */
+    async function loadUserProfile(user) {
+        const fb = window.capitnjFirebase;
 
-async function saveMatch(college, button) {
-  if (!currentUser || !college) return;
+        currentUser = user;
 
-  const fb = window.capitnjFirebase;
+        try {
+            const profileRef = fb.firestoreFns.doc(
+                fb.db,
+                "users",
+                user.uid
+            );
 
-  try {
-    button.disabled = true;
-    button.textContent = "Saving...";
+            const profileSnap = await fb.firestoreFns.getDoc(profileRef);
 
-    await fb.firestoreFns.addDoc(
-      fb.firestoreFns.collection(
-        fb.db,
-        "users",
-        currentUser.uid,
-        "savedColleges"
-      ),
-      {
-        name: college.name || "",
-        state: college.state || "",
-        country: college.country || "",
-        rate: college.rate || college.acceptanceRate || "N/A",
-        priority: "Considering",
-        source: "Matches",
-        timestamp: new Date().toISOString()
-      }
-    );
+            if (!profileSnap.exists()) {
+                document.getElementById("matches-content").innerHTML = `
+                    <div class="empty-state">
+                        <h2>Finish your profile first</h2>
+                        <p>
+                            Add your GPA and preferences so we can find
+                            colleges that fit you.
+                        </p>
+                        <a href="profile.html">Go to Profile</a>
+                    </div>
+                `;
+                return;
+            }
 
-    button.textContent = "Saved ✓";
+            userProfile = profileSnap.data();
 
-  } catch (error) {
-    console.error("Error saving match:", error);
-    button.disabled = false;
-    button.textContent = "Try again";
-  }
-}
+            /*
+             * Keep localStorage updated too because My List
+             * currently uses it.
+             */
+            localStorage.setItem(
+                "userProfile",
+                JSON.stringify(userProfile)
+            );
+
+            buildMatches();
+
+        } catch (error) {
+            console.error("Could not load profile:", error);
+
+            document.getElementById("matches-content").innerHTML = `
+                <div class="empty-state">
+                    <h2>We couldn't load your profile</h2>
+                    <p>Please refresh and try again.</p>
+                </div>
+            `;
+        }
+    }
 
 
-/* -----------------------------------------
-   START
------------------------------------------ */
+    function startMatches() {
+        const fb = window.capitnjFirebase;
 
-if (window.capitnjFirebase) {
-  startMatches();
-} else {
-  window.addEventListener("firebase-ready", startMatches, { once: true });
-}
+        if (!fb) {
+            window.addEventListener(
+                "firebase-ready",
+                startMatches,
+                { once: true }
+            );
+            return;
+        }
+
+        /*
+         * IMPORTANT:
+         * Your firebase-init.js defines this as
+         * onAuthStateChanged(callback)
+         *
+         * so we pass ONLY the callback.
+         */
+        fb.authFns.onAuthStateChanged(async user => {
+            if (!user) {
+                document.getElementById("matches-content").innerHTML = `
+                    <div class="login-gate">
+                        <h2>Log in to get your matches</h2>
+                        <p>
+                            Your saved profile is used to personalize
+                            your college matches.
+                        </p>
+                        <a href="login.html" class="btn">
+                            Log in
+                        </a>
+                    </div>
+                `;
+
+                return;
+            }
+
+            await loadUserProfile(user);
+        });
+    }
+
+
+    startMatches();
 </script>
 
 </body>
