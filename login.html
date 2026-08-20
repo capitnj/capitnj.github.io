@@ -1,239 +1,181 @@
- <link rel="stylesheet"
-          href="style.css">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <title>Log in — CapItNJ</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Your CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
-
 <header class="nav">
-
     <div class="nav-inner">
 
-        <a href="index.html"
-           class="wordmark">
+        <a href="index.html" class="wordmark">
             CapItNJ
         </a>
 
-
-        <div class="nav-links">
-
-            <a href="index.html">
-                Home
-            </a>
-
-            <a href="improve.html">
-                Improve
-            </a>
-
-            <a href="explore.html">
-                Explore
-            </a>
-
-            <a href="matches.html">
-                Matches
-            </a>
-
-            <a href="mylist.html">
-                My List
-            </a>
-
-            <a href="profile.html">
-                Profile
-            </a>
-
-            <a href="support.html">
-                Support
-            </a>
-
-        </div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="improve.html">Improve</a>
+            <a href="explore.html">Explore</a>
+            <a href="matches.html">Matches</a>
+            <a href="mylist.html">My List</a>
+            <a href="profile.html">Profile</a>
+            <a href="support.html">Support</a>
+        </nav>
 
     </div>
-
 </header>
-
 
 
 <main>
 
-<div class="wrap">
+    <div class="auth-shell">
 
-    <div class="auth-page">
+        <div class="auth-card">
 
+            <p class="eyebrow">ACCOUNT</p>
 
-        <p class="eyebrow">
-            ACCOUNT
-        </p>
+            <h1>Log in</h1>
 
-
-        <h1 id="auth-title">
-            Log in
-        </h1>
+            <p>
+                Enter your email and password to continue.
+            </p>
 
 
-        <p
-            class="auth-description"
-            id="auth-description">
+            <!-- LOGIN FORM -->
 
-            Enter your email and password
-            to continue.
+            <form id="login-form">
 
-        </p>
+                <div class="field">
+                    <label for="login-email">Email</label>
+                    <input
+                        type="email"
+                        id="login-email"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="login-password">Password</label>
+                    <input
+                        type="password"
+                        id="login-password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+                <div class="auth-actions">
+
+                    <button
+                        type="submit"
+                        class="btn"
+                        id="submit-btn"
+                    >
+                        Log in
+                    </button>
+
+                    <button
+                        type="button"
+                        class="link-btn"
+                        id="open-reset-modal-btn"
+                    >
+                        Forgot password?
+                    </button>
+
+                </div>
+
+                <div
+                    id="error-message"
+                    class="status-msg error"
+                    role="alert"
+                ></div>
+
+            </form>
 
 
+            <!-- CREATE ACCOUNT LINK -->
 
-        <!-- LOGIN FORM -->
-
-        <form id="login-form">
-
-
-            <div class="field">
-
-                <label for="login-email">
-                    Email
-                </label>
-
-
-                <input
-                    type="email"
-                    id="login-email"
-                    autocomplete="email"
-                    required>
-
+            <div class="auth-toggle">
+                Don't have an account?
+                <button
+                    type="button"
+                    class="link-btn"
+                    id="toggle-btn"
+                >
+                    Create account
+                </button>
             </div>
 
-
-
-            <div class="field">
-
-                <label for="login-password">
-                    Password
-                </label>
-
-
-                <input
-                    type="password"
-                    id="login-password"
-                    autocomplete="current-password"
-                    required>
-
-            </div>
-
-
-
-            <button
-                type="submit"
-                id="submit-btn"
-                class="btn auth-submit">
-
-                Log in
-
-            </button>
-
-
-        </form>
-
-
-
-        <div class="auth-secondary-actions">
-
-
-            <button
-                type="button"
-                id="toggle-btn"
-                class="btn-outline auth-secondary-button">
-
-                Create account
-
-            </button>
-
-
-            <button
-                type="button"
-                id="open-reset-modal-btn"
-                class="link-btn auth-forgot">
-
-                Forgot password?
-
-            </button>
-
-
         </div>
-
-
-
-        <div
-            id="error-message"
-            class="auth-message error-message"
-            style="display:none;"
-            role="alert">
-
-        </div>
-
 
     </div>
-
-</div>
 
 </main>
 
 
-
-<!-- ================================
-     SIGNUP MODAL
-================================ -->
+<!-- =====================================================
+     CREATE ACCOUNT MODAL
+===================================================== -->
 
 <div
     id="signup-modal"
     class="auth-modal"
-    aria-hidden="true">
+    aria-hidden="true"
+>
 
+    <div class="auth-modal-card">
 
-    <div
-        class="auth-modal-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="signup-title">
+        <button
+            type="button"
+            class="auth-modal-close"
+            onclick="closeSignupModal()"
+            aria-label="Close"
+        >
+            ×
+        </button>
 
+        <p class="eyebrow">ACCOUNT</p>
 
-        <p class="eyebrow">
-            ACCOUNT
+        <h2>Create account</h2>
+
+        <p>
+            Create an account to save your college preferences
+            and progress.
         </p>
-
-
-        <h2 id="signup-title">
-            Create account
-        </h2>
-
-
-        <p class="auth-modal-description">
-
-            Create your account,
-            then fill out your profile.
-
-        </p>
-
 
 
         <form id="signup-form">
 
-
             <div class="field">
 
                 <label for="signup-name">
-                    Full Name
+                    Full name
                 </label>
-
 
                 <input
                     type="text"
                     id="signup-name"
                     autocomplete="name"
-                    required>
+                    required
+                >
 
             </div>
-
 
 
             <div class="field">
@@ -242,15 +184,14 @@
                     Email
                 </label>
 
-
                 <input
                     type="email"
                     id="signup-email"
                     autocomplete="email"
-                    required>
+                    required
+                >
 
             </div>
-
 
 
             <div class="field">
@@ -259,114 +200,86 @@
                     Password
                 </label>
 
-
                 <input
                     type="password"
                     id="signup-password"
                     autocomplete="new-password"
                     minlength="6"
-                    required>
+                    required
+                >
 
             </div>
-
 
 
             <div class="field">
 
                 <label for="signup-confirm">
-                    Confirm Password
+                    Confirm password
                 </label>
-
 
                 <input
                     type="password"
                     id="signup-confirm"
                     autocomplete="new-password"
                     minlength="6"
-                    required>
+                    required
+                >
 
             </div>
 
 
-
             <button
                 type="submit"
-                id="signup-submit-btn"
-                class="btn auth-submit">
-
+                class="btn"
+            >
                 Create account
-
             </button>
 
-
-            <button
-                type="button"
-                class="btn-outline auth-secondary-button"
-                onclick="closeSignupModal()">
-
-                Back
-
-            </button>
-
+            <div
+                id="signup-error"
+                class="status-msg error"
+                role="alert"
+            ></div>
 
         </form>
-
-
-
-        <div
-            id="signup-message"
-            class="auth-message"
-            style="display:none;"
-            role="alert">
-
-        </div>
-
 
     </div>
 
 </div>
 
 
-
-<!-- ================================
-     PASSWORD RESET MODAL
-================================ -->
+<!-- =====================================================
+     RESET PASSWORD MODAL
+===================================================== -->
 
 <div
     id="reset-modal"
     class="auth-modal"
-    aria-hidden="true">
+    aria-hidden="true"
+>
 
+    <div class="auth-modal-card">
 
-    <div
-        class="auth-modal-card"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="reset-title">
+        <button
+            type="button"
+            class="auth-modal-close"
+            onclick="closeResetModal()"
+            aria-label="Close"
+        >
+            ×
+        </button>
 
+        <p class="eyebrow">ACCOUNT</p>
 
-        <p class="eyebrow">
-            ACCOUNT
-        </p>
+        <h2>Reset password</h2>
 
-
-        <h2 id="reset-title">
-            Reset password
-        </h2>
-
-
-        <p class="auth-modal-description">
-
-            Enter your account email
-            and we'll send you a password
+        <p>
+            Enter your email and we'll send you a password
             reset link.
-
         </p>
-
 
 
         <form id="reset-form">
-
 
             <div class="field">
 
@@ -374,54 +287,37 @@
                     Email
                 </label>
 
-
                 <input
                     type="email"
                     id="reset-email"
                     autocomplete="email"
-                    required>
+                    required
+                >
 
             </div>
 
 
-
             <button
                 type="submit"
+                class="btn"
                 id="reset-submit-btn"
-                class="btn auth-submit">
-
+            >
                 Send reset link
-
             </button>
 
 
-            <button
-                type="button"
-                class="btn-outline auth-secondary-button"
-                onclick="closeResetModal()">
-
-                Back
-
-            </button>
-
+            <div
+                id="reset-message"
+                class="reset-message"
+                role="status"
+                aria-live="polite"
+            ></div>
 
         </form>
-
-
-
-        <div
-            id="reset-message"
-            class="auth-message"
-            style="display:none;"
-            role="status">
-
-        </div>
-
 
     </div>
 
 </div>
-
 
 
 <footer class="home-footer">
@@ -429,8 +325,7 @@
     <div class="wrap">
 
         <p>
-            © 2024 CapItNJ.
-            Built for the Congressional App Challenge.
+            © 2024 CapItNJ. Built for the Congressional App Challenge.
         </p>
 
     </div>
@@ -438,823 +333,688 @@
 </footer>
 
 
-
-<!-- ================================
+<!-- =====================================================
      FIREBASE
-================================ -->
+===================================================== -->
 
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js">
-</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
 
-
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js">
-</script>
-
-
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js">
-</script>
-
-
-<script src="firebase-init.js">
-</script>
-
+<script src="firebase-init.js"></script>
 
 
 <script>
 
+/* =====================================================
+   HELPERS
+===================================================== */
 
-/* --------------------------------
-   MESSAGES
--------------------------------- */
+function showMessage(elementId, message, type) {
 
-function showMessage(
-    elementId,
-    message,
-    type
-) {
+    const element = document.getElementById(elementId);
 
-    const element =
-        document.getElementById(
-            elementId
-        );
-
-
-    element.textContent =
-        message;
-
+    element.textContent = message;
 
     element.className =
-        "auth-message " + type;
-
-
-    element.style.display =
-        "block";
-
+        type === 'success'
+            ? 'status-msg success'
+            : 'status-msg error';
 }
-
 
 
 function clearMessage(elementId) {
 
-    const element =
-        document.getElementById(
-            elementId
-        );
+    const element = document.getElementById(elementId);
 
+    element.textContent = '';
 
-    element.textContent =
-        "";
-
-
-    element.style.display =
-        "none";
+    element.className =
+        elementId === 'reset-message'
+            ? 'reset-message'
+            : 'status-msg';
 
 }
 
 
-
-/* --------------------------------
-   FIREBASE ERROR MESSAGES
--------------------------------- */
-
-function friendlyAuthError(error) {
-
-    switch (error.code) {
-
-        case "auth/invalid-email":
-
-            return "Please enter a valid email address.";
-
-
-        case "auth/user-not-found":
-
-            return "No account was found with that email.";
-
-
-        case "auth/wrong-password":
-
-        case "auth/invalid-credential":
-
-            return "The email or password is incorrect.";
-
-
-        case "auth/email-already-in-use":
-
-            return "An account already exists with that email.";
-
-
-        case "auth/weak-password":
-
-            return "Your password must be at least 6 characters.";
-
-
-        case "auth/too-many-requests":
-
-            return "Too many attempts. Please wait a moment and try again.";
-
-
-        case "auth/network-request-failed":
-
-            return "Network error. Check your connection and try again.";
-
-
-        default:
-
-            return "Something went wrong. Please try again.";
-
-    }
-
-}
-
-
-
-/* --------------------------------
+/* =====================================================
    LOGIN
--------------------------------- */
+===================================================== */
 
 document
-    .getElementById("login-form")
-    .addEventListener(
-        "submit",
-        async function (event) {
+    .getElementById('login-form')
+    .addEventListener('submit', async function(e) {
 
-            event.preventDefault();
+        e.preventDefault();
 
+        clearMessage('error-message');
 
-            clearMessage(
-                "error-message"
-            );
+        const email =
+            document
+                .getElementById('login-email')
+                .value
+                .trim();
 
+        const password =
+            document
+                .getElementById('login-password')
+                .value;
 
-            const email =
-                document
-                    .getElementById(
-                        "login-email"
-                    )
-                    .value
-                    .trim();
+        const submitButton =
+            document.getElementById('submit-btn');
 
+        submitButton.disabled = true;
+        submitButton.textContent = 'Logging in…';
 
-            const password =
-                document
-                    .getElementById(
-                        "login-password"
-                    )
-                    .value;
+        try {
 
+            const userCredential =
+                await window.capitnjFirebase.authFns
+                    .signInWithEmail(email, password);
 
-            const button =
-                document.getElementById(
-                    "submit-btn"
-                );
+            const user = userCredential.user;
 
 
-            try {
+            /*
+             * Get the user's saved profile
+             * from Firestore.
+             */
 
-                button.disabled = true;
+            const doc =
+                await window.capitnjFirebase.db
+                    .collection('users')
+                    .doc(user.uid)
+                    .get();
 
-                button.textContent =
-                    "Logging in...";
 
+            let profile;
 
-                const credential =
-                    await window
-                        .capitnjFirebase
-                        .auth
-                        .signInWithEmailAndPassword(
-                            email,
-                            password
-                        );
 
+            if (doc.exists) {
 
-                const user =
-                    credential.user;
+                profile = doc.data();
 
+            } else {
 
-                const doc =
-                    await window
-                        .capitnjFirebase
-                        .db
-                        .collection("users")
-                        .doc(user.uid)
-                        .get();
+                /*
+                 * If the Firebase account exists but
+                 * doesn't have a Firestore profile yet,
+                 * create one.
+                 */
 
+                profile = {
 
-                let profile;
-
-
-                if (doc.exists) {
-
-                    profile =
-                        doc.data();
-
-                }
-
-                else {
-
-                    profile = {
-
-                        name:
-                            user.displayName ||
-                            "",
-
-                        email:
-                            user.email ||
-                            "",
-
-                        state: "",
-
-                        gpa: "",
-
-                        sat: null,
-
-                        act: null,
-
-                        budget: "",
-
-                        preferredLocation: ""
-
-                    };
-
-
-                    await window
-                        .capitnjFirebase
-                        .db
-                        .collection("users")
-                        .doc(user.uid)
-                        .set(profile);
-
-                }
-
-
-                localStorage.setItem(
-                    "userLoggedIn",
-                    "true"
-                );
-
-
-                localStorage.setItem(
-                    "userProfile",
-                    JSON.stringify(profile)
-                );
-
-
-                window.location.href =
-                    "profile.html";
-
-            }
-
-
-            catch (error) {
-
-                console.error(
-                    "Login error:",
-                    error
-                );
-
-
-                showMessage(
-                    "error-message",
-                    friendlyAuthError(error),
-                    "error"
-                );
-
-            }
-
-
-            finally {
-
-                button.disabled = false;
-
-                button.textContent =
-                    "Log in";
-
-            }
-
-        }
-    );
-
-
-
-/* --------------------------------
-   SIGNUP
--------------------------------- */
-
-document
-    .getElementById("signup-form")
-    .addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-
-            clearMessage(
-                "signup-message"
-            );
-
-
-            const name =
-                document
-                    .getElementById(
-                        "signup-name"
-                    )
-                    .value
-                    .trim();
-
-
-            const email =
-                document
-                    .getElementById(
-                        "signup-email"
-                    )
-                    .value
-                    .trim();
-
-
-            const password =
-                document
-                    .getElementById(
-                        "signup-password"
-                    )
-                    .value;
-
-
-            const confirm =
-                document
-                    .getElementById(
-                        "signup-confirm"
-                    )
-                    .value;
-
-
-            const button =
-                document.getElementById(
-                    "signup-submit-btn"
-                );
-
-
-            if (password !== confirm) {
-
-                showMessage(
-                    "signup-message",
-                    "Passwords do not match.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            if (password.length < 6) {
-
-                showMessage(
-                    "signup-message",
-                    "Your password must be at least 6 characters.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                button.disabled = true;
-
-                button.textContent =
-                    "Creating account...";
-
-
-                const credential =
-                    await window
-                        .capitnjFirebase
-                        .auth
-                        .createUserWithEmailAndPassword(
-                            email,
-                            password
-                        );
-
-
-                const user =
-                    credential.user;
-
-
-                const profile = {
-
-                    name: name,
+                    name: '',
 
                     email: user.email,
 
-                    state: "",
+                    state: '',
 
-                    gpa: "",
+                    gpa: '',
 
                     sat: null,
 
                     act: null,
 
-                    budget: "",
+                    budget: '',
 
-                    preferredLocation: ""
+                    preferredLocation: ''
 
                 };
 
-
-                await window
-                    .capitnjFirebase
-                    .db
-                    .collection("users")
+                await window.capitnjFirebase.db
+                    .collection('users')
                     .doc(user.uid)
                     .set(profile);
 
-
-                localStorage.setItem(
-                    "userLoggedIn",
-                    "true"
-                );
-
-
-                localStorage.setItem(
-                    "userProfile",
-                    JSON.stringify(profile)
-                );
-
-
-                window.location.href =
-                    "profile.html";
-
             }
 
 
-            catch (error) {
+            /*
+             * Keep a local copy so profile.html
+             * can load immediately.
+             */
 
-                console.error(
-                    "Signup error:",
-                    error
-                );
+            localStorage.setItem(
+                'userLoggedIn',
+                'true'
+            );
 
-
-                showMessage(
-                    "signup-message",
-                    friendlyAuthError(error),
-                    "error"
-                );
-
-            }
-
-
-            finally {
-
-                button.disabled = false;
-
-                button.textContent =
-                    "Create account";
-
-            }
-
-        }
-    );
-
-
-
-/* --------------------------------
-   PASSWORD RESET
--------------------------------- */
-
-document
-    .getElementById("reset-form")
-    .addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-
-            clearMessage(
-                "reset-message"
+            localStorage.setItem(
+                'userProfile',
+                JSON.stringify(profile)
             );
 
 
-            const email =
-                document
-                    .getElementById(
-                        "reset-email"
-                    )
-                    .value
-                    .trim();
+            /*
+             * Go directly to profile.
+             */
+
+            window.location.href = 'profile.html';
 
 
-            const button =
-                document.getElementById(
-                    "reset-submit-btn"
-                );
+        } catch (error) {
+
+            console.error('Login error:', error);
 
 
-            try {
-
-                button.disabled = true;
-
-                button.textContent =
-                    "Sending...";
+            let message =
+                'Unable to log in. Please try again.';
 
 
-                await window
-                    .capitnjFirebase
-                    .auth
-                    .sendPasswordResetEmail(
-                        email
-                    );
+            if (error.code === 'auth/user-not-found') {
 
+                message =
+                    'No account was found with that email.';
 
-                showMessage(
+            } else if (error.code === 'auth/wrong-password') {
 
-                    "reset-message",
+                message =
+                    'Incorrect password.';
 
-                    "Email sent. Check your inbox for a password reset link. If you don't see it, check your spam folder.",
+            } else if (error.code === 'auth/invalid-credential') {
 
-                    "success"
+                message =
+                    'Incorrect email or password.';
 
-                );
+            } else if (error.code === 'auth/invalid-email') {
 
-
-                document
-                    .getElementById(
-                        "reset-email"
-                    )
-                    .value = "";
+                message =
+                    'Please enter a valid email address.';
 
             }
 
 
-            catch (error) {
-
-                console.error(
-                    "Password reset error:",
-                    error
-                );
-
-
-                showMessage(
-
-                    "reset-message",
-
-                    friendlyAuthError(error),
-
-                    "error"
-
-                );
-
-            }
-
-
-            finally {
-
-                button.disabled = false;
-
-                button.textContent =
-                    "Send reset link";
-
-            }
-
-        }
-    );
-
-
-
-/* --------------------------------
-   SIGNUP MODAL
--------------------------------- */
-
-document
-    .getElementById(
-        "toggle-btn"
-    )
-    .addEventListener(
-        "click",
-        openSignupModal
-    );
-
-
-function openSignupModal() {
-
-    clearMessage(
-        "signup-message"
-    );
-
-
-    document
-        .getElementById(
-            "signup-modal"
-        )
-        .classList
-        .add("open");
-
-
-    document
-        .getElementById(
-            "signup-modal"
-        )
-        .setAttribute(
-            "aria-hidden",
-            "false"
-        );
-
-}
-
-
-function closeSignupModal() {
-
-    document
-        .getElementById(
-            "signup-modal"
-        )
-        .classList
-        .remove("open");
-
-
-    document
-        .getElementById(
-            "signup-modal"
-        )
-        .setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-}
-
-
-
-/* --------------------------------
-   RESET MODAL
--------------------------------- */
-
-document
-    .getElementById(
-        "open-reset-modal-btn"
-    )
-    .addEventListener(
-        "click",
-        openResetModal
-    );
-
-
-function openResetModal() {
-
-    clearMessage(
-        "reset-message"
-    );
-
-
-    document
-        .getElementById(
-            "reset-modal"
-        )
-        .classList
-        .add("open");
-
-
-    document
-        .getElementById(
-            "reset-modal"
-        )
-        .setAttribute(
-            "aria-hidden",
-            "false"
-        );
-
-}
-
-
-function closeResetModal() {
-
-    document
-        .getElementById(
-            "reset-modal"
-        )
-        .classList
-        .remove("open");
-
-
-    document
-        .getElementById(
-            "reset-modal"
-        )
-        .setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-}
-
-
-
-/* --------------------------------
-   CLOSE MODALS
--------------------------------- */
-
-document
-    .getElementById(
-        "signup-modal"
-    )
-    .addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                event.target === this
-            ) {
-
-                closeSignupModal();
-
-            }
-
-        }
-    );
-
-
-document
-    .getElementById(
-        "reset-modal"
-    )
-    .addEventListener(
-        "click",
-        function (event) {
-
-            if (
-                event.target === this
-            ) {
-
-                closeResetModal();
-
-            }
-
-        }
-    );
-
-
-document.addEventListener(
-    "keydown",
-    function (event) {
-
-        if (
-            event.key === "Escape"
-        ) {
-
-            closeSignupModal();
-
-            closeResetModal();
+            showMessage(
+                'error-message',
+                message,
+                'error'
+            );
+
+        } finally {
+
+            submitButton.disabled = false;
+            submitButton.textContent = 'Log in';
 
         }
 
-    }
-);
+    });
 
 
+/* =====================================================
+   CREATE ACCOUNT
+===================================================== */
 
-/* --------------------------------
-   ALREADY LOGGED IN
--------------------------------- */
+document
+    .getElementById('signup-form')
+    .addEventListener('submit', async function(e) {
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+        e.preventDefault();
 
-        if (
-            !window.capitnjFirebase ||
-            !window.capitnjFirebase.auth
-        ) {
+        clearMessage('signup-error');
+
+        const name =
+            document
+                .getElementById('signup-name')
+                .value
+                .trim();
+
+        const email =
+            document
+                .getElementById('signup-email')
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById('signup-password')
+                .value;
+
+        const confirm =
+            document
+                .getElementById('signup-confirm')
+                .value;
+
+
+        if (password !== confirm) {
+
+            showMessage(
+                'signup-error',
+                'Passwords do not match.',
+                'error'
+            );
 
             return;
 
         }
 
 
-        window
-            .capitnjFirebase
-            .auth
-            .onAuthStateChanged(
-                function (user) {
+        if (password.length < 6) {
 
-                    if (user) {
-
-                        window.location.href =
-                            "profile.html";
-
-                    }
-
-                }
+            showMessage(
+                'signup-error',
+                'Password must be at least 6 characters.',
+                'error'
             );
+
+            return;
+
+        }
+
+
+        const button =
+            document.querySelector(
+                '#signup-form .btn'
+            );
+
+        button.disabled = true;
+        button.textContent = 'Creating account…';
+
+
+        try {
+
+            /*
+             * Create Firebase Authentication account.
+             */
+
+            const userCredential =
+                await window.capitnjFirebase
+                    .authFns
+                    .createUserWithEmail(
+                        email,
+                        password
+                    );
+
+            const user =
+                userCredential.user;
+
+
+            /*
+             * Create the profile that belongs
+             * to this Firebase user.
+             */
+
+            const profile = {
+
+                name: name,
+
+                email: email,
+
+                state: '',
+
+                gpa: '',
+
+                sat: null,
+
+                act: null,
+
+                budget: '',
+
+                preferredLocation: ''
+
+            };
+
+
+            /*
+             * Save profile to Firestore using
+             * the Firebase user's UID.
+             */
+
+            await window.capitnjFirebase.db
+                .collection('users')
+                .doc(user.uid)
+                .set(profile);
+
+
+            /*
+             * Save local copy too.
+             */
+
+            localStorage.setItem(
+                'userLoggedIn',
+                'true'
+            );
+
+            localStorage.setItem(
+                'userProfile',
+                JSON.stringify(profile)
+            );
+
+
+            /*
+             * Go directly to profile.
+             */
+
+            window.location.href = 'profile.html';
+
+
+        } catch (error) {
+
+            console.error('Signup error:', error);
+
+
+            let message =
+                'Unable to create your account.';
+
+
+            if (
+                error.code ===
+                'auth/email-already-in-use'
+            ) {
+
+                message =
+                    'An account with that email already exists.';
+
+            } else if (
+                error.code ===
+                'auth/invalid-email'
+            ) {
+
+                message =
+                    'Please enter a valid email address.';
+
+            } else if (
+                error.code ===
+                'auth/weak-password'
+            ) {
+
+                message =
+                    'Please choose a stronger password.';
+
+            }
+
+
+            showMessage(
+                'signup-error',
+                message,
+                'error'
+            );
+
+
+        } finally {
+
+            button.disabled = false;
+            button.textContent = 'Create account';
+
+        }
+
+    });
+
+
+/* =====================================================
+   PASSWORD RESET
+===================================================== */
+
+document
+    .getElementById('reset-form')
+    .addEventListener('submit', async function(e) {
+
+        e.preventDefault();
+
+        clearMessage('reset-message');
+
+        const email =
+            document
+                .getElementById('reset-email')
+                .value
+                .trim();
+
+        const button =
+            document.getElementById(
+                'reset-submit-btn'
+            );
+
+        button.disabled = true;
+        button.textContent = 'Sending…';
+
+
+        try {
+
+            /*
+             * IMPORTANT:
+             *
+             * Do NOT check Firestore first.
+             *
+             * Firebase Authentication should handle
+             * the password reset directly.
+             */
+
+            await window.capitnjFirebase.auth
+                .sendPasswordResetEmail(email);
+
+
+            /*
+             * Success message.
+             */
+
+            const message =
+                document.getElementById(
+                    'reset-message'
+                );
+
+            message.textContent =
+                'Reset link sent — check your email.';
+
+            message.className =
+                'reset-message success';
+
+
+            button.textContent = 'Email sent';
+
+
+        } catch (error) {
+
+            console.error(
+                'Password reset error:',
+                error
+            );
+
+
+            const message =
+                document.getElementById(
+                    'reset-message'
+                );
+
+
+            if (
+                error.code ===
+                'auth/user-not-found'
+            ) {
+
+                message.textContent =
+                    'No account was found with that email.';
+
+            } else if (
+                error.code ===
+                'auth/invalid-email'
+            ) {
+
+                message.textContent =
+                    'Please enter a valid email address.';
+
+            } else {
+
+                message.textContent =
+                    'We could not send the reset email. Please try again.';
+
+            }
+
+
+            message.className =
+                'reset-message error';
+
+
+            button.disabled = false;
+            button.textContent = 'Send reset link';
+
+        }
+
+    });
+
+
+/* =====================================================
+   OPEN / CLOSE SIGNUP MODAL
+===================================================== */
+
+document
+    .getElementById('toggle-btn')
+    .addEventListener('click', openSignupModal);
+
+
+function openSignupModal() {
+
+    const modal =
+        document.getElementById(
+            'signup-modal'
+        );
+
+    modal.classList.add('open');
+
+    modal.setAttribute(
+        'aria-hidden',
+        'false'
+    );
+
+    document
+        .getElementById('signup-name')
+        .focus();
+
+}
+
+
+function closeSignupModal() {
+
+    const modal =
+        document.getElementById(
+            'signup-modal'
+        );
+
+    modal.classList.remove('open');
+
+    modal.setAttribute(
+        'aria-hidden',
+        'true'
+    );
+
+}
+
+
+/* =====================================================
+   OPEN / CLOSE RESET MODAL
+===================================================== */
+
+document
+    .getElementById('open-reset-modal-btn')
+    .addEventListener(
+        'click',
+        openResetModal
+    );
+
+
+function openResetModal() {
+
+    const modal =
+        document.getElementById(
+            'reset-modal'
+        );
+
+    modal.classList.add('open');
+
+    modal.setAttribute(
+        'aria-hidden',
+        'false'
+    );
+
+    document
+        .getElementById('reset-email')
+        .focus();
+
+}
+
+
+function closeResetModal() {
+
+    const modal =
+        document.getElementById(
+            'reset-modal'
+        );
+
+    modal.classList.remove('open');
+
+    modal.setAttribute(
+        'aria-hidden',
+        'true'
+    );
+
+}
+
+
+/* =====================================================
+   CLOSE WHEN CLICKING OUTSIDE MODAL
+===================================================== */
+
+document
+    .getElementById('signup-modal')
+    .addEventListener('click', function(e) {
+
+        if (e.target === this) {
+            closeSignupModal();
+        }
+
+    });
+
+
+document
+    .getElementById('reset-modal')
+    .addEventListener('click', function(e) {
+
+        if (e.target === this) {
+            closeResetModal();
+        }
+
+    });
+
+
+/* =====================================================
+   ESC KEY CLOSES MODALS
+===================================================== */
+
+document.addEventListener(
+    'keydown',
+    function(e) {
+
+        if (e.key !== 'Escape') return;
+
+        closeSignupModal();
+        closeResetModal();
+
+    }
+);
+
+
+/* =====================================================
+   IF ALREADY LOGGED IN
+===================================================== */
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function() {
+
+        if (
+            localStorage.getItem(
+                'userLoggedIn'
+            ) === 'true'
+        ) {
+
+            window.location.href =
+                'profile.html';
+
+        }
 
     }
 );
 
 </script>
 
-
 </body>
-
 </html>
