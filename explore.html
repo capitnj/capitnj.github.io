@@ -3,10 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Explore Colleges — CapItNJ</title>
-    <link rel="preconnect" href="https://googleapis.com">
-    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <title>C<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CapItNJ — Explore Colleges</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+        .btn-details, .btn-save {
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-details { background: #1e3a8a; color: #fff; }
+        .btn-details:hover { background: #1e40af; }
+        .btn-save { background: #16a34a; color: #fff; }
+        .btn-save:hover { background: #15803d; }
+        .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+
+        .explore-row { flex-wrap: wrap; gap: 10px; }
+        .explore-row-actions { display: flex; gap: 8px; align-items: center; }
+
+
+        .details-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .details-modal-inner {
+            background: #fff;
+            border-radius: 10px;
+            padding: 28px;
+            max-width: 420px;
+            width: 90%;
+            position: relative;
+            font-family: 'Inter', sans-serif;
+        }
+        .details-close {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #666;
+        }
+        #details-content h2 {
+            font-family: 'Fraunces', serif;
+            margin: 0 0 12px 0;
+            font-size: 22px;
+        }
+        #details-content p { margin: 6px 0; font-size: 14px; color: #333; }
+    </style>
 </head>
 <body>
     <header class="nav">
@@ -19,140 +81,509 @@
                 <a href="matches.html">Matches</a>
                 <a href="mylist.html">My List</a>
                 <a href="profile.html">Profile</a>
-                <a href="login.html" id="nav-login-btn">Log in</a>
+                <a href="support.html">Support</a>
             </div>
         </div>
     </header>
- 
     <main>
         <div class="wrap">
-            <!-- HERO -->
-            <section style="background: var(--accent); color: #fff; padding: 48px 24px; margin: 0 -24px 0; margin-bottom: 32px;">
-                <div style="max-width: var(--max-w); margin: 0 auto;">
-                    <p class="eyebrow" style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">BROWSE THE DATABASE</p>
-                    <h1 style="color: #fff; margin: 0;">Every school in CapItNJ</h1>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 15px; margin: 12px 0 0; max-width: 460px;">No profile needed — filter freely, or <a href="login.html" style="color: #fff; text-decoration: underline;">log in</a> to get a ranked, personalized list instead.</p>
-                </div>
-            </section>
- 
-            <!-- SEARCH & FILTERS -->
-            <section style="padding: 0 0 28px; margin-bottom: 24px;">
-                <div class="explore-controls">
-                    <input type="text" id="zip-search" placeholder="Search by ZIP code..." maxlength="5" pattern="[0-9]{5}" style="flex: 1; min-width: 180px;">
-                    <button class="btn" onclick="searchByZip()" style="padding: 9px 20px; font-size: 13px;">Search</button>
-                    <button class="link-btn" onclick="clearSearch()" style="padding: 9px 0; font-size: 13px;">Clear</button>
-                </div>
-                <p class="explore-count" id="college-count">Loading colleges...</p>
-            </section>
- 
-            <!-- RESULTS -->
-            <section id="colleges-container" style="padding: 0;">
-                <p style="text-align: center; color: var(--ink-faint); padding: 40px 0;">Loading...</p>
-            </section>
+            <p class="eyebrow">Browse the database</p>
+            <h1>Every school in CapItNJ</h1>
+            <p class="subtitle">No profile needed — filter freely, or <a href="login.html" style="text-decoration:underline">log in</a> to get a ranked, personalized list instead.</p>
+
+
+            <div class="explore-controls">
+                <input type="text" id="search" placeholder="Search by name, state, or country…">
+                <select id="filter-region">
+                    <option value="all">All regions</option>
+                    <option value="local">Near home (NJ)</option>
+                    <option value="regional">Nearby states</option>
+                    <option value="far">Elsewhere in the US</option>
+                    <option value="international">Out of country</option>
+                </select>
+                <select id="filter-type">
+                    <option value="all">Public + Private</option>
+                    <option value="public">Public only</option>
+                    <option value="private">Private only</option>
+                </select>
+            </div>
+            <p class="explore-count" id="result-count"></p>
+            <div id="explore-list"></div>
         </div>
     </main>
- 
-    <footer class="home-footer">
-        <div class="wrap">
-            <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+
+
+    <div id="details-modal" class="details-modal">
+        <div class="details-modal-inner">
+            <button id="details-close" class="details-close">&times;</button>
+            <div id="details-content">Loading…</div>
         </div>
-    </footer>
- 
+    </div>
+
+
     <script src="data.js"></script>
-    <script>
-        let allColleges = [];
-        let currentFilter = null;
- 
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof collegesData !== 'undefined') {
-                allColleges = collegesData;
-                displayColleges(allColleges);
+    <script type="module" src="firebase-init.js"></script>
+    <script type="module">
+        const SCORECARD_API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
+        const REGION_LABEL = { local: "Near home", regional: "Nearby state", far: "Elsewhere in US", international: "Out of country" };
+        const collegeByName = {};
+        let currentUser = null;
+
+
+        (async () => {
+            if (!window.capitnjFirebase?.ready) {
+                await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
             }
- 
-            document.getElementById('zip-search').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') searchByZip();
+            const fb = await window.capitnjFirebase.ready;
+            fb.authFns.onAuthStateChanged(fb.auth, (user) => {
+                currentUser = user;
             });
-        });
- 
-        function displayColleges(colleges) {
-            const container = document.getElementById('colleges-container');
-            const count = colleges.length;
- 
-            if (!colleges || colleges.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--ink-faint); padding: 40px 0;">No colleges found. Try adjusting your search.</p>';
-                document.getElementById('college-count').textContent = '0 schools';
-                return;
-            }
- 
-            let html = '';
-            colleges.forEach(college => {
-                const isSaved = isSavedCollege(college.id);
-                html += `
-                    <div class="explore-row" style="padding: 20px 0;">
-                        <div style="flex: 1;">
-                            <div class="explore-row-name">${college.name}</div>
-                            <div class="explore-row-meta">${college.type || 'University'} · ${college.city || 'N/A'} · ${college.state}</div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                            <span class="explore-row-tag">${college.state}</span>
-                            <button class="btn" style="padding: 8px 16px; font-size: 12px; background: var(--accent);" onclick="toggleSave('${college.id}', '${college.name.replace(/'/g, "\\'")}', this)">
-                                <span class="save-text-${college.id}">${isSaved ? 'Saved ✓' : 'Save'}</span>
-                            </button>
-                        </div>
+        })();
+
+
+        function render() {
+            const q = document.getElementById('search').value.trim().toLowerCase();
+            const region = document.getElementById('filter-region').value;
+            const type = document.getElementById('filter-type').value;
+
+
+            const dataPool = window.COLLEGES || [];
+
+
+            const filtered = dataPool.filter((c) => {
+                const matchesQuery = !q || c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q) || c.country.toLowerCase().includes(q);
+                const matchesRegion = region === 'all' || c.distanceTier === region;
+                const matchesType = type === 'all' || c.type.toLowerCase() === type;
+                return matchesQuery && matchesRegion && matchesType;
+            });
+
+
+            document.getElementById('result-count').textContent = `${filtered.length} school${filtered.length === 1 ? '' : 's'}`;
+            const list = document.getElementById('explore-list');
+
+
+            list.innerHTML = filtered.slice(0, 150).map((c) => {
+                collegeByName[c.name] = c;
+                const key = encodeURIComponent(c.name);
+                return `
+                <div class="explore-row">
+                    <div>
+                        <div class="explore-row-name">${c.name}</div>
+                        <div class="explore-row-meta">${c.type} · ${c.setting} · ${c.state}, ${c.country}</div>
                     </div>
-                `;
+                    <div class="explore-row-actions">
+                        <div class="explore-row-tag">${REGION_LABEL[c.distanceTier] || "Global Option"}</div>
+                        <button class="btn-details" data-key="${key}">Details</button>
+                        <button class="btn-save" data-key="${key}">Save</button>
+                    </div>
+                </div>
+            `;
+            }).join('') || `<div class="empty-state">No schools match those filters.</div>`;
+
+
+            if (filtered.length > 150) {
+                document.getElementById('result-count').textContent += ` (showing first 150 — narrow your search to see more)`;
+            }
+
+
+            list.querySelectorAll('.btn-details').forEach(btn => {
+                btn.addEventListener('click', () => showDetails(btn.getAttribute('data-key')));
             });
- 
-            container.innerHTML = html;
-            document.getElementById('college-count').textContent = count + ' schools' + (currentFilter ? ' (filtered)' : '');
+            list.querySelectorAll('.btn-save').forEach(btn => {
+                btn.addEventListener('click', () => saveCollege(btn.getAttribute('data-key')));
+            });
         }
- 
-        function searchByZip() {
-            const zip = document.getElementById('zip-search').value.trim();
- 
-            if (!zip) {
-                alert('Please enter a ZIP code');
+
+
+        async function showDetails(key) {
+            const name = decodeURIComponent(key);
+            const college = collegeByName[name];
+            const modal = document.getElementById('details-modal');
+            const content = document.getElementById('details-content');
+            modal.style.display = 'flex';
+            content.innerHTML = `<h2>${college.name}</h2><p>Loading details…</p>`;
+
+
+            if (college.country !== "United States") {
+                content.innerHTML = `
+                    <h2>${college.name}</h2>
+                    <p>${college.setting} · ${college.state}, ${college.country}</p>
+                    <p>Detailed tuition and test-score data is only available for U.S. schools right now.</p>`;
                 return;
             }
- 
-            if (!/^\d{5}$/.test(zip)) {
-                alert('Please enter a valid 5-digit ZIP code');
+
+
+         try {
+                const fields = "school.name,latest.cost.net_price.overall.overall,latest.admissions.admission_rate.overall,latest.admissions.sat_scores.average.overall";
+                const url = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${SCORECARD_API_KEY}&school.name=${encodeURIComponent(college.name)}&_fields=${fields}&_per_page=10`;
+                const res = await fetch(url);
+                const data = await res.json();
+const candidates = data.results || [];
+const result = candidates.find(r => r["school.name"].toLowerCase() === college.name.toLowerCase()) || candidates[0];
+
+
+                if (!result) {
+                    content.innerHTML = `<h2>${college.name}</h2><p>No federal data found for this school.</p>`;
+                    return;
+                }
+
+
+                const netPrice = result["latest.cost.net_price.overall.overall"];
+                const admitRate = result["latest.admissions.admission_rate.overall"];
+                const satAvg = result["latest.admissions.sat_scores.average.overall"];
+
+
+                content.innerHTML = `
+                    <h2>${college.name}</h2>
+                    <p><strong>Avg net price:</strong> ${netPrice ? "$" + Math.round(netPrice).toLocaleString() : "N/A"}</p>
+                    <p><strong>Admission rate:</strong> ${admitRate ? Math.round(admitRate * 100) + "%" : "N/A"}</p>
+                    <p><strong>Avg SAT:</strong> ${satAvg || "N/A"}</p>`;
+            } catch (err) {
+                console.error("Scorecard lookup failed:", err);
+                content.innerHTML = `<h2>${college.name}</h2><p>Couldn't load details right now.</p>`;
+            }
+        }
+
+
+        document.getElementById('details-close').addEventListener('click', () => {
+            document.getElementById('details-modal').style.display = 'none';
+        });
+
+
+        async function saveCollege(key) {
+            const name = decodeURIComponent(key);
+            const college = collegeByName[name];
+
+
+            if (!currentUser) {
+                if (confirm(`Sign in to save ${college.name} to My List. Go to the login page now?`)) {
+                    window.location.href = "login.html";
+                }
                 return;
             }
- 
-            currentFilter = zip;
-            const filtered = allColleges.filter(college => 
-                college.zip === zip || (college.zip && college.zip.substring(0, 3) === zip.substring(0, 3))
-            );
- 
-            displayColleges(filtered);
-        }
- 
-        function clearSearch() {
-            document.getElementById('zip-search').value = '';
-            currentFilter = null;
-            displayColleges(allColleges);
-        }
- 
-        function isSavedCollege(collegeId) {
-            const saved = JSON.parse(localStorage.getItem('savedColleges') || '[]');
-            return saved.some(c => c.id === collegeId);
-        }
- 
-        function toggleSave(collegeId, collegeName, btn) {
-            let saved = JSON.parse(localStorage.getItem('savedColleges') || '[]');
-            const isSaved = saved.some(c => c.id === collegeId);
- 
-            if (isSaved) {
-                saved = saved.filter(c => c.id !== collegeId);
-                document.querySelector('.save-text-' + collegeId).textContent = 'Save';
-            } else {
-                saved.push({ id: collegeId, name: collegeName });
-                document.querySelector('.save-text-' + collegeId).textContent = 'Saved ✓';
+
+
+            const fb = await window.capitnjFirebase.ready;
+            const { collection, addDoc } = fb.firestoreFns;
+
+
+            try {
+                await addDoc(collection(fb.db, "users", currentUser.uid, "savedColleges"), {
+                    name: college.name,
+                    state: college.state,
+                    rate: "N/A",
+                    priority: "Considering",
+                    notes: ""
+                });
+                alert(`${college.name} saved to My List!`);
+            } catch (err) {
+                console.error("Error saving college:", err);
+                alert("Couldn't save this college — try again.");
             }
- 
-            localStorage.setItem('savedColleges', JSON.stringify(saved));
+        }
+
+
+        document.getElementById('search').addEventListener('input', render);
+        document.getElementById('filter-region').addEventListener('change', render);
+        document.getElementById('filter-type').addEventListener('change', render);
+
+
+        window.addEventListener('database-ready', render);
+        if (window.COLLEGES && window.COLLEGES.length > 0) {
+            render();
         }
     </script>
 </body>
 </html>
+
+
+apItNJ — Explore Colleges</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .btn-details, .btn-save {
+            border: none;
+            padding: 7px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .btn-details { background: #1e3a8a; color: #fff; }
+        .btn-details:hover { background: #1e40af; }
+        .btn-save { background: #16a34a; color: #fff; }
+        .btn-save:hover { background: #15803d; }
+        .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
+
+
+        .explore-row { flex-wrap: wrap; gap: 10px; }
+        .explore-row-actions { display: flex; gap: 8px; align-items: center; }
+
+
+        .details-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .details-modal-inner {
+            background: #fff;
+            border-radius: 10px;
+            padding: 28px;
+            max-width: 420px;
+            width: 90%;
+            position: relative;
+            font-family: 'Inter', sans-serif;
+        }
+        .details-close {
+            position: absolute;
+            top: 12px;
+            right: 14px;
+            background: none;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            color: #666;
+        }
+        #details-content h2 {
+            font-family: 'Fraunces', serif;
+            margin: 0 0 12px 0;
+            font-size: 22px;
+        }
+        #details-content p { margin: 6px 0; font-size: 14px; color: #333; }
+    </style>
+</head>
+<body>
+    <header class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="wordmark">CapItNJ</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="improve.html">Improve</a>
+                <a href="explore.html" class="active">Explore</a>
+                <a href="matches.html">Matches</a>
+                <a href="mylist.html">My List</a>
+                <a href="profile.html">Profile</a>
+                <a href="support.html">Support</a>
+            </div>
+        </div>
+    </header>
+    <main>
+        <div class="wrap">
+            <p class="eyebrow">Browse the database</p>
+            <h1>Every school in CapItNJ</h1>
+            <p class="subtitle">No profile needed — filter freely, or <a href="login.html" style="text-decoration:underline">log in</a> to get a ranked, personalized list instead.</p>
+
+
+            <div class="explore-controls">
+                <input type="text" id="search" placeholder="Search by name, state, or country…">
+                <select id="filter-region">
+                    <option value="all">All regions</option>
+                    <option value="local">Near home (NJ)</option>
+                    <option value="regional">Nearby states</option>
+                    <option value="far">Elsewhere in the US</option>
+                    <option value="international">Out of country</option>
+                </select>
+                <select id="filter-type">
+                    <option value="all">Public + Private</option>
+                    <option value="public">Public only</option>
+                    <option value="private">Private only</option>
+                </select>
+            </div>
+            <p class="explore-count" id="result-count"></p>
+            <div id="explore-list"></div>
+        </div>
+    </main>
+
+
+    <div id="details-modal" class="details-modal">
+        <div class="details-modal-inner">
+            <button id="details-close" class="details-close">&times;</button>
+            <div id="details-content">Loading…</div>
+        </div>
+    </div>
+
+
+    <script src="data.js"></script>
+    <script type="module" src="firebase-init.js"></script>
+    <script type="module">
+        const SCORECARD_API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
+        const REGION_LABEL = { local: "Near home", regional: "Nearby state", far: "Elsewhere in US", international: "Out of country" };
+        const collegeByName = {};
+        let currentUser = null;
+
+
+        (async () => {
+            if (!window.capitnjFirebase?.ready) {
+                await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
+            }
+            const fb = await window.capitnjFirebase.ready;
+            fb.authFns.onAuthStateChanged(fb.auth, (user) => {
+                currentUser = user;
+            });
+        })();
+
+
+        function render() {
+            const q = document.getElementById('search').value.trim().toLowerCase();
+            const region = document.getElementById('filter-region').value;
+            const type = document.getElementById('filter-type').value;
+
+
+            const dataPool = window.COLLEGES || [];
+
+
+            const filtered = dataPool.filter((c) => {
+                const matchesQuery = !q || c.name.toLowerCase().includes(q) || c.state.toLowerCase().includes(q) || c.country.toLowerCase().includes(q);
+                const matchesRegion = region === 'all' || c.distanceTier === region;
+                const matchesType = type === 'all' || c.type.toLowerCase() === type;
+                return matchesQuery && matchesRegion && matchesType;
+            });
+
+
+            document.getElementById('result-count').textContent = `${filtered.length} school${filtered.length === 1 ? '' : 's'}`;
+            const list = document.getElementById('explore-list');
+
+
+            list.innerHTML = filtered.slice(0, 150).map((c) => {
+                collegeByName[c.name] = c;
+                const key = encodeURIComponent(c.name);
+                return `
+                <div class="explore-row">
+                    <div>
+                        <div class="explore-row-name">${c.name}</div>
+                        <div class="explore-row-meta">${c.type} · ${c.setting} · ${c.state}, ${c.country}</div>
+                    </div>
+                    <div class="explore-row-actions">
+                        <div class="explore-row-tag">${REGION_LABEL[c.distanceTier] || "Global Option"}</div>
+                        <button class="btn-details" data-key="${key}">Details</button>
+                        <button class="btn-save" data-key="${key}">Save</button>
+                    </div>
+                </div>
+            `;
+            }).join('') || `<div class="empty-state">No schools match those filters.</div>`;
+
+
+            if (filtered.length > 150) {
+                document.getElementById('result-count').textContent += ` (showing first 150 — narrow your search to see more)`;
+            }
+
+
+            list.querySelectorAll('.btn-details').forEach(btn => {
+                btn.addEventListener('click', () => showDetails(btn.getAttribute('data-key')));
+            });
+            list.querySelectorAll('.btn-save').forEach(btn => {
+                btn.addEventListener('click', () => saveCollege(btn.getAttribute('data-key')));
+            });
+        }
+
+
+        async function showDetails(key) {
+            const name = decodeURIComponent(key);
+            const college = collegeByName[name];
+            const modal = document.getElementById('details-modal');
+            const content = document.getElementById('details-content');
+            modal.style.display = 'flex';
+            content.innerHTML = `<h2>${college.name}</h2><p>Loading details…</p>`;
+
+
+            if (college.country !== "United States") {
+                content.innerHTML = `
+                    <h2>${college.name}</h2>
+                    <p>${college.setting} · ${college.state}, ${college.country}</p>
+                    <p>Detailed tuition and test-score data is only available for U.S. schools right now.</p>`;
+                return;
+            }
+
+
+         try {
+                const fields = "school.name,latest.cost.net_price.overall.overall,latest.admissions.admission_rate.overall,latest.admissions.sat_scores.average.overall";
+                const url = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${SCORECARD_API_KEY}&school.name=${encodeURIComponent(college.name)}&_fields=${fields}&_per_page=10`;
+                const res = await fetch(url);
+                const data = await res.json();
+const candidates = data.results || [];
+const result = candidates.find(r => r["school.name"].toLowerCase() === college.name.toLowerCase()) || candidates[0];
+
+
+                if (!result) {
+                    content.innerHTML = `<h2>${college.name}</h2><p>No federal data found for this school.</p>`;
+                    return;
+                }
+
+
+                const netPrice = result["latest.cost.net_price.overall.overall"];
+                const admitRate = result["latest.admissions.admission_rate.overall"];
+                const satAvg = result["latest.admissions.sat_scores.average.overall"];
+
+
+                content.innerHTML = `
+                    <h2>${college.name}</h2>
+                    <p><strong>Avg net price:</strong> ${netPrice ? "$" + Math.round(netPrice).toLocaleString() : "N/A"}</p>
+                    <p><strong>Admission rate:</strong> ${admitRate ? Math.round(admitRate * 100) + "%" : "N/A"}</p>
+                    <p><strong>Avg SAT:</strong> ${satAvg || "N/A"}</p>`;
+            } catch (err) {
+                console.error("Scorecard lookup failed:", err);
+                content.innerHTML = `<h2>${college.name}</h2><p>Couldn't load details right now.</p>`;
+            }
+        }
+
+
+        document.getElementById('details-close').addEventListener('click', () => {
+            document.getElementById('details-modal').style.display = 'none';
+        });
+
+
+        async function saveCollege(key) {
+            const name = decodeURIComponent(key);
+            const college = collegeByName[name];
+
+
+            if (!currentUser) {
+                if (confirm(`Sign in to save ${college.name} to My List. Go to the login page now?`)) {
+                    window.location.href = "login.html";
+                }
+                return;
+            }
+
+
+            const fb = await window.capitnjFirebase.ready;
+            const { collection, addDoc } = fb.firestoreFns;
+
+
+            try {
+                await addDoc(collection(fb.db, "users", currentUser.uid, "savedColleges"), {
+                    name: college.name,
+                    state: college.state,
+                    rate: "N/A",
+                    priority: "Considering",
+                    notes: ""
+                });
+                alert(`${college.name} saved to My List!`);
+            } catch (err) {
+                console.error("Error saving college:", err);
+                alert("Couldn't save this college — try again.");
+            }
+        }
+
+
+        document.getElementById('search').addEventListener('input', render);
+        document.getElementById('filter-region').addEventListener('change', render);
+        document.getElementById('filter-type').addEventListener('change', render);
+
+
+        window.addEventListener('database-ready', render);
+        if (window.COLLEGES && window.COLLEGES.length > 0) {
+            render();
+        }
+    </script>
+</body>
+</html>
+
+
+
