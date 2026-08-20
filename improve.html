@@ -3,210 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CapItNJ — Improve</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <title>Improve Your Profile — CapItNJ</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <style>
-       
-        .improve-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 22px;
-            background: none;
-            border: none;
-            margin-top: 36px;
-        }
-        .improve-card {
-            background: var(--bg);
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 30px 28px;
-            box-shadow: 0 2px 10px rgba(11, 18, 32, 0.04);
-        }
-        @media (max-width: 640px) {
-            .improve-grid { grid-template-columns: 1fr; }
-        }
-
-        .improve-card h2 {
-            font-family: 'Fraunces', serif;
-            font-size: 19px;
-            margin: 0 0 18px;
-        }
-
-        .score-row { display: flex; gap: 14px; margin-bottom: 10px; }
-        .score-field { flex: 1; }
-        .score-field label {
-            display: block;
-            font-size: 12px;
-            color: var(--ink-soft);
-            margin-bottom: 6px;
-        }
-        .score-field input {
-            width: 100%;
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 16px;
-            padding: 10px 12px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-        }
-        .score-save-row { margin-top: 16px; }
-        .score-save-row button {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 9px 16px;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .score-save-row button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(30, 58, 95, 0.22);
-        }
-        .score-saved-note { font-size: 12px; color: var(--ink-faint); margin-top: 10px; min-height: 16px; }
-
-        .add-row { display: flex; gap: 8px; margin-bottom: 20px; }
-        .add-row input[type="text"] {
-            flex: 1;
-            padding: 9px 12px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-        }
-        .add-row input[type="date"] {
-            padding: 9px 10px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-        }
-        .add-row button {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 9px 14px;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .add-row button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(30, 58, 95, 0.22);
-        }
-
-        .todo-list, .reminder-list { list-style: none; margin: 0; padding: 0; }
-        .todo-item, .reminder-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 11px 0;
-            border-top: 1px solid var(--line);
-        }
-        .todo-item:first-child, .reminder-item:first-child { border-top: none; }
-        .todo-item input[type="checkbox"] { width: 16px; height: 16px; flex-shrink: 0; }
-        .todo-item span, .reminder-item span.reminder-text { flex: 1; font-size: 14px; }
-        .todo-item.done span { text-decoration: line-through; color: var(--ink-faint); }
-        .reminder-date {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 11px;
-            color: var(--ink-faint);
-            white-space: nowrap;
-        }
-        .reminder-date.overdue { color: #B3413A; }
-        .reminder-date.soon { color: var(--accent); }
-        .remove-x {
-            background: none;
-            border: none;
-            color: var(--ink-faint);
-            cursor: pointer;
-            font-size: 15px;
-            padding: 0 2px;
-            transition: color 0.15s ease, transform 0.15s ease;
-        }
-        .remove-x:hover { color: #B3413A; transform: scale(1.15); }
-        .empty-mini { font-size: 13px; color: var(--ink-faint); padding: 8px 0; }
-
-    
-        .progress-card {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .progress-metric {
-            margin-bottom: 24px;
-        }
-        .progress-metric:last-child { margin-bottom: 0; }
-        .progress-metric-label {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 11px;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            color: var(--ink-faint);
-            margin-bottom: 8px;
-        }
-        .progress-metric-value {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 30px;
-            font-weight: 600;
-            color: var(--accent);
-            line-height: 1;
-        }
-        .progress-metric-value span.unit {
-            font-size: 14px;
-            color: var(--ink-faint);
-            font-weight: 500;
-            margin-left: 4px;
-        }
-        .progress-bar-track {
-            height: 8px;
-            background: var(--surface);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 12px;
-        }
-        .progress-bar-fill {
-            height: 100%;
-            background: var(--accent-light);
-            border-radius: 4px;
-            width: 0%;
-            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .progress-note {
-            font-size: 13px;
-            color: var(--ink-soft);
-            margin-top: 4px;
-            line-height: 1.5;
-        }
-        .progress-divider {
-            border-top: 1px solid var(--line);
-            margin: 22px 0;
-        }
-
-        .login-gate {
-            text-align: center;
-            padding: 56px 24px;
-            border: 1px dashed var(--line);
-            border-radius: 10px;
-            background: var(--surface);
-            max-width: 440px;
-            margin: 24px auto 0;
-        }
-        .login-gate h2 {
-            font-family: 'Fraunces', serif;
-            font-size: 22px;
-            margin: 0 0 10px;
-        }
-        .login-gate p {
-            color: var(--ink-soft);
-            font-size: 14px;
-            margin: 0 0 22px;
-        }
-    </style>
 </head>
 <body>
     <header class="nav">
@@ -219,291 +19,294 @@
                 <a href="matches.html">Matches</a>
                 <a href="mylist.html">My List</a>
                 <a href="profile.html">Profile</a>
-                <a href="support.html">Support</a>
+                <a href="login.html" id="nav-login-btn">Log in</a>
             </div>
         </div>
     </header>
+ 
     <main>
         <div class="wrap">
-            <p class="eyebrow">Your planning tools</p>
-            <h1>Stay on track</h1>
-            <p class="subtitle">Track your scores, your to-dos, and your deadlines in one place.</p>
-
-            <div id="improve-container">
-                <p style="color: var(--ink-faint); font-family: 'IBM Plex Mono', monospace;">Loading…</p>
-            </div>
+            <!-- HERO -->
+            <section style="background: var(--accent); color: #fff; padding: 48px 24px; margin: 0 -24px 0; margin-bottom: 32px;">
+                <div style="max-width: var(--max-w); margin: 0 auto;">
+                    <p class="eyebrow" style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">STRENGTHEN YOUR APPLICATION</p>
+                    <h1 style="color: #fff; margin: 0;">Small moves that help.</h1>
+                    <p style="color: rgba(255,255,255,0.85); font-size: 15px; margin: 12px 0 0; max-width: 460px;">Track your test scores, set application reminders, and get tips for a stronger profile.</p>
+                </div>
+            </section>
+ 
+            <!-- TIPS SECTION -->
+            <section style="padding: 32px 0 0;">
+                <div style="margin-bottom: 32px;">
+                    <p class="eyebrow">APPLICATION TIPS</p>
+                    <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0 0 4px;">Quick wins for your profile</h2>
+                </div>
+ 
+                <div style="border-bottom: 1px solid var(--line); margin-bottom: 2px;"></div>
+ 
+                <div class="explore-row" style="padding: 20px 0;">
+                    <div>
+                        <div class="explore-row-name">Strong Essays</div>
+                        <div class="explore-row-meta">Write authentically about who you are and why each school fits you. Admissions officers read thousands — stand out by being genuine.</div>
+                    </div>
+                </div>
+ 
+                <div class="explore-row" style="padding: 20px 0;">
+                    <div>
+                        <div class="explore-row-name">Test Strategy</div>
+                        <div class="explore-row-meta">Take the SAT/ACT multiple times. Most schools consider your highest score, and retaking often raises results.</div>
+                    </div>
+                </div>
+ 
+                <div class="explore-row" style="padding: 20px 0;">
+                    <div>
+                        <div class="explore-row-name">Extracurriculars</div>
+                        <div class="explore-row-meta">Depth beats breadth. Schools value meaningful commitment to a few activities over a long list of minimal involvement.</div>
+                    </div>
+                </div>
+ 
+                <div class="explore-row" style="padding: 20px 0;">
+                    <div>
+                        <div class="explore-row-name">GPA Trends</div>
+                        <div class="explore-row-meta">If your GPA improved over time, that shows growth. Colleges see the full picture, not just the final number.</div>
+                    </div>
+                </div>
+ 
+                <div class="explore-row" style="padding: 20px 0;">
+                    <div>
+                        <div class="explore-row-name">Letters of Rec</div>
+                        <div class="explore-row-meta">Ask teachers who know you well and can speak to your character, not just your grades.</div>
+                    </div>
+                </div>
+ 
+                <div class="explore-row" style="padding: 20px 0;">
+                    <div>
+                        <div class="explore-row-name">Start Early</div>
+                        <div class="explore-row-meta">Apply early (September/October). It reduces stress and shows genuine interest to schools that track application timing.</div>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- TEST SCORE TRACKER -->
+            <section style="padding: 48px 0 0; border-top: 1px solid var(--line); margin-top: 48px;">
+                <div style="margin-bottom: 24px;">
+                    <p class="eyebrow">TRACK YOUR SCORES</p>
+                    <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0 0 4px;">SAT and ACT attempts</h2>
+                </div>
+ 
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 28px;">
+                    <!-- SAT -->
+                    <div>
+                        <div style="background: var(--surface); border: 1px solid var(--line); padding: 24px; border-radius: 2px; margin-bottom: 16px;">
+                            <p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px; font-weight: 600;">SAT</p>
+                            
+                            <div class="field">
+                                <label>Test Date</label>
+                                <input type="date" class="sat-date">
+                            </div>
+                            <div class="field">
+                                <label>Reading & Writing</label>
+                                <input type="number" class="sat-rw" min="200" max="800" placeholder="200-800">
+                            </div>
+                            <div class="field">
+                                <label>Math</label>
+                                <input type="number" class="sat-math" min="200" max="800" placeholder="200-800">
+                            </div>
+                            <button class="btn" style="width: 100%; margin-top: 4px;" onclick="addSATScore()">Add SAT Score</button>
+                        </div>
+                        <div id="sat-history" style="font-size: 13px; color: var(--ink-soft);"></div>
+                    </div>
+ 
+                    <!-- ACT -->
+                    <div>
+                        <div style="background: var(--surface); border: 1px solid var(--line); padding: 24px; border-radius: 2px; margin-bottom: 16px;">
+                            <p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px; font-weight: 600;">ACT</p>
+                            
+                            <div class="field">
+                                <label>Test Date</label>
+                                <input type="date" class="act-date">
+                            </div>
+                            <div class="field">
+                                <label>English</label>
+                                <input type="number" class="act-e" min="1" max="36" placeholder="1-36">
+                            </div>
+                            <div class="field">
+                                <label>Math</label>
+                                <input type="number" class="act-m" min="1" max="36" placeholder="1-36">
+                            </div>
+                            <div class="field">
+                                <label>Reading</label>
+                                <input type="number" class="act-r" min="1" max="36" placeholder="1-36">
+                            </div>
+                            <div class="field">
+                                <label>Science</label>
+                                <input type="number" class="act-s" min="1" max="36" placeholder="1-36">
+                            </div>
+                            <button class="btn" style="width: 100%; margin-top: 4px;" onclick="addACTScore()">Add ACT Score</button>
+                        </div>
+                        <div id="act-history" style="font-size: 13px; color: var(--ink-soft);"></div>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- REMINDERS -->
+            <section style="padding: 48px 0 0; border-top: 1px solid var(--line); margin-top: 48px;">
+                <div style="margin-bottom: 24px;">
+                    <p class="eyebrow">APPLICATION REMINDERS</p>
+                    <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0 0 4px;">Set deadlines you won't miss</h2>
+                </div>
+ 
+                <div style="background: var(--surface); border: 1px solid var(--line); padding: 24px; border-radius: 2px; margin: 28px 0;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: flex-end;">
+                        <div class="field">
+                            <label>School Name</label>
+                            <input type="text" id="school-name" placeholder="e.g., Rutgers University">
+                        </div>
+                        <div class="field">
+                            <label>Application Deadline</label>
+                            <input type="date" id="deadline-date">
+                        </div>
+                        <div class="field">
+                            <label>Remind Me</label>
+                            <select id="reminder-days">
+                                <option value="7">1 week before</option>
+                                <option value="14">2 weeks before</option>
+                                <option value="30">1 month before</option>
+                            </select>
+                        </div>
+                        <button class="btn" onclick="addReminder()">Set Reminder</button>
+                    </div>
+                </div>
+ 
+                <div id="reminders-list"></div>
+            </section>
         </div>
     </main>
-
-    <script type="module" src="firebase-init.js"></script>
-    <script type="module">
-        const container = document.getElementById("improve-container");
-
-        if (!window.capitnjFirebase?.ready) {
-            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
-        }
-        const fb = await window.capitnjFirebase.ready;
-        const { doc, getDoc, setDoc } = fb.firestoreFns;
-        const db = fb.db;
-
-        fb.authFns.onAuthStateChanged(fb.auth, (user) => {
-            if (!user) {
-                container.innerHTML = `
-                    <div class="login-gate">
-                        <h2>Log in to get customized results!</h2>
-                        <p>Track your SAT/ACT scores, keep a to-do list, and stay on top of deadlines, all saved to your account.</p>
-                        <a href="login.html" class="btn">Sign up / Log in</a>
-                    </div>`;
+ 
+    <footer class="home-footer">
+        <div class="wrap">
+            <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+        </div>
+    </footer>
+ 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTestScores();
+            loadReminders();
+        });
+ 
+        function addSATScore() {
+            const date = document.querySelector('.sat-date').value;
+            const rw = parseInt(document.querySelector('.sat-rw').value) || 0;
+            const math = parseInt(document.querySelector('.sat-math').value) || 0;
+ 
+            if (!date || rw === 0 || math === 0) {
+                alert('Please fill in all SAT fields');
                 return;
             }
-            startImproveTools(user);
-        });
-
-        async function startImproveTools(user) {
-            const { doc, getDoc, setDoc } = fb.firestoreFns;
-            const userDocRef = doc(db, "users", user.uid);
-            let data = { sat: "", act: "", todos: [], reminders: [] };
-
-            try {
-                const snap = await getDoc(userDocRef);
-                if (snap.exists() && snap.data().improveData) {
-                    data = { ...data, ...snap.data().improveData };
-                }
-            } catch (err) {
-                console.error("Error loading improve data:", err);
+ 
+            let scores = JSON.parse(localStorage.getItem('satScores') || '[]');
+            scores.push({ date, rw, math, total: rw + math, id: Date.now() });
+            localStorage.setItem('satScores', JSON.stringify(scores));
+ 
+            document.querySelector('.sat-date').value = '';
+            document.querySelector('.sat-rw').value = '';
+            document.querySelector('.sat-math').value = '';
+            loadTestScores();
+        }
+ 
+        function addACTScore() {
+            const date = document.querySelector('.act-date').value;
+            const e = parseInt(document.querySelector('.act-e').value) || 0;
+            const m = parseInt(document.querySelector('.act-m').value) || 0;
+            const r = parseInt(document.querySelector('.act-r').value) || 0;
+            const s = parseInt(document.querySelector('.act-s').value) || 0;
+ 
+            if (!date || e === 0 || m === 0 || r === 0 || s === 0) {
+                alert('Please fill in all ACT fields');
+                return;
             }
-
-            async function save() {
-                try {
-                    await setDoc(userDocRef, { improveData: data }, { merge: true });
-                } catch (err) {
-                    console.error("Error saving improve data:", err);
-                }
+ 
+            let scores = JSON.parse(localStorage.getItem('actScores') || '[]');
+            scores.push({ date, e, m, r, s, avg: Math.round((e+m+r+s)/4), id: Date.now() });
+            localStorage.setItem('actScores', JSON.stringify(scores));
+ 
+            document.querySelector('.act-date').value = '';
+            document.querySelector('.act-e').value = '';
+            document.querySelector('.act-m').value = '';
+            document.querySelector('.act-r').value = '';
+            document.querySelector('.act-s').value = '';
+            loadTestScores();
+        }
+ 
+        function loadTestScores() {
+            const sat = JSON.parse(localStorage.getItem('satScores') || '[]');
+            const act = JSON.parse(localStorage.getItem('actScores') || '[]');
+ 
+            let satHtml = '';
+            if (sat.length > 0) {
+                satHtml = '<div style="margin-top: 16px; padding: 12px; background: white; border: 1px solid var(--line); border-radius: 2px;">' +
+                    '<p style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em;">Your SAT Attempts</p>' +
+                    sat.map(s => `<p style="margin: 6px 0; font-size: 13px;">📅 ${new Date(s.date).toLocaleDateString()} — <strong>${s.total}</strong></p>`).join('') +
+                    '</div>';
             }
-
-            function uid() {
-                return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+            document.getElementById('sat-history').innerHTML = satHtml;
+ 
+            let actHtml = '';
+            if (act.length > 0) {
+                actHtml = '<div style="margin-top: 16px; padding: 12px; background: white; border: 1px solid var(--line); border-radius: 2px;">' +
+                    '<p style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em;">Your ACT Attempts</p>' +
+                    act.map(s => `<p style="margin: 6px 0; font-size: 13px;">📅 ${new Date(s.date).toLocaleDateString()} — <strong>${s.avg}</strong> avg</p>`).join('') +
+                    '</div>';
             }
-
-            function render() {
-                container.innerHTML = `
-                    <div class="improve-grid">
-                        <div class="improve-card tracker-card">
-                            <h2>SAT / ACT scores</h2>
-                            <div class="score-row">
-                                <div class="score-field">
-                                    <label for="sat-input">SAT (out of 1600)</label>
-                                    <input type="number" id="sat-input" min="400" max="1600" value="${data.sat || ''}">
-                                </div>
-                                <div class="score-field">
-                                    <label for="act-input">ACT (out of 36)</label>
-                                    <input type="number" id="act-input" min="1" max="36" value="${data.act || ''}">
-                                </div>
-                            </div>
-                            <div class="score-save-row">
-                                <button id="save-score-btn">Save scores</button>
-                            </div>
-                            <p class="score-saved-note" id="score-note"></p>
+            document.getElementById('act-history').innerHTML = actHtml;
+        }
+ 
+        function addReminder() {
+            const name = document.getElementById('school-name').value;
+            const date = document.getElementById('deadline-date').value;
+            const days = document.getElementById('reminder-days').value;
+ 
+            if (!name || !date) {
+                alert('Please fill in school name and deadline');
+                return;
+            }
+ 
+            let reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
+            reminders.push({ name, date, days, id: Date.now() });
+            localStorage.setItem('reminders', JSON.stringify(reminders));
+ 
+            document.getElementById('school-name').value = '';
+            document.getElementById('deadline-date').value = '';
+            loadReminders();
+        }
+ 
+        function loadReminders() {
+            const reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
+            const list = document.getElementById('reminders-list');
+ 
+            if (reminders.length === 0) return;
+ 
+            let html = '';
+            reminders.forEach(r => {
+                html += `
+                    <div class="explore-row" style="padding: 16px 0; border-top: 1px solid var(--line);">
+                        <div style="flex: 1;">
+                            <div class="explore-row-name">${r.name}</div>
+                            <div class="explore-row-meta">Deadline: ${new Date(r.date).toLocaleDateString()}</div>
                         </div>
-
-                        <div class="improve-card">
-                            <h2>To-do list</h2>
-                            <div class="add-row">
-                                <input type="text" id="todo-input" placeholder="e.g. Draft the Common App essay">
-                                <button id="add-todo-btn">Add</button>
-                            </div>
-                            <ul class="todo-list" id="todo-list"></ul>
-                        </div>
-
-                        <div class="improve-card">
-                            <h2>Deadlines & reminders</h2>
-                            <div class="add-row">
-                                <input type="text" id="reminder-input" placeholder="e.g. Submit FAFSA">
-                                <input type="date" id="reminder-date-input">
-                                <button id="add-reminder-btn">Add</button>
-                            </div>
-                            <ul class="reminder-list" id="reminder-list"></ul>
-                        </div>
-
-                        <div class="improve-card progress-card">
-                            <h2>Your progress</h2>
-                            <div id="progress-body"></div>
-                        </div>
+                        <button class="btn-outline" style="color: #B3413A; border: 1px solid #E3C9C7; padding: 8px 14px; font-size: 12px;" onclick="deleteReminder(${r.id})">Delete</button>
                     </div>
                 `;
-
-                document.getElementById("save-score-btn").addEventListener("click", async () => {
-                    data.sat = document.getElementById("sat-input").value;
-                    data.act = document.getElementById("act-input").value;
-                    await save();
-                    const note = document.getElementById("score-note");
-                    note.textContent = "Saved.";
-                    setTimeout(() => { if (note) note.textContent = ""; }, 2000);
-                });
-
-                renderTodos();
-                renderReminders();
-                renderProgress();
-
-                document.getElementById("add-todo-btn").addEventListener("click", addTodo);
-                document.getElementById("todo-input").addEventListener("keydown", (e) => {
-                    if (e.key === "Enter") addTodo();
-                });
-
-                document.getElementById("add-reminder-btn").addEventListener("click", addReminder);
-                document.getElementById("reminder-input").addEventListener("keydown", (e) => {
-                    if (e.key === "Enter") addReminder();
-                });
-            }
-
-            function renderTodos() {
-                const list = document.getElementById("todo-list");
-                if (!data.todos.length) {
-                    list.innerHTML = `<li class="empty-mini">No tasks yet. Add your first one above.</li>`;
-                    return;
-                }
-                list.innerHTML = data.todos.map(t => `
-                    <li class="todo-item ${t.done ? 'done' : ''}" data-id="${t.id}">
-                        <input type="checkbox" ${t.done ? 'checked' : ''}>
-                        <span>${t.text}</span>
-                        <button class="remove-x">✕</button>
-                    </li>
-                `).join('');
-
-                list.querySelectorAll('.todo-item').forEach(item => {
-                    const id = item.getAttribute('data-id');
-                    item.querySelector('input[type="checkbox"]').addEventListener('change', async (e) => {
-                        const todo = data.todos.find(t => t.id === id);
-                        todo.done = e.target.checked;
-                        await save();
-                        renderTodos();
-                        renderProgress();
-                    });
-                    item.querySelector('.remove-x').addEventListener('click', async () => {
-                        data.todos = data.todos.filter(t => t.id !== id);
-                        await save();
-                        renderTodos();
-                        renderProgress();
-                    });
-                });
-            }
-
-            function renderReminders() {
-                const list = document.getElementById("reminder-list");
-                if (!data.reminders.length) {
-                    list.innerHTML = `<li class="empty-mini">No reminders yet. Add a deadline above.</li>`;
-                    return;
-                }
-
-                const sorted = [...data.reminders].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-                const today = new Date().toISOString().slice(0, 10);
-                const in7 = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
-
-                list.innerHTML = sorted.map(r => {
-                    let dateClass = '';
-                    if (r.date && r.date < today) dateClass = 'overdue';
-                    else if (r.date && r.date <= in7) dateClass = 'soon';
-                    return `
-                        <li class="reminder-item" data-id="${r.id}">
-                            <span class="reminder-text">${r.text}</span>
-                            <span class="reminder-date ${dateClass}">${r.date || 'No date'}</span>
-                            <button class="remove-x">✕</button>
-                        </li>
-                    `;
-                }).join('');
-
-                list.querySelectorAll('.reminder-item').forEach(item => {
-                    const id = item.getAttribute('data-id');
-                    item.querySelector('.remove-x').addEventListener('click', async () => {
-                        data.reminders = data.reminders.filter(r => r.id !== id);
-                        await save();
-                        renderReminders();
-                        renderProgress();
-                    });
-                });
-            }
-
-            function renderProgress() {
-                const body = document.getElementById("progress-body");
-                if (!body) return;
-
-                const total = data.todos.length;
-                const done = data.todos.filter(t => t.done).length;
-                const pct = total ? Math.round((done / total) * 100) : 0;
-
-                let encourageMsg;
-                if (total === 0) encourageMsg = "Add a task above to start tracking your progress.";
-                else if (pct === 100) encourageMsg = "Everything's checked off. Nice work!";
-                else if (pct >= 50) encourageMsg = "More than halfway there. Keep going!";
-                else encourageMsg = "You're just getting started. Every task counts.";
-
-                const today = new Date().toISOString().slice(0, 10);
-                const upcoming = data.reminders
-                    .filter(r => r.date && r.date >= today)
-                    .sort((a, b) => a.date.localeCompare(b.date))[0];
-
-                let deadlineHTML;
-                if (upcoming) {
-                    const days = Math.round((new Date(upcoming.date) - new Date(today)) / 86400000);
-                    const dayLabel = days === 0 ? "Today" : days === 1 ? "1 day" : `${days} days`;
-                    deadlineHTML = `
-                        <div class="progress-metric-value">${dayLabel}${days > 1 ? '<span class="unit">left</span>' : ''}</div>
-                        <p class="progress-note">until "${upcoming.text}"</p>
-                    `;
-                } else {
-                    deadlineHTML = `
-                        <div class="progress-metric-value" style="font-size:20px;">No upcoming deadlines</div>
-                        <p class="progress-note">Add a deadline to see a countdown here.</p>
-                    `;
-                }
-
-                body.innerHTML = `
-                    <div class="progress-metric">
-                        <p class="progress-metric-label">To-dos completed</p>
-                        <div class="progress-metric-value">${done} <span class="unit">/ ${total}</span></div>
-                        <div class="progress-bar-track">
-                            <div class="progress-bar-fill" id="progress-bar-fill"></div>
-                        </div>
-                        <p class="progress-note">${encourageMsg}</p>
-                    </div>
-                    <div class="progress-divider"></div>
-                    <div class="progress-metric">
-                        <p class="progress-metric-label">Next deadline</p>
-                        ${deadlineHTML}
-                    </div>
-                `;
-
-                requestAnimationFrame(() => {
-                    const fill = document.getElementById("progress-bar-fill");
-                    if (fill) fill.style.width = pct + "%";
-                });
-            }
-
-            async function addTodo() {
-                const input = document.getElementById("todo-input");
-                const text = input.value.trim();
-                if (!text) return;
-                data.todos.push({ id: uid(), text, done: false });
-                input.value = "";
-                await save();
-                renderTodos();
-                renderProgress();
-            }
-
-            async function addReminder() {
-                const textInput = document.getElementById("reminder-input");
-                const dateInput = document.getElementById("reminder-date-input");
-                const text = textInput.value.trim();
-                if (!text) return;
-                data.reminders.push({ id: uid(), text, date: dateInput.value || "" });
-                textInput.value = "";
-                dateInput.value = "";
-                await save();
-                renderReminders();
-                renderProgress();
-            }
-
-            render();
+            });
+            list.innerHTML = html;
+        }
+ 
+        function deleteReminder(id) {
+            let reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
+            reminders = reminders.filter(r => r.id !== id);
+            localStorage.setItem('reminders', JSON.stringify(reminders));
+            loadReminders();
         }
     </script>
 </body>
