@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CapItNJ — Log In / Sign Up</title>
+    <title>Log in</title>
     <link rel="preconnect" href="https://googleapis.com">
     <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
@@ -23,211 +23,297 @@
             </div>
         </div>
     </header>
-    <main>
-        <div class="wrap" style="max-width: 420px; margin: 0 auto; padding: 60px 20px;">
-            <h1 id="form-title" style="font-family: 'Fraunces', serif; font-size: 32px; margin-bottom: 6px; color: #111;">Log in</h1>
-            <p id="form-subtitle" style="color: #666; margin-bottom: 24px; font-size: 15px;">Find colleges you can actually afford.</p>
-            <p id="error-msg" style="color: #ef4444; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; margin-bottom: 18px; display: none; padding: 10px; background: #fdf2f2; border-radius: 6px; border: 1px solid #fde2e2;"></p>
 
-            <form id="login-form" onsubmit="return false;">
-                <div class="field" id="name-field" style="margin-bottom: 18px; display: none;">
-                    <label for="name-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Full Name</label>
-                    <input type="text" id="name-input" placeholder="Jane Doe" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
-                </div>
-                <div class="field" id="role-field" style="margin-bottom: 18px; display: none;">
-                    <label style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">I am a...</label>
-                    <div style="display: flex; gap: 10px;">
-                        <label style="flex: 1; display: flex; align-items: center; gap: 6px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; font-size: 14px;">
-                            <input type="radio" name="role" value="student" checked> Student
-                        </label>
-                        <label style="flex: 1; display: flex; align-items: center; gap: 6px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; cursor: pointer; font-size: 14px;">
-                            <input type="radio" name="role" value="parent"> Parent
-                        </label>
+    <main>
+        <div class="wrap">
+            <div style="max-width: 320px; margin: 60px auto;">
+                <h1>Log in</h1>
+                <p style="color: var(--ink-soft); margin: 0 0 24px; font-size: 14px;">Enter your email and password to continue.</p>
+
+                <form id="login-form">
+                    <div class="field">
+                        <label>email or username</label>
+                        <input type="email" id="login-email" required>
                     </div>
-                </div>
-                <div class="field" style="margin-bottom: 18px;">
-                    <label for="email-input" style="display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px;">Email Address</label>
-                    <input type="email" id="email-input" placeholder="you@example.com" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
-                </div>
-                <div class="field" style="margin-bottom: 20px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <label for="password-input" style="font-weight: 500; font-size: 14px;">Password</label>
-                        <button type="button" id="open-reset-modal-btn" style="background: none; border: none; color: #64748b; font-size: 13px; cursor: pointer; text-decoration: underline; padding: 0; font-family: inherit;">Forgot password?</button>
+                    <div class="field">
+                        <label>password</label>
+                        <input type="password" id="login-password" required>
                     </div>
-                    <input type="password" id="password-input" placeholder="••••••••" required style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit;">
+                    <button type="submit" id="submit-btn" class="btn" style="width: 100%; margin-bottom: 12px;">Log in</button>
+                </form>
+
+                <button type="button" id="toggle-btn" class="btn-outline" style="width: 100%; margin-bottom: 20px;">Create account</button>
+
+                <div style="text-align: center;">
+                    <button type="button" id="open-reset-modal-btn" style="background: none; border: none; color: var(--accent); cursor: pointer; font-size: 13px; text-decoration: underline;">Forgot password?</button>
                 </div>
-                <button type="button" id="submit-btn" class="btn" style="width: 100%; padding: 12px; font-weight: 600; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px;">Log in</button>
-            </form>
-            <p style="margin-top: 24px; text-align: center; font-size: 14px; color: #555;">
-                <span id="toggle-text">Don't have an account?</span>
-                <button type="button" id="toggle-btn" style="background: none; border: none; color: #111; font-weight: 600; cursor: pointer; text-decoration: underline; padding: 0; margin-left: 4px; font-family: inherit;">Sign up</button>
-            </p>
+
+                <div id="error-message" style="display: none; background: #FEF1F1; border: 1px solid #E3C9C7; color: #B3413A; padding: 12px; border-radius: 2px; margin-top: 20px; font-size: 13px;"></div>
+            </div>
         </div>
     </main>
 
+    <!-- SIGNUP MODAL -->
+    <div id="signup-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 32px; border-radius: 4px; max-width: 320px; width: 90%;">
+            <h2 style="margin-top: 0;">Create account</h2>
+            <p style="color: var(--ink-soft); margin: 0 0 24px; font-size: 14px;">Sign up to get started.</p>
 
-    <div id="reset-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
-        <div style="background: #fff; border-radius: 10px; padding: 28px; max-width: 380px; width: 90%; position: relative;">
-            <button type="button" id="close-modal" style="position: absolute; top: 14px; right: 14px; background: none; border: none; font-size: 20px; cursor: pointer; color: #666; line-height: 1;">&times;</button>
-            <h2 style="font-family: 'Fraunces', serif; font-size: 22px; margin: 0 0 8px;">Reset your password</h2>
-            <p style="color: #666; font-size: 14px; margin-bottom: 18px;">We'll email you a link to reset it.</p>
-            <p id="reset-message" style="font-size: 13px; margin-bottom: 12px; display: none;"></p>
-            <input type="email" id="reset-email" placeholder="you@example.com" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-family: inherit; margin-bottom: 14px;">
-            <button type="button" id="send-reset-btn" class="btn" style="width: 100%; padding: 12px; font-weight: 600; background: #111; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 15px;">Send reset link</button>
+            <form id="signup-form">
+                <div class="field">
+                    <label>Full Name</label>
+                    <input type="text" id="signup-name" required>
+                </div>
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email" id="signup-email" required>
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <input type="password" id="signup-password" required>
+                </div>
+                <div class="field">
+                    <label>Confirm Password</label>
+                    <input type="password" id="signup-confirm" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; margin-bottom: 12px;">Create account</button>
+                <button type="button" class="btn-outline" style="width: 100%;" onclick="closeSignupModal()">Back</button>
+            </form>
+
+            <div id="signup-error" style="display: none; background: #FEF1F1; border: 1px solid #E3C9C7; color: #B3413A; padding: 12px; border-radius: 2px; margin-top: 12px; font-size: 13px;"></div>
         </div>
     </div>
 
-    <script type="module" src="firebase-init.js"></script>
-    <script type="module">
-        if (!window.capitnjFirebase?.ready) {
-            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
+    <!-- RESET MODAL -->
+    <div id="reset-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 32px; border-radius: 4px; max-width: 320px; width: 90%;">
+            <h2 style="margin-top: 0;">Reset password</h2>
+            <p style="color: var(--ink-soft); margin: 0 0 24px; font-size: 14px;">Enter your email to receive a reset link.</p>
+
+            <form id="reset-form">
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email" id="reset-email" required>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; margin-bottom: 12px;">Send reset link</button>
+                <button type="button" class="btn-outline" style="width: 100%;" onclick="closeResetModal()">Back</button>
+            </form>
+
+            <div id="reset-error" style="display: none; background: #FEF1F1; border: 1px solid #E3C9C7; color: #B3413A; padding: 12px; border-radius: 2px; margin-top: 12px; font-size: 13px;"></div>
+        </div>
+    </div>
+
+    <footer class="home-footer">
+        <div class="wrap">
+            <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+        </div>
+    </footer>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js"></script>
+    <script src="firebase-init.js"></script>
+
+    <script>
+        function showError(elementId, message) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
         }
-        const firebase = await window.capitnjFirebase.ready;
-        const auth = firebase.auth;
-        const db = firebase.db;
-        const { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, updateProfile } = firebase.authFns;
-        const { doc, setDoc } = firebase.firestoreFns;
 
-        const toggleBtn = document.getElementById("toggle-btn");
-        const toggleText = document.getElementById("toggle-text");
-        const formTitle = document.getElementById("form-title");
-        const formSubtitle = document.getElementById("form-subtitle");
-        const submitBtn = document.getElementById("submit-btn");
-        const errorMsg = document.getElementById("error-msg");
-        const emailField = document.getElementById("email-input");
-        const passwordField = document.getElementById("password-input");
-        const nameField = document.getElementById("name-input");
-        const nameFieldWrap = document.getElementById("name-field");
-        const roleFieldWrap = document.getElementById("role-field");
-        const openResetModalBtn = document.getElementById("open-reset-modal-btn");
-        let mode = "login";
+        function clearError(elementId) {
+            const errorEl = document.getElementById(elementId);
+            errorEl.style.display = 'none';
+        }
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                window.location.replace("profile.html");
-            }
-        });
-
-        toggleBtn.addEventListener("click", () => {
-            mode = mode === "login" ? "signup" : "login";
-            errorMsg.style.display = "none";
-            errorMsg.textContent = "";
-            if (mode === "signup") {
-                formTitle.textContent = "Create your account";
-                formSubtitle.textContent = "Takes less than a minute.";
-                submitBtn.textContent = "Sign up";
-                toggleText.textContent = "Already have an account?";
-                toggleBtn.textContent = "Log in";
-                nameFieldWrap.style.display = "block";
-                roleFieldWrap.style.display = "block";
-                openResetModalBtn.style.display = "none";
-            } else {
-                formTitle.textContent = "Log in";
-                formSubtitle.textContent = "Find colleges you can actually afford.";
-                submitBtn.textContent = "Log in";
-                toggleText.textContent = "Don't have an account?";
-                toggleBtn.textContent = "Sign up";
-                nameFieldWrap.style.display = "none";
-                roleFieldWrap.style.display = "none";
-                openResetModalBtn.style.display = "inline";
-            }
-        });
-
-        submitBtn.addEventListener("click", async (e) => {
+        // LOGIN
+        document.getElementById('login-form').addEventListener('submit', function(e) {
             e.preventDefault();
-            errorMsg.textContent = "";
-            errorMsg.style.display = "none";
-            const email = emailField.value.trim();
-            const password = passwordField.value;
-            const name = nameField.value.trim();
-            const role = document.querySelector('input[name="role"]:checked')?.value || "student";
+            clearError('error-message');
 
-            if (!email || !password) {
-                errorMsg.style.display = "block";
-                errorMsg.textContent = "❌ Please complete all required inputs.";
-                return;
-            }
-            if (mode === "signup" && !name) {
-                errorMsg.style.display = "block";
-                errorMsg.textContent = "❌ Please enter your name.";
-                return;
-            }
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
 
-            try {
-                submitBtn.textContent = "Processing...";
-                submitBtn.disabled = true;
+            console.log('Login attempt:', email);
 
-                if (mode === "signup") {
-                    const cred = await createUserWithEmailAndPassword(auth, email, password);
-                    await updateProfile(cred.user, { displayName: name });
-                    await setDoc(doc(db, "users", cred.user.uid), {
-                        name: name,
-                        role: role,
-                        email: email
+            window.capitnjFirebase.authFns.signInWithEmail(email, password)
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    console.log('Login successful:', user.uid);
+
+                    // Fetch user profile from Firestore
+                    window.capitnjFirebase.db.collection('users').doc(user.uid).get().then(doc => {
+                        if (doc.exists()) {
+                            const profile = doc.data();
+                            localStorage.setItem('userLoggedIn', 'true');
+                            localStorage.setItem('userProfile', JSON.stringify(profile));
+                        } else {
+                            // Create minimal profile
+                            const newProfile = {
+                                name: '',
+                                email: user.email,
+                                state: '',
+                                gpa: '',
+                                sat: null,
+                                act: null,
+                                budget: '',
+                                preferredLocation: ''
+                            };
+                            localStorage.setItem('userLoggedIn', 'true');
+                            localStorage.setItem('userProfile', JSON.stringify(newProfile));
+                        }
+                        window.location.href = 'profile.html';
+                    }).catch(err => {
+                        console.error('Error fetching profile:', err);
+                        showError('error-message', 'Error loading profile. Please try again.');
                     });
-                    sessionStorage.setItem("capitnj_name", name);
-                    sessionStorage.setItem("capitnj_role", role);
-                } else {
-                    const cred = await signInWithEmailAndPassword(auth, email, password);
-                    if (cred.user.displayName) {
-                        sessionStorage.setItem("capitnj_name", cred.user.displayName);
+                })
+                .catch(error => {
+                    console.error('Login error:', error.code, error.message);
+                    if (error.code === 'auth/user-not-found') {
+                        showError('error-message', 'Email not found.');
+                    } else if (error.code === 'auth/wrong-password') {
+                        showError('error-message', 'Incorrect password.');
+                    } else {
+                        showError('error-message', 'Login failed: ' + error.message);
                     }
-                }
-                window.location.replace("profile.html");
-            } catch (error) {
-                console.error("Firebase Auth Fail:", error.code);
-                errorMsg.style.display = "block";
-                submitBtn.disabled = false;
-                submitBtn.textContent = mode === "signup" ? "Sign up" : "Log in";
-                switch (error.code) {
-                    case "auth/invalid-email": errorMsg.textContent = "❌ The format of this email address is invalid."; break;
-                    case "auth/weak-password": errorMsg.textContent = "❌ Password is too weak. Make it at least 6 characters."; break;
-                    case "auth/email-already-in-use": errorMsg.textContent = "❌ This email is already registered to an account."; break;
-                    case "auth/wrong-password": case "auth/user-not-found": case "auth/invalid-credential": errorMsg.textContent = "❌ Account not found, or your email/password is incorrect."; break;
-                    case "auth/too-many-requests": errorMsg.textContent = "⚠️ Account locked temporarily due to too many failed attempts."; break;
-                    default: errorMsg.textContent = `❌ Authentication error: ${error.message}`;
-                }
-            }
+                });
         });
 
-        const sendResetBtn = document.getElementById("send-reset-btn");
-        const resetEmailInput = document.getElementById("reset-email");
-        const resetMessage = document.getElementById("reset-message");
-        const modal = document.getElementById("reset-modal");
-        const closeModal = document.getElementById("close-modal");
+        // SIGNUP
+        document.getElementById('signup-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearError('signup-error');
 
-        openResetModalBtn.addEventListener("click", () => {
-            modal.style.display = "flex";
-        });
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirm = document.getElementById('signup-confirm').value;
 
-        closeModal.addEventListener("click", () => {
-            modal.style.display = "none";
-        });
-
-        modal.addEventListener("click", (e) => {
-            if (e.target === modal) {
-                modal.style.display = "none";
-            }
-        });
-
-        sendResetBtn.addEventListener("click", async () => {
-            const email = resetEmailInput.value.trim();
-            resetMessage.style.display = "none";
-            if (!email) {
-                resetMessage.style.display = "block";
-                resetMessage.style.color = "#ef4444";
-                resetMessage.textContent = "❌ Please enter your email.";
+            if (password !== confirm) {
+                showError('signup-error', 'Passwords do not match.');
                 return;
             }
-            try {
-                await sendPasswordResetEmail(auth, email);
-                resetMessage.style.display = "block";
-                resetMessage.style.color = "#16a34a";
-                resetMessage.textContent = "✅ Reset link sent. Check your inbox — and your spam folder, just in case.";
-            } catch (error) {
-                resetMessage.style.display = "block";
-                resetMessage.style.color = "#ef4444";
-                resetMessage.textContent = "❌ Could not send reset email. Check the address and try again.";
+
+            if (password.length < 6) {
+                showError('signup-error', 'Password must be at least 6 characters.');
+                return;
+            }
+
+            console.log('Signup attempt:', email);
+
+            window.capitnjFirebase.authFns.createUserWithEmail(email, password)
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    console.log('Signup successful:', user.uid);
+
+                    const newProfile = {
+                        name: name,
+                        email: email,
+                        state: '',
+                        gpa: '',
+                        sat: null,
+                        act: null,
+                        budget: '',
+                        preferredLocation: ''
+                    };
+
+                    // Save to Firestore
+                    window.capitnjFirebase.db.collection('users').doc(user.uid).set(newProfile)
+                        .then(() => {
+                            localStorage.setItem('userLoggedIn', 'true');
+                            localStorage.setItem('userProfile', JSON.stringify(newProfile));
+                            closeSignupModal();
+                            window.location.href = 'profile.html';
+                        })
+                        .catch(err => {
+                            console.error('Error saving profile:', err);
+                            showError('signup-error', 'Error creating profile. Please try again.');
+                        });
+                })
+                .catch(error => {
+                    console.error('Signup error:', error.code, error.message);
+                    if (error.code === 'auth/email-already-in-use') {
+                        showError('signup-error', 'Email already in use.');
+                    } else if (error.code === 'auth/invalid-email') {
+                        showError('signup-error', 'Invalid email address.');
+                    } else {
+                        showError('signup-error', 'Signup failed: ' + error.message);
+                    }
+                });
+        });
+
+        // PASSWORD RESET
+        document.getElementById('reset-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearError('reset-error');
+
+            const email = document.getElementById('reset-email').value;
+
+            console.log('Reset attempt:', email);
+
+            window.capitnjFirebase.db.collection('users').where('email', '==', email).get()
+                .then(querySnapshot => {
+                    if (querySnapshot.empty) {
+                        showError('reset-error', 'Email not found.');
+                        return;
+                    }
+
+                    // Email exists, send reset link
+                    const resetModule = window.capitnjFirebase.auth;
+                    resetModule.sendPasswordResetEmail(email)
+                        .then(() => {
+                            console.log('Reset email sent');
+                            showError('reset-error', 'Reset link sent to your email.');
+                            document.getElementById('reset-error').style.background = '#E8F5E9';
+                            document.getElementById('reset-error').style.borderColor = '#81C784';
+                            document.getElementById('reset-error').style.color = '#2E7D32';
+                        })
+                        .catch(error => {
+                            console.error('Reset error:', error);
+                            showError('reset-error', 'Error sending reset link: ' + error.message);
+                        });
+                })
+                .catch(error => {
+                    console.error('Database error:', error);
+                    showError('reset-error', 'Error checking email. Please try again.');
+                });
+        });
+
+        // MODAL CONTROLS
+        document.getElementById('toggle-btn').addEventListener('click', function() {
+            document.getElementById('signup-modal').style.display = 'flex';
+        });
+
+        function closeSignupModal() {
+            document.getElementById('signup-modal').style.display = 'none';
+        }
+
+        document.getElementById('open-reset-modal-btn').addEventListener('click', function() {
+            document.getElementById('reset-modal').style.display = 'flex';
+        });
+
+        function closeResetModal() {
+            document.getElementById('reset-modal').style.display = 'none';
+        }
+
+        // Close modals when clicking outside
+        document.getElementById('signup-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSignupModal();
+            }
+        });
+
+        document.getElementById('reset-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeResetModal();
+            }
+        });
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            if (localStorage.getItem('userLoggedIn') === 'true') {
+                window.location.href = 'profile.html';
             }
         });
     </script>
