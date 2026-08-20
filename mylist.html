@@ -3,186 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CapItNJ — My List</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <title>My College List — CapItNJ</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <style>
-        .saved-card {
-            background: #fff;
-            border: 1px solid var(--line);
-            border-radius: 6px;
-            padding: 20px 22px;
-        }
-        .saved-card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-        }
-        .saved-card-name-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-        }
-        .saved-card-name-row input[type="checkbox"] {
-            width: 17px;
-            height: 17px;
-            margin-top: 5px;
-            flex-shrink: 0;
-        }
-        .saved-card-name {
-            font-family: 'Fraunces', serif;
-            font-size: 19px;
-            margin: 0 0 4px;
-        }
-        .saved-card-meta {
-            font-size: 13px;
-            color: var(--ink-soft);
-            margin: 0;
-        }
-        .priority-badge {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 3px 8px;
-            border-radius: 4px;
-            white-space: nowrap;
-        }
-        .priority-select {
-            font-family: 'Inter', sans-serif;
-            font-size: 12px;
-            padding: 4px 6px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-        }
-        .remove-btn {
-            background: none;
-            border: none;
-            color: #B3413A;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        .notes-box {
-            margin-top: 14px;
-        }
-        .notes-box label {
-            display: block;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--ink-faint);
-            margin-bottom: 6px;
-        }
-        .notes-box textarea {
-            width: 100%;
-            min-height: 60px;
-            font-family: 'Inter', sans-serif;
-            font-size: 13px;
-            padding: 10px 12px;
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            resize: vertical;
-        }
-        .notes-saved-note {
-            font-size: 11px;
-            color: var(--ink-faint);
-            margin-top: 4px;
-            min-height: 14px;
-        }
-
-        .compare-bar {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: var(--bg);
-            border: 1px solid var(--line);
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-        }
-        .compare-bar p {
-            font-size: 13px;
-            color: var(--ink-soft);
-            margin: 0;
-        }
-        .compare-bar button {
-            background: var(--accent);
-            color: #fff;
-            border: none;
-            padding: 9px 16px;
-            border-radius: 4px;
-            font-size: 13px;
-            cursor: pointer;
-        }
-        .compare-bar button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .compare-modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .compare-modal-inner {
-            background: #fff;
-            border-radius: 10px;
-            padding: 28px;
-            max-width: 720px;
-            width: 100%;
-            max-height: 85vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .compare-close {
-            position: absolute;
-            top: 12px;
-            right: 14px;
-            background: none;
-            border: none;
-            font-size: 22px;
-            cursor: pointer;
-            color: var(--ink-faint);
-        }
-        .compare-modal-inner h2 {
-            font-family: 'Fraunces', serif;
-            margin: 0 0 18px;
-            font-size: 22px;
-        }
-        table.compare-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        table.compare-table th, table.compare-table td {
-            text-align: left;
-            padding: 10px 12px;
-            border-bottom: 1px solid var(--line);
-            vertical-align: top;
-        }
-        table.compare-table th {
-            font-family: 'IBM Plex Mono', monospace;
-            font-size: 11px;
-            text-transform: uppercase;
-            color: var(--ink-faint);
-            font-weight: 600;
-        }
-        table.compare-table td.college-name-cell {
-            font-weight: 600;
-            font-family: 'Fraunces', serif;
-            font-size: 15px;
-        }
-    </style>
 </head>
 <body>
     <header class="nav">
@@ -195,247 +19,187 @@
                 <a href="matches.html">Matches</a>
                 <a href="mylist.html" class="active">My List</a>
                 <a href="profile.html">Profile</a>
-                <a href="support.html">Support</a>
+                <a href="login.html" id="nav-login-btn">Log in</a>
             </div>
         </div>
     </header>
+ 
     <main>
         <div class="wrap">
-            <p class="eyebrow">Dashboard Tracker</p>
-            <h1>My Shortlisted Colleges</h1>
-            <p class="subtitle">Add colleges, add notes! Keep track of what you love about each one.</p>
-
-            <div id="myListContainer" style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px; max-width: 640px;">
-                <p style="color: var(--ink-faint); font-family: 'IBM Plex Mono', monospace;">Loading your list…</p>
-            </div>
-        </div>
-    </main>
-
-    <div id="compare-modal" class="compare-modal">
-        <div class="compare-modal-inner">
-            <button id="compare-close" class="compare-close">&times;</button>
-            <div id="compare-content">Loading…</div>
-        </div>
-    </div>
-
-    <script type="module" src="firebase-init.js"></script>
-    <script type="module">
-        const SCORECARD_API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
-
-        if (!window.capitnjFirebase?.ready) {
-            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
-        }
-        const fb = await window.capitnjFirebase.ready;
-        const { doc, getDoc, collection, getDocs, deleteDoc, setDoc } = fb.firestoreFns;
-        const db = fb.db;
-
-        const containerEl = document.getElementById("myListContainer");
-        const PRIORITY_COLORS = {
-            "Top Choice": { bg: "#fff9c4", text: "#8a6d00" },
-            "Safety Backup": { bg: "#f0f0f0", text: "#616161" },
-            "Considering": { bg: "var(--accent-bg)", text: "var(--accent)" }
-        };
-
-        let selectedNames = new Set();
-        let allColleges = [];
-
-        fb.requireAuth(async (user) => {
-            const savedCollegesRef = collection(db, "users", user.uid, "savedColleges");
-
-            async function loadAndRender() {
-                try {
-                    const snap = await getDocs(savedCollegesRef);
-                    const colleges = [];
-                    snap.forEach(d => colleges.push({ id: d.id, ...d.data() }));
-                    allColleges = colleges;
-
-                    if (colleges.length === 0) {
-                        containerEl.innerHTML = `
-                            <div style="padding: 24px; border: 1px dashed var(--line); border-radius: 8px; text-align: center; color: var(--ink-soft);">
-                                Your shortlist is empty right now. Explore colleges and save your favorites here.
-                                <br><br>
-                                <a href="explore.html" class="btn" style="display: inline-block;">Go explore schools</a>
-                            </div>`;
-                        return;
-                    }
-
-                    const compareBarHtml = `
-                        <div class="compare-bar">
-                            <p id="compare-count-text">Select 2 or 3 colleges to compare them side by side.</p>
-                            <button id="compare-btn" disabled>Compare selected</button>
-                        </div>`;
-
-                    const cardsHtml = colleges.map(c => {
-                        const colors = PRIORITY_COLORS[c.priority] || PRIORITY_COLORS["Considering"];
-                        return `
-                        <div class="saved-card" data-id="${c.id}">
-                            <div class="saved-card-top">
-                                <div class="saved-card-name-row">
-                                    <input type="checkbox" class="compare-checkbox" data-name="${encodeURIComponent(c.name)}">
-                                    <div>
-                                        <span class="priority-badge" style="background:${colors.bg}; color:${colors.text};">${c.priority || "Considering"}</span>
-                                        <h3 class="saved-card-name">${c.name}</h3>
-                                        <p class="saved-card-meta">${c.state || ''}${c.rate && c.rate !== 'N/A' ? ' · Acceptance rate: ' + c.rate : ''}</p>
-                                    </div>
-                                </div>
-                                <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
-                                    <select class="priority-select" data-id="${c.id}">
-                                        <option value="Considering" ${c.priority === "Considering" ? "selected" : ""}>Considering</option>
-                                        <option value="Top Choice" ${c.priority === "Top Choice" ? "selected" : ""}>Top Choice</option>
-                                        <option value="Safety Backup" ${c.priority === "Safety Backup" ? "selected" : ""}>Safety Backup</option>
-                                    </select>
-                                    <button class="remove-btn" data-id="${c.id}">Remove</button>
-                                </div>
-                            </div>
-                            <div class="notes-box">
-                                <label for="notes-${c.id}">Your notes</label>
-                                <textarea id="notes-${c.id}" data-id="${c.id}" placeholder="What do you like about this school? Anything to remember for your application...">${c.notes || ''}</textarea>
-                                <p class="notes-saved-note" id="notes-status-${c.id}"></p>
+            <!-- EMPTY STATE -->
+            <section id="empty-state" style="display:none;">
+                <div style="background: var(--accent); color: #fff; padding: 48px 24px; margin: 0 -24px 0; margin-bottom: 32px;">
+                    <div style="max-width: var(--max-w); margin: 0 auto;">
+                        <p class="eyebrow" style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">YOUR LIST</p>
+                        <h1 style="color: #fff; margin: 0;">Your list is empty</h1>
+                        <p style="color: rgba(255,255,255,0.85); font-size: 15px; margin: 12px 0 0; max-width: 460px;">Save colleges from <a href="explore.html" style="color: #fff; text-decoration: underline;">Explore</a> or <a href="matches.html" style="color: #fff; text-decoration: underline;">Matches</a> to build your list.</p>
+                    </div>
+                </div>
+ 
+                <div style="text-align: center; padding: 60px 24px;">
+                    <div style="max-width: 360px; margin: 0 auto;">
+                        <div class="empty-state" style="border: none; padding: 0; background: none;">
+                            <div style="display: flex; gap: 12px; flex-direction: column;">
+                                <a href="explore.html" class="btn" style="text-align: center; padding: 12px 22px;">Browse Colleges</a>
+                                <a href="matches.html" class="link-btn" style="text-align: center; padding: 12px; font-size: 13px;">See your matches →</a>
                             </div>
                         </div>
-                    `;
-                    }).join('');
-
-                    containerEl.innerHTML = compareBarHtml + cardsHtml;
-
-                    containerEl.querySelectorAll(".remove-btn").forEach(button => {
-                        button.addEventListener("click", async (e) => {
-                            const id = e.target.getAttribute("data-id");
-                            if (!confirm("Remove this college from your list?")) return;
-                            try {
-                                await deleteDoc(doc(db, "users", user.uid, "savedColleges", id));
-                                loadAndRender();
-                            } catch (err) {
-                                console.error("Error removing college:", err);
-                            }
-                        });
-                    });
-
-                    containerEl.querySelectorAll(".priority-select").forEach(select => {
-                        select.addEventListener("change", async (e) => {
-                            const id = e.target.getAttribute("data-id");
-                            try {
-                                await setDoc(doc(db, "users", user.uid, "savedColleges", id), { priority: e.target.value }, { merge: true });
-                                loadAndRender();
-                            } catch (err) {
-                                console.error("Error updating priority:", err);
-                            }
-                        });
-                    });
-
-                    let noteTimers = {};
-                    containerEl.querySelectorAll(".notes-box textarea").forEach(textarea => {
-                        textarea.addEventListener("input", (e) => {
-                            const id = e.target.getAttribute("data-id");
-                            const statusEl = document.getElementById(`notes-status-${id}`);
-                            statusEl.textContent = "Saving...";
-                            clearTimeout(noteTimers[id]);
-                            noteTimers[id] = setTimeout(async () => {
-                                try {
-                                    await setDoc(doc(db, "users", user.uid, "savedColleges", id), { notes: e.target.value }, { merge: true });
-                                    statusEl.textContent = "Saved";
-                                    setTimeout(() => { statusEl.textContent = ""; }, 1500);
-                                } catch (err) {
-                                    console.error("Error saving notes:", err);
-                                    statusEl.textContent = "Couldn't save";
-                                }
-                            }, 800);
-                        });
-                    });
-
-                    selectedNames = new Set();
-                    const compareBtn = document.getElementById("compare-btn");
-                    const compareCountText = document.getElementById("compare-count-text");
-
-                    containerEl.querySelectorAll(".compare-checkbox").forEach(checkbox => {
-                        checkbox.addEventListener("change", (e) => {
-                            const name = decodeURIComponent(e.target.getAttribute("data-name"));
-                            if (e.target.checked) {
-                                if (selectedNames.size >= 3) {
-                                    e.target.checked = false;
-                                    compareCountText.textContent = "You can compare up to 3 colleges at once.";
-                                    return;
-                                }
-                                selectedNames.add(name);
-                            } else {
-                                selectedNames.delete(name);
-                            }
-                            compareBtn.disabled = selectedNames.size < 2;
-                            compareCountText.textContent = selectedNames.size < 2
-                                ? "Select 2 or 3 colleges to compare them side by side."
-                                : `${selectedNames.size} selected. Ready to compare.`;
-                        });
-                    });
-
-                    compareBtn.addEventListener("click", () => openCompareModal(Array.from(selectedNames)));
-
-                } catch (error) {
-                    console.error("Error loading saved colleges:", error);
-                    containerEl.innerHTML = `<p style="color: #B3413A;">Couldn't load your list right now.</p>`;
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- LIST VIEW -->
+            <section id="list-section" style="display:none;">
+                <div style="background: var(--accent); color: #fff; padding: 48px 24px; margin: 0 -24px 0; margin-bottom: 32px;">
+                    <div style="max-width: var(--max-w); margin: 0 auto;">
+                        <p class="eyebrow" style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">YOUR LIST</p>
+                        <h1 style="color: #fff; margin: 0;">Saved colleges</h1>
+                        <p id="list-count" style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 12px 0 0; font-family: var(--font-mono); letter-spacing: 0.03em;"></p>
+                    </div>
+                </div>
+ 
+                <!-- STATS -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 28px;">
+                    <div style="background: var(--surface); border: 1px solid var(--line); padding: 16px; border-radius: 2px; text-align: center;">
+                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: var(--accent); margin: 0;" id="stat-total">0</p>
+                        <p style="font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin: 6px 0 0;">Total Saved</p>
+                    </div>
+                    <div style="background: var(--surface); border: 1px solid var(--line); padding: 16px; border-radius: 2px; text-align: center;">
+                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: #FF8B5A; margin: 0;" id="stat-reach">0</p>
+                        <p style="font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin: 6px 0 0;">Reach</p>
+                    </div>
+                    <div style="background: var(--surface); border: 1px solid var(--line); padding: 16px; border-radius: 2px; text-align: center;">
+                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: #51CF66; margin: 0;" id="stat-match">0</p>
+                        <p style="font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin: 6px 0 0;">Match</p>
+                    </div>
+                    <div style="background: var(--surface); border: 1px solid var(--line); padding: 16px; border-radius: 2px; text-align: center;">
+                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 600; color: #4DABF7; margin: 0;" id="stat-safety">0</p>
+                        <p style="font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; margin: 6px 0 0;">Safety</p>
+                    </div>
+                </div>
+ 
+                <!-- ACTION -->
+                <div style="margin-bottom: 28px; display: flex; gap: 12px; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <p style="margin: 0; font-size: 13px; color: var(--ink-soft);"><strong id="saved-count">0</strong> colleges saved</p>
+                    <button class="btn-outline" style="color: #B3413A; border: 1px solid #E3C9C7; padding: 8px 14px; font-size: 12px; cursor: pointer; background: white; border-radius: 2px;" onclick="clearAllList()">Clear List</button>
+                </div>
+ 
+                <!-- COLLEGES -->
+                <section id="colleges-container" style="padding: 0;">
+                    <p style="text-align: center; color: var(--ink-faint); padding: 40px 0;">Loading...</p>
+                </section>
+            </section>
+        </div>
+    </main>
+ 
+    <footer class="home-footer">
+        <div class="wrap">
+            <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+        </div>
+    </footer>
+ 
+    <script src="data.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadList();
+        });
+ 
+        function loadList() {
+            const saved = JSON.parse(localStorage.getItem('savedColleges') || '[]');
+ 
+            if (saved.length === 0) {
+                document.getElementById('empty-state').style.display = 'block';
+                document.getElementById('list-section').style.display = 'none';
+                return;
+            }
+ 
+            document.getElementById('empty-state').style.display = 'none';
+            document.getElementById('list-section').style.display = 'block';
+ 
+            const colleges = saved
+                .map(s => collegesData ? collegesData.find(c => c.id === s.id) : null)
+                .filter(c => c);
+ 
+            displayList(colleges, saved);
+            updateStats(colleges);
+        }
+ 
+        function displayList(colleges, saved) {
+            const container = document.getElementById('colleges-container');
+            const userProfile = JSON.parse(localStorage.getItem('userProfile') || 'null');
+ 
+            if (colleges.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--ink-faint); padding: 40px 0;">No colleges found.</p>';
+                return;
+            }
+ 
+            let html = '';
+            colleges.forEach(college => {
+                let category = 'match';
+                if (userProfile) {
+                    const gpaGap = (college.avgGPA || 3.5) - userProfile.gpa;
+                    if (gpaGap > 0.5) category = 'reach';
+                    else if (gpaGap < -0.5) category = 'safety';
                 }
-            }
-
-            loadAndRender();
-        });
-
-        async function fetchScorecardData(name) {
-            try {
-                const fields = "school.name,latest.cost.net_price.overall.overall,latest.admissions.admission_rate.overall,latest.admissions.sat_scores.average.overall";
-                const url = `https://api.data.gov/ed/collegescorecard/v1/schools?api_key=${SCORECARD_API_KEY}&school.name=${encodeURIComponent(name)}&_fields=${fields}&_per_page=10`;
-                const res = await fetch(url);
-                const data = await res.json();
-                const candidates = data.results || [];
-                const result = candidates.find(r => r["school.name"].toLowerCase() === name.toLowerCase()) || candidates[0];
-                if (!result) return null;
-                return {
-                    netPrice: result["latest.cost.net_price.overall.overall"],
-                    admitRate: result["latest.admissions.admission_rate.overall"],
-                    satAvg: result["latest.admissions.sat_scores.average.overall"]
-                };
-            } catch (err) {
-                console.error("Scorecard lookup failed for", name, err);
-                return null;
+ 
+                const badgeColor = category === 'reach' ? '#FF8B5A' : category === 'match' ? '#51CF66' : '#4DABF7';
+ 
+                html += `
+                    <div class="explore-row" style="padding: 20px 0;">
+                        <div style="flex: 1;">
+                            <div class="explore-row-name" style="position: relative; padding-left: 60px;">
+                                <span style="position: absolute; left: 0; top: 0; font-family: var(--font-mono); font-size: 10px; background: ${badgeColor}; color: white; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.05em; font-weight: 600;">${category.toUpperCase()}</span>
+                                ${college.name}
+                            </div>
+                            <div class="explore-row-meta">${college.type || 'University'} · ${college.city || 'N/A'} · ${college.state}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <span class="explore-row-tag">${college.state}</span>
+                            <button class="btn-outline" style="color: #B3413A; border: 1px solid #E3C9C7; padding: 8px 14px; font-size: 12px; cursor: pointer;" onclick="removeCollege('${college.id}')">Remove</button>
+                        </div>
+                    </div>
+                `;
+            });
+ 
+            container.innerHTML = html;
+            document.getElementById('saved-count').textContent = colleges.length;
+            document.getElementById('list-count').textContent = colleges.length + ' colleges';
+        }
+ 
+        function updateStats(colleges) {
+            const userProfile = JSON.parse(localStorage.getItem('userProfile') || 'null');
+            let reach = 0, match = 0, safety = 0;
+ 
+            colleges.forEach(college => {
+                if (!userProfile) {
+                    match++;
+                    return;
+                }
+                const gpaGap = (college.avgGPA || 3.5) - userProfile.gpa;
+                if (gpaGap > 0.5) reach++;
+                else if (gpaGap < -0.5) safety++;
+                else match++;
+            });
+ 
+            document.getElementById('stat-total').textContent = colleges.length;
+            document.getElementById('stat-reach').textContent = reach;
+            document.getElementById('stat-match').textContent = match;
+            document.getElementById('stat-safety').textContent = safety;
+        }
+ 
+        function removeCollege(collegeId) {
+            let saved = JSON.parse(localStorage.getItem('savedColleges') || '[]');
+            saved = saved.filter(c => c.id !== collegeId);
+            localStorage.setItem('savedColleges', JSON.stringify(saved));
+            loadList();
+        }
+ 
+        function clearAllList() {
+            if (confirm('Clear your entire list?')) {
+                localStorage.setItem('savedColleges', JSON.stringify([]));
+                loadList();
             }
         }
-
-        async function openCompareModal(names) {
-            const modal = document.getElementById("compare-modal");
-            const content = document.getElementById("compare-content");
-            modal.style.display = "flex";
-            content.innerHTML = `<h2>Comparing ${names.length} colleges</h2><p>Loading live data…</p>`;
-
-            const results = await Promise.all(names.map(async (name) => {
-                const stats = await fetchScorecardData(name);
-                return { name, stats };
-            }));
-
-            const rows = [
-                { label: "Avg net price", get: (r) => r.stats && r.stats.netPrice ? "$" + Math.round(r.stats.netPrice).toLocaleString() : "N/A" },
-                { label: "Admission rate", get: (r) => r.stats && r.stats.admitRate ? Math.round(r.stats.admitRate * 100) + "%" : "N/A" },
-                { label: "Avg SAT", get: (r) => r.stats && r.stats.satAvg ? r.stats.satAvg : "N/A" }
-            ];
-
-            content.innerHTML = `
-                <h2>Comparing ${results.length} colleges</h2>
-                <table class="compare-table">
-                    <tr>
-                        <th></th>
-                        ${results.map(r => `<td class="college-name-cell">${r.name}</td>`).join('')}
-                    </tr>
-                    ${rows.map(row => `
-                        <tr>
-                            <th>${row.label}</th>
-                            ${results.map(r => `<td>${row.get(r)}</td>`).join('')}
-                        </tr>
-                    `).join('')}
-                </table>
-                <p style="font-size:12px; color: var(--ink-faint); margin-top:16px;">Data pulled live from the U.S. Department of Education's College Scorecard. Schools outside the U.S. may not have data available.</p>
-            `;
-        }
-
-        document.getElementById("compare-close").addEventListener("click", () => {
-            document.getElementById("compare-modal").style.display = "none";
-        });
     </script>
 </body>
 </html>
