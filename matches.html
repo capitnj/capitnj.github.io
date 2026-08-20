@@ -1,269 +1,863 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CapItNJ — Matches</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <style>
-        .login-gate {
-            text-align: center;
-            padding: 56px 24px;
-            border: 1px dashed var(--line);
-            border-radius: 10px;
-            background: var(--surface);
-            max-width: 440px;
-            margin: 24px auto 0;
-        }
-        .login-gate h2 {
-            font-family: 'Fraunces', serif;
-            font-size: 22px;
-            margin: 0 0 10px;
-        }
-        .login-gate p {
-            color: var(--ink-soft);
-            font-size: 14px;
-            margin: 0 0 22px;
-        }
-        .why-matched {
-            margin-top: 12px;
-            padding: 10px 14px;
-            background: var(--accent-bg);
-            color: var(--accent);
-            border-radius: 4px;
-            font-size: 13px;
-            line-height: 1.5;
-        }
-    </style>
+<style>
+    .match-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 24px 0;
+    }
+
+    .summary-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px;
+    }
+
+    .summary-number {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .summary-label {
+      margin-top: 5px;
+      color: var(--ink-soft);
+      font-size: 12px;
+    }
+
+    .profile-used {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 28px;
+    }
+
+    .profile-pill {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+
+    .match-section {
+      margin-top: 32px;
+    }
+
+    .match-section-title {
+      font-family: "Fraunces", serif;
+      font-size: 23px;
+      margin: 0 0 5px;
+    }
+
+    .match-section-description {
+      color: var(--ink-soft);
+      font-size: 13px;
+      margin: 0 0 14px;
+    }
+
+    .match-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+
+    .match-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .match-name {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .match-location {
+      color: var(--ink-soft);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .match-score {
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .match-score-number {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .match-score-label {
+      color: var(--ink-faint);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-top: 2px;
+    }
+
+    .match-reasons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .reason {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 11px;
+      color: var(--ink-soft);
+    }
+
+    .match-data {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 14px;
+      padding-top: 13px;
+      border-top: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-size: 12px;
+    }
+
+    .match-actions {
+      margin-top: 14px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .save-match-btn {
+      border: 1px solid var(--line);
+      background: transparent;
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 7px 12px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    .save-match-btn:hover {
+      background: var(--accent-bg);
+    }
+
+    .empty-state,
+    .login-gate {
+      text-align: center;
+      padding: 48px 24px;
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+      margin-top: 24px;
+    }
+
+    @media (max-width: 650px) {
+      .match-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .match-top {
+        flex-direction: column;
+      }
+
+      .match-score {
+        text-align: left;
+      }
+    }
+  </style>
 </head>
+
 <body>
-    <header class="nav">
-        <div class="nav-inner">
-            <a href="index.html" class="wordmark">CapItNJ</a>
-            <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="improve.html">Improve</a>
-                <a href="explore.html">Explore</a>
-                <a href="matches.html" class="active">Matches</a>
-                <a href="mylist.html">My List</a>
-                <a href="profile.html">Profile</a>
-                <a href="support.html">Support</a>
-            </div>
+
+<header class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="wordmark">CapItNJ</a>
+
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="improve.html">Improve</a>
+      <a href="explore.html">Explore</a>
+      <a href="matches.html" class="active">Matches</a>
+      <a href="mylist.html">My List</a>
+      <a href="profile.html">Profile</a>
+      <a href="support.html">Support</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <p class="eyebrow">Your matches</p>
+    <h1>Colleges ranked for you</h1>
+    <p class="subtitle">
+      We compare your saved profile with each college's available information.
+    </p>
+
+    <div id="matches-content">
+      <div class="empty-state">
+        Loading your profile and finding matches...
+      </div>
+    </div>
+
+  </div>
+</main>
+
+
+<!-- Firebase: exact compat order -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script src="firebase-init.js"></script>
+
+<!-- College database -->
+<script src="data.js"></script>
+
+<script>
+let currentUser = null;
+let currentProfile = null;
+
+/* -----------------------------------------
+   HELPERS
+----------------------------------------- */
+
+function escapeHtml(value) {
+  const div = document.createElement("div");
+  div.textContent = value ?? "";
+  return div.innerHTML;
+}
+
+function formatCurrency(value) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) return "N/A";
+
+  return "$" + Math.round(number).toLocaleString();
+}
+
+function getCollegeList() {
+  /*
+    Handles a few common data.js variable names.
+    Your current data.js is expected to expose one of these.
+  */
+  if (typeof colleges !== "undefined" && Array.isArray(colleges)) {
+    return colleges;
+  }
+
+  if (typeof collegeData !== "undefined" && Array.isArray(collegeData)) {
+    return collegeData;
+  }
+
+  if (typeof schools !== "undefined" && Array.isArray(schools)) {
+    return schools;
+  }
+
+  if (typeof window.colleges !== "undefined" && Array.isArray(window.colleges)) {
+    return window.colleges;
+  }
+
+  return [];
+}
+
+function getNumber(object, keys) {
+  for (const key of keys) {
+    const value = object[key];
+
+    if (
+      value !== undefined &&
+      value !== null &&
+      value !== "" &&
+      Number.isFinite(Number(value))
+    ) {
+      return Number(value);
+    }
+  }
+
+  return null;
+}
+
+function normalizeText(value) {
+  return String(value || "")
+    .trim()
+    .toLowerCase();
+}
+
+function locationMatches(profile, college) {
+  const preferred = normalizeText(profile.preferredLocation);
+
+  if (!preferred) return null;
+
+  const state = normalizeText(college.state);
+  const country = normalizeText(college.country);
+  const location = normalizeText(
+    `${college.city || ""} ${college.state || ""} ${college.country || ""}`
+  );
+
+  if (preferred === state) return true;
+  if (preferred === country) return true;
+  if (location.includes(preferred)) return true;
+
+  /*
+    Handles values such as:
+    "New Jersey"
+    "NJ"
+    "Northeast"
+    "Anywhere"
+  */
+  if (preferred === "anywhere" || preferred === "any location") {
+    return true;
+  }
+
+  if (
+    (preferred === "nj" || preferred === "new jersey") &&
+    (state === "nj" || state === "new jersey")
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+
+/* -----------------------------------------
+   MATCH SCORING
+----------------------------------------- */
+
+function calculateMatch(profile, college) {
+  let score = 0;
+  let possible = 0;
+  const reasons = [];
+
+  const budget = Number(profile.budget);
+  const gpa = Number(profile.gpa);
+  const sat = Number(profile.sat);
+  const act = Number(profile.act);
+
+  /*
+    Supports several possible college data field names.
+  */
+  const price = getNumber(college, [
+    "netPrice",
+    "net_price",
+    "tuition",
+    "cost",
+    "price",
+    "avgCost",
+    "averageCost",
+    "maxTuition"
+  ]);
+
+  const collegeGpa = getNumber(college, [
+    "gpa",
+    "avgGpa",
+    "averageGpa",
+    "minGpa",
+    "recommendedGpa"
+  ]);
+
+  const collegeSat = getNumber(college, [
+    "sat",
+    "avgSat",
+    "averageSat",
+    "satAverage",
+    "satMin"
+  ]);
+
+  const collegeAct = getNumber(college, [
+    "act",
+    "avgAct",
+    "averageAct",
+    "actAverage",
+    "actMin"
+  ]);
+
+  /*
+    BUDGET
+  */
+  if (Number.isFinite(budget) && budget > 0 && price !== null) {
+    possible += 30;
+
+    if (price <= budget) {
+      score += 30;
+      reasons.push("Within your budget");
+    } else if (price <= budget * 1.15) {
+      score += 20;
+      reasons.push("Slightly above your budget");
+    } else if (price <= budget * 1.35) {
+      score += 8;
+      reasons.push("Above your budget");
+    }
+  }
+
+  /*
+    GPA
+  */
+  if (Number.isFinite(gpa) && gpa > 0 && collegeGpa !== null) {
+    possible += 25;
+
+    if (gpa >= collegeGpa + 0.25) {
+      score += 25;
+      reasons.push("GPA is above this school's typical range");
+    } else if (gpa >= collegeGpa) {
+      score += 22;
+      reasons.push("GPA fits this school's typical range");
+    } else if (gpa >= collegeGpa - 0.25) {
+      score += 14;
+      reasons.push("GPA is close to this school's typical range");
+    } else {
+      score += 4;
+      reasons.push("GPA makes this more of a reach");
+    }
+  }
+
+  /*
+    SAT
+  */
+  if (Number.isFinite(sat) && sat > 0 && collegeSat !== null) {
+    possible += 20;
+
+    if (sat >= collegeSat + 80) {
+      score += 20;
+      reasons.push("SAT is above the school's typical score");
+    } else if (sat >= collegeSat) {
+      score += 18;
+      reasons.push("SAT fits the school's typical score");
+    } else if (sat >= collegeSat - 80) {
+      score += 11;
+      reasons.push("SAT is close to the school's typical score");
+    } else {
+      score += 3;
+      reasons.push("SAT makes this more competitive");
+    }
+  }
+
+  /*
+    ACT
+  */
+  if (Number.isFinite(act) && act > 0 && collegeAct !== null) {
+    possible += 15;
+
+    if (act >= collegeAct + 2) {
+      score += 15;
+      reasons.push("ACT is above the school's typical score");
+    } else if (act >= collegeAct) {
+      score += 13;
+      reasons.push("ACT fits the school's typical score");
+    } else if (act >= collegeAct - 2) {
+      score += 8;
+      reasons.push("ACT is close to the school's typical score");
+    } else {
+      score += 2;
+      reasons.push("ACT makes this more competitive");
+    }
+  }
+
+  /*
+    LOCATION
+  */
+  const locationFit = locationMatches(profile, college);
+
+  if (locationFit !== null) {
+    possible += 10;
+
+    if (locationFit) {
+      score += 10;
+      reasons.push("Matches your location preference");
+    }
+  }
+
+  /*
+    If the database does not contain score/price fields,
+    don't punish the student by treating missing data as a zero.
+  */
+  const percentage =
+    possible > 0
+      ? Math.round((score / possible) * 100)
+      : 50;
+
+  return {
+    score: Math.max(0, Math.min(100, percentage)),
+    reasons: reasons
+  };
+}
+
+
+/* -----------------------------------------
+   LOAD PROFILE + MATCHES
+----------------------------------------- */
+
+function startMatches() {
+  const fb = window.capitnjFirebase;
+  const container = document.getElementById("matches-content");
+
+  if (!fb) {
+    container.innerHTML = `
+      <div class="empty-state">
+        Firebase couldn't initialize. Refresh the page and try again.
+      </div>
+    `;
+    return;
+  }
+
+  fb.authFns.onAuthStateChanged(async (user) => {
+    if (!user) {
+      container.innerHTML = `
+        <div class="login-gate">
+          <h2>Log in to get your matches</h2>
+          <p>
+            Your GPA, test scores, budget, and location preferences are used
+            to personalize this page.
+          </p>
+          <a href="login.html" class="btn">Log in</a>
         </div>
-    </header>
-    <main>
-        <div class="wrap">
-            <p class="eyebrow">Your matches</p>
-            <h1>Ranked for you</h1>
-            <p class="subtitle">Based on the profile you saved, grouped by how they fit your budget, not just a single list.</p>
+      `;
+      return;
+    }
 
-            <div id="matches-content">
-                <div id="no-profile" class="empty-state" style="display:none">
-                    You haven't set your budget preferences yet. <a href="profile.html">Go to Profile</a> to set your tuition cap and location preference.
-                </div>
-                <div id="results-groups"></div>
-            </div>
+    currentUser = user;
+
+    try {
+      const profileRef = fb.db
+        .collection("users")
+        .doc(user.uid);
+
+      const profileSnap = await profileRef.get();
+
+      if (!profileSnap.exists) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h2>Finish your profile first</h2>
+            <p>
+              Add your academic and preference information so we can rank
+              colleges for you.
+            </p>
+            <a href="profile.html" class="btn">Complete profile</a>
+          </div>
+        `;
+        return;
+      }
+
+      currentProfile = profileSnap.data();
+
+      const hasProfileData =
+        currentProfile.gpa ||
+        currentProfile.sat ||
+        currentProfile.act ||
+        currentProfile.budget ||
+        currentProfile.preferredLocation;
+
+      if (!hasProfileData) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <h2>Your profile needs a few details</h2>
+            <p>
+              Add your GPA, budget, test scores, or location preference
+              to get personalized matches.
+            </p>
+            <a href="profile.html" class="btn">Edit profile</a>
+          </div>
+        `;
+        return;
+      }
+
+      renderMatches();
+
+    } catch (error) {
+      console.error("Error loading profile for matches:", error);
+
+      container.innerHTML = `
+        <div class="empty-state">
+          <h2>Couldn't load your profile</h2>
+          <p>Please refresh and try again.</p>
         </div>
-    </main>
+      `;
+    }
+  });
+}
 
-    <script type="module" src="firebase-init.js"></script>
-    <script src="data.js"></script>
-    <script type="module">
-        if (!window.capitnjFirebase?.ready) {
-            await new Promise((resolve) => window.addEventListener("firebase-ready", resolve, { once: true }));
-        }
-        const firebase = await window.capitnjFirebase.ready;
-        const { doc, getDoc, setDoc } = firebase.firestoreFns;
-        const db = firebase.db;
 
-        const FALLBACK_NET_PRICE = 22000;
-        let currentUser = null;
+/* -----------------------------------------
+   RENDER MATCHES
+----------------------------------------- */
 
-        function formatCurrency(num) {
-            return '$' + Number(num).toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
-        }
+function renderMatches() {
+  const container = document.getElementById("matches-content");
+  const collegeList = getCollegeList();
 
-        function sanitizeId(name) {
-            return name.replace(/[^a-zA-Z0-9]/g, '');
-        }
+  if (!collegeList.length) {
+    console.error(
+      "No college array found. Check the variable exported by data.js."
+    );
 
-        function isUS(country) {
-            if (!country) return true;
-            const c = country.trim().toLowerCase();
-            return c === 'us' || c === 'usa' || c === 'united states' || c === 'united states of america';
-        }
+    container.innerHTML = `
+      <div class="empty-state">
+        <h2>College data couldn't load</h2>
+        <p>Check that data.js loads correctly before Matches.</p>
+      </div>
+    `;
+    return;
+  }
 
-        const mainWrap = document.querySelector('main .wrap');
+  const matched = collegeList
+    .map((college) => {
+      const match = calculateMatch(currentProfile, college);
 
-        firebase.authFns.onAuthStateChanged(firebase.auth, (user) => {
-            if (!user) {
-                document.getElementById('matches-content').innerHTML = `
-                    <div class="login-gate">
-                        <h2>Log in to get customized results!</h2>
-                        <p>Set your GPA, budget, and location preferences once, then see colleges ranked just for you.</p>
-                        <a href="login.html" class="btn">Sign up / Log in</a>
-                    </div>`;
-                return;
-            }
-            loadMatches(user);
-        });
+      return {
+        ...college,
+        matchScore: match.score,
+        reasons: match.reasons
+      };
+    })
+    .sort((a, b) => b.matchScore - a.matchScore);
 
-        async function loadMatches(user) {
-            currentUser = user;
-            const userDocRef = doc(db, "users", user.uid);
-            let data = null;
+  const strongMatches = matched
+    .filter(college => college.matchScore >= 75)
+    .slice(0, 20);
 
-            try {
-                const docSnap = await getDoc(userDocRef);
-                data = docSnap.exists() ? docSnap.data() : null;
-            } catch (error) {
-                console.error("Error reading matches database profile:", error);
-            }
+  const possibleMatches = matched
+    .filter(college =>
+      college.matchScore >= 50 &&
+      college.matchScore < 75
+    )
+    .slice(0, 20);
 
-            if (!data || !data.maxTuition) {
-                document.getElementById('no-profile').style.display = 'block';
-                return;
-            }
+  const reachMatches = matched
+    .filter(college => college.matchScore < 50)
+    .slice(0, 20);
 
-            const maxBudget = parseFloat(data.maxTuition) || 999999;
+  const profilePills = [];
 
-            
-            const matchedColleges = (window.COLLEGES || []).filter(c => {
-                const netPrice = c.netPrice || FALLBACK_NET_PRICE;
-                return netPrice <= maxBudget;
-            });
+  if (currentProfile.gpa) {
+    profilePills.push(
+      `<span class="profile-pill">GPA: ${escapeHtml(currentProfile.gpa)}</span>`
+    );
+  }
 
-            renderGroups(matchedColleges, maxBudget);
-        }
+  if (currentProfile.sat) {
+    profilePills.push(
+      `<span class="profile-pill">SAT: ${escapeHtml(currentProfile.sat)}</span>`
+    );
+  }
 
-        function locationPhrase(college) {
-            if (college.state === 'NJ') return "it's close to home, right here in New Jersey";
-            if (isUS(college.country)) return "it's a solid option outside New Jersey";
-            return "it's an international option that broadens your search";
-        }
+  if (currentProfile.act) {
+    profilePills.push(
+      `<span class="profile-pill">ACT: ${escapeHtml(currentProfile.act)}</span>`
+    );
+  }
 
-        function whyMatchedText(college, maxBudget) {
-            const price = college.netPrice || FALLBACK_NET_PRICE;
-            const pctOfBudget = Math.round((price / maxBudget) * 100);
-            const budgetPhrase = pctOfBudget <= 80
-                ? `it runs well under your ${formatCurrency(maxBudget)} budget cap (about ${pctOfBudget}% of it)`
-                : `it fits inside your ${formatCurrency(maxBudget)} budget cap, though it's close to the limit`;
-            return `Matched because ${budgetPhrase}, and ${locationPhrase(college)}.`;
-        }
+  if (currentProfile.budget) {
+    profilePills.push(
+      `<span class="profile-pill">Budget: ${formatCurrency(currentProfile.budget)}</span>`
+    );
+  }
 
-        function cardHtml(college, maxBudget) {
-            const price = college.netPrice || FALLBACK_NET_PRICE;
-            const statusLabel = price <= maxBudget * 0.8 ? "Safe budget choice" : "Near your limit";
-            const statusColor = price <= maxBudget * 0.8 ? "#1d7a4f" : "#b8791a";
-            const uid = sanitizeId(college.name);
+  if (currentProfile.preferredLocation) {
+    profilePills.push(
+      `<span class="profile-pill">Location: ${escapeHtml(currentProfile.preferredLocation)}</span>`
+    );
+  }
 
-            return `
-                <div class="result-card" style="border: 1px solid var(--line); border-radius: 8px; padding: 20px; margin-bottom: 16px; background: var(--bg);">
-                    <div class="result-top" style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <div class="result-name" style="font-weight: 600; font-size: 18px; color: var(--ink);">${college.name}</div>
-                            <div class="result-meta" style="color: var(--ink-soft); font-size: 13px; margin-top: 4px;">
-                                ${college.type} · ${college.setting} · ${college.state}, ${college.country}
-                            </div>
-                        </div>
-                        <div style="text-align:right">
-                            <div class="result-price-label" style="font-size: 11px; text-transform: uppercase; color: var(--ink-faint); font-weight: 500;">Est. cost / yr</div>
-                            <div class="result-price" style="font-size: 20px; font-weight: 700; color: var(--ink); margin-top: 2px;">${formatCurrency(price)}</div>
-                        </div>
-                    </div>
-                    <div class="result-tip" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 14px; color: ${statusColor}; font-weight: 500;">
-                        ${statusLabel}. Estimated costs fit inside your parameters, keep an eye on local scholarship updates in your Improve tab.
-                    </div>
-                    <div class="why-matched">${whyMatchedText(college, maxBudget)}</div>
-                    <div style="margin-top: 15px; padding: 12px; background: var(--surface); border-radius: 6px; border: 1px dashed var(--line); display: flex; flex-direction: column; gap: 10px;">
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <label style="font-size: 13px; font-weight: 500; color: var(--ink);">Rank Priority:</label>
-                            <select id="rank-${uid}" style="padding: 4px; border-radius: 4px; border: 1px solid var(--line); font-size: 13px;">
-                                <option value="Top Choice">Top Choice / #1 Pick</option>
-                                <option value="Considering" selected>Considering</option>
-                                <option value="Safety Backup">Safety Backup</option>
-                            </select>
-                        </div>
-                        <textarea id="notes-${uid}" placeholder="Add your research notes (e.g. spoke to counselor, requires extra essays)" style="width: 100%; min-height: 50px; padding: 8px; border: 1px solid var(--line); border-radius: 4px; font-size: 13px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
-                        <button class="btn-save-match" data-uid="${uid}" data-name="${encodeURIComponent(college.name)}" data-state="${college.state}" style="background: var(--accent); color: #fff; border: none; padding: 8px 12px; border-radius: 4px; font-size: 13px; font-weight: 500; cursor: pointer; align-self: flex-start;">Save to My List</button>
-                    </div>
+  container.innerHTML = `
+    <div class="profile-used">
+      ${profilePills.join("")}
+    </div>
+
+    <div class="match-summary">
+      <div class="summary-card">
+        <div class="summary-number">${strongMatches.length}</div>
+        <div class="summary-label">Strong matches</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-number">${possibleMatches.length}</div>
+        <div class="summary-label">Possible matches</div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-number">${reachMatches.length}</div>
+        <div class="summary-label">Reach matches</div>
+      </div>
+    </div>
+
+    ${renderGroup(
+      "Strong matches",
+      "The highest-scoring fits based on the information available.",
+      strongMatches
+    )}
+
+    ${renderGroup(
+      "Possible matches",
+      "Schools that fit some of your profile factors well.",
+      possibleMatches
+    )}
+
+    ${renderGroup(
+      "Reach matches",
+      "These may be more competitive or less aligned with your preferences.",
+      reachMatches
+    )}
+  `;
+
+  document.querySelectorAll(".save-match-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const index = Number(button.dataset.index);
+      saveMatch(matched[index], button);
+    });
+  });
+}
+
+
+function renderGroup(title, description, collegesInGroup) {
+  if (!collegesInGroup.length) return "";
+
+  return `
+    <section class="match-section">
+      <h2 class="match-section-title">${title}</h2>
+      <p class="match-section-description">${description}</p>
+
+      ${collegesInGroup.map((college) => {
+        const originalIndex = getCollegeList().findIndex(
+          item => item.name === college.name
+        );
+
+        return `
+          <article class="match-card">
+
+            <div class="match-top">
+              <div>
+                <div class="match-name">
+                  ${escapeHtml(college.name || "Unnamed college")}
                 </div>
-            `;
-        }
 
-        function sectionHtml(title, subtitle, items, maxBudget) {
-            if (items.length === 0) return '';
-            const cards = items.map((c) => cardHtml(c, maxBudget)).join('');
-            return `
-                <section class="result-section" style="margin-bottom: 40px;">
-                    <div class="result-section-head" style="margin-bottom: 16px;">
-                        <h2 style="font-family: 'Fraunces', serif; font-size: 24px; color: var(--ink);">${title}</h2>
-                        <p style="color: var(--ink-soft); font-size: 14px; margin-top: 2px;">${subtitle}</p>
-                    </div>
-                    ${cards}
-                </section>
-            `;
-        }
+                <div class="match-location">
+                  ${escapeHtml(
+                    [college.city, college.state, college.country]
+                      .filter(Boolean)
+                      .join(", ") || "Location unavailable"
+                  )}
+                </div>
+              </div>
 
-        function attachSaveHandlers() {
-            document.querySelectorAll('.btn-save-match').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const uid = btn.getAttribute('data-uid');
-                    const name = decodeURIComponent(btn.getAttribute('data-name'));
-                    const state = btn.getAttribute('data-state');
-                    saveCollegeToList(name, state, uid);
-                });
-            });
-        }
+              <div class="match-score">
+                <div class="match-score-number">
+                  ${college.matchScore}%
+                </div>
+                <div class="match-score-label">Match score</div>
+              </div>
+            </div>
 
-        async function saveCollegeToList(collegeName, state, uid) {
-            if (!currentUser) {
-                alert("Please sign in first to save colleges to your dashboard list.");
-                return;
+            ${
+              college.reasons.length
+                ? `
+                  <div class="match-reasons">
+                    ${college.reasons
+                      .map(reason =>
+                        `<span class="reason">${escapeHtml(reason)}</span>`
+                      )
+                      .join("")}
+                  </div>
+                `
+                : ""
             }
 
-            const rankSelection = document.getElementById(`rank-${uid}`).value;
-            const noteContent = document.getElementById(`notes-${uid}`).value;
+            <div class="match-data">
+              ${
+                getNumber(college, ["netPrice", "net_price", "tuition", "cost", "price", "avgCost", "averageCost", "maxTuition"]) !== null
+                  ? `<span>Cost: ${formatCurrency(getNumber(college, ["netPrice", "net_price", "tuition", "cost", "price", "avgCost", "averageCost", "maxTuition"]))}</span>`
+                  : ""
+              }
 
-            try {
-                await setDoc(doc(db, "users", currentUser.uid, "savedColleges", uid), {
-                    name: collegeName,
-                    state: state,
-                    rate: "N/A",
-                    priority: rankSelection,
-                    notes: noteContent,
-                    timestamp: new Date().toISOString()
-                });
-                alert(`Saved ${collegeName} to your list.`);
-            } catch (err) {
-                console.error("Cloud storage sync failed:", err);
-                alert("Failed to save college data. Make sure you are signed in.");
-            }
-        }
+              ${
+                getNumber(college, ["avgSat", "averageSat", "sat", "satAverage"]) !== null
+                  ? `<span>Typical SAT: ${getNumber(college, ["avgSat", "averageSat", "sat", "satAverage"])}</span>`
+                  : ""
+              }
 
-        function renderGroups(colleges, maxBudget) {
-            const wrap = document.getElementById('results-groups');
-            wrap.innerHTML = '';
+              ${
+                getNumber(college, ["avgAct", "averageAct", "act", "actAverage"]) !== null
+                  ? `<span>Typical ACT: ${getNumber(college, ["avgAct", "averageAct", "act", "actAverage"])}</span>`
+                  : ""
+              }
+            </div>
 
-            if (colleges.length === 0) {
-                wrap.innerHTML = `<div class="empty-state" style="padding: 40px; text-align: center; color: var(--ink-soft);">No schools match your budget threshold currently, try widening your tuition cap on your Profile page.</div>`;
-                return;
-            }
+            <div class="match-actions">
+              <button
+                class="save-match-btn"
+                data-index="${originalIndex}">
+                Save to My List
+              </button>
+            </div>
 
-            const nearHome = colleges.filter(c => c.state === 'NJ');
-            const outsideNJ = colleges.filter(c => c.state !== 'NJ' && isUS(c.country));
-            const international = colleges.filter(c => !isUS(c.country));
+          </article>
+        `;
+      }).join("")}
 
-            let html = '';
-            html += sectionHtml('Near Home', 'Colleges close by, inside New Jersey.', nearHome, maxBudget);
-            html += sectionHtml('Outside NJ', 'Options located across other US states.', outsideNJ, maxBudget);
-            html += sectionHtml('Out of Country', 'International paths that expand your options.', international, maxBudget);
+    </section>
+  `;
+}
 
-            wrap.innerHTML = html || `<div class="empty-state" style="padding: 40px; text-align: center; color: var(--ink-soft);">No schools match your exact criteria. Try adjusting your preferences.</div>`;
-            attachSaveHandlers();
-        }
-    </script>
+
+/* -----------------------------------------
+   SAVE TO FIRESTORE
+----------------------------------------- */
+
+async function saveMatch(college, button) {
+  if (!currentUser || !college) return;
+
+  const fb = window.capitnjFirebase;
+
+  try {
+    button.disabled = true;
+    button.textContent = "Saving...";
+
+    await fb.firestoreFns.addDoc(
+      fb.firestoreFns.collection(
+        fb.db,
+        "users",
+        currentUser.uid,
+        "savedColleges"
+      ),
+      {
+        name: college.name || "",
+        state: college.state || "",
+        country: college.country || "",
+        rate: college.rate || college.acceptanceRate || "N/A",
+        priority: "Considering",
+        source: "Matches",
+        timestamp: new Date().toISOString()
+      }
+    );
+
+    button.textContent = "Saved ✓";
+
+  } catch (error) {
+    console.error("Error saving match:", error);
+    button.disabled = false;
+    button.textContent = "Try again";
+  }
+}
+
+
+/* -----------------------------------------
+   START
+----------------------------------------- */
+
+if (window.capitnjFirebase) {
+  startMatches();
+} else {
+  window.addEventListener("firebase-ready", startMatches, { once: true });
+}
+</script>
+
 </body>
 </html>
