@@ -1,143 +1,223 @@
-const ZIPCODE_STATE_MAP = {
-  "00": "HI", "01": "MA", "02": "MA", "03": "NH", "04": "ME", "05": "VT", "06": "CT", "07": "NJ", "08": "NJ",
-  "10": "NY", "11": "NY", "12": "NY", "13": "NY", "14": "NY", "15": "PA", "16": "PA", "17": "PA", "18": "PA", "19": "PA",
-  "20": "DC", "21": "MD", "22": "VA", "23": "VA", "24": "VA", "25": "WV", "26": "WV", "27": "NC", "28": "NC", "29": "SC",
-  "30": "GA", "31": "GA", "32": "FL", "33": "FL", "34": "FL", "35": "AL", "36": "AL", "37": "TN", "38": "TN", "39": "MS",
-  "40": "KY", "41": "KY", "42": "KY", "43": "OH", "44": "OH", "45": "OH", "46": "IN", "47": "TN", "48": "MI", "49": "MI",
-  "50": "IA", "51": "IA", "52": "IA", "53": "WI", "54": "WI", "55": "MN", "56": "MN", "57": "SD", "58": "ND", "59": "MT",
-  "60": "IL", "61": "IL", "62": "IL", "63": "MO", "64": "MO", "65": "MO", "66": "KS", "67": "KS", "68": "NE", "69": "NE",
-  "70": "LA", "71": "LA", "72": "AR", "73": "OK", "74": "OK", "75": "TX", "76": "TX", "77": "TX", "78": "TX", "79": "TX",
-  "80": "CO", "81": "CO", "82": "WY", "83": "ID", "84": "UT", "85": "AZ", "86": "AZ", "87": "NM", "88": "NM", "89": "NV",
-  "90": "CA", "91": "CA", "92": "CA", "93": "CA", "94": "CA", "95": "CA", "96": "HI", "97": "OR", "98": "WA", "99": "AK",
-};
-
-function getStateFromZipCode(zipCode) {
-  const prefix = zipCode.substring(0, 2);
-  return ZIPCODE_STATE_MAP[prefix] || null;
-}
-
-window.getCollegesByZipCode = function(userZipCode, searchRadiusMiles) {
-  if (!window.COLLEGES || window.COLLEGES.length === 0) return [];
-  if (!userZipCode) return [];
-
-  const userState = getStateFromZipCode(userZipCode);
-  if (!userState) return [];
-
-  return window.COLLEGES.filter(college => college.state === userState);
-};
-
-window.COLLEGES = [];
-
-fetch('https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json')
-  .then(response => response.json())
-  .then(data => {
-    window.COLLEGES = data
-      .filter(college => college.country === 'United States')
-      .map(college => ({
-        name: college.name || '',
-        state: college.state || '',
-        latitude: college.latitude || null,
-        longitude: college.longitude || null,
-        domains: college.domains || [],
-      }));
-    
-    window.dispatchEvent(new Event('database-ready'));
-  })
-  .catch(error => {
-    console.error('Error loading college data:', error);
-    window.dispatchEvent(new Event('database-ready'));
-  });
-
-matches.js:
-
-javascript
-document.addEventListener("DOMContentLoaded", function() {
-  renderLiveCards();
-  setupFilterListeners();
-});
-
-function renderLiveCards() {
-  const container = document.getElementById("matchesContainer");
-  if (!container) return;
-
-  const matchedCollegesJson = localStorage.getItem("matchedColleges");
-  const userZipcode = localStorage.getItem("userZipCode");
-  const userGPA = parseFloat(localStorage.getItem("userGpa") || 3.0);
-
-  if (!matchedCollegesJson) {
-    container.innerHTML = `<div style="text-align: center; padding: 40px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa;"><h3>No Profile Found</h3><p>Please set your preferences first on the <a href="profile.html">Profile page</a>.</p></div>`;
-    return;
-  }
-
-  const matches = JSON.parse(matchedCollegesJson);
-  localStorage.setItem("userShortlist", JSON.stringify(matches));
-  container.innerHTML = "";
-
-  if (matches.length === 0) {
-    container.innerHTML = `<div style="text-align: center; padding: 40px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa;"><h3>No colleges found</h3><p>Try a different zipcode on the <a href="profile.html">Profile page</a>.</p></div>`;
-    return;
-  }
-
-  matches.forEach((college) => {
-    const card = createCollegeCard(college, userGPA, userZipcode);
-    container.appendChild(card);
-  });
-}
-
-function createCollegeCard(college, userGPA, userZipcode) {
-  const card = document.createElement("div");
-  card.className = "match-card";
-  card.style.cssText = `border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 20px; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: all 0.3s ease;`;
-
-  card.onmouseover = function() {
-    this.style.boxShadow = "0 4px 12px rgba(0,0,0,0.15)";
-    this.style.transform = "translateY(-2px)";
-  };
-
-  card.onmouseout = function() {
-    this.style.boxShadow = "0 1px 3px rgba(0,0,0,0.1)";
-    this.style.transform = "translateY(0)";
-  };
-
-  const collegeName = college.name || "Unknown College";
-  const collegeState = college.state || "Unknown";
-  const userState = getStateFromZipCodeForDisplay(userZipcode);
-  
-  let geoBadgeText = "Out of State";
-  let geoBadgeBg = "#f1f5f9";
-  let geoTextColor = "#475569";
-
-  if (collegeState === userState) {
-    geoBadgeText = "In-State";
-    geoBadgeBg = "#e0f2fe";
-    geoTextColor = "#0369a1";
-  }
-
-  card.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;"><div><h3 style="margin: 0 0 8px 0; font-family: 'Fraunces', serif; font-size: 20px; color: #111;">${collegeName}</h3><p style="margin: 4px 0; font-size: 14px; color: #555;">📍 ${collegeState}</p></div><span style="background: ${geoBadgeBg}; color: ${geoTextColor}; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${geoBadgeText}</span></div>`;
-
-  return card;
-}
-
-function getStateFromZipCodeForDisplay(zip) {
-  const zipToState = {
-    "00": "HI", "01": "MA", "02": "MA", "03": "NH", "04": "ME", "05": "VT", "06": "CT", "07": "NJ", "08": "NJ",
-    "10": "NY", "11": "NY", "12": "NY", "13": "NY", "14": "NY", "15": "PA", "16": "PA", "17": "PA", "18": "PA", "19": "PA",
-    "20": "DC", "21": "MD", "22": "VA", "23": "VA", "24": "VA", "25": "WV", "26": "WV", "27": "NC", "28": "NC", "29": "SC",
-    "30": "GA", "31": "GA", "32": "FL", "33": "FL", "34": "FL", "35": "AL", "36": "AL", "37": "TN", "38": "TN", "39": "MS",
-    "40": "KY", "41": "KY", "42": "KY", "43": "OH", "44": "OH", "45": "OH", "46": "IN", "47": "TN", "48": "MI", "49": "MI",
-    "50": "IA", "51": "IA", "52": "IA", "53": "WI", "54": "WI", "55": "MN", "56": "MN", "57": "SD", "58": "ND", "59": "MT",
-    "60": "IL", "61": "IL", "62": "IL", "63": "MO", "64": "MO", "65": "MO", "66": "KS", "67": "KS", "68": "NE", "69": "NE",
-    "70": "LA", "71": "LA", "72": "AR", "73": "OK", "74": "OK", "75": "TX", "76": "TX", "77": "TX", "78": "TX", "79": "TX",
-    "80": "CO", "81": "CO", "82": "WY", "83": "ID", "84": "UT", "85": "AZ", "86": "AZ", "87": "NM", "88": "NM", "89": "NV",
-    "90": "CA", "91": "CA", "92": "CA", "93": "CA", "94": "CA", "95": "CA", "96": "HI", "97": "OR", "98": "WA", "99": "AK",
-  };
-  if (!zip) return "Unknown";
-  return zipToState[zip.substring(0, 2)] || "Other";
-}
-
-function setupFilterListeners() {
-  const filters = document.querySelectorAll("[data-filter]");
-  filters.forEach(filter => {
-    filter.addEventListener("change", renderLiveCards);
-  });
-}
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your College Matches — CapItNJ</title>
+    <link rel="preconnect" href="https://googleapis.com">
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="nav">
+        <div class="nav-inner">
+            <a href="index.html" class="wordmark">CapItNJ</a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="improve.html">Improve</a>
+                <a href="explore.html">Explore</a>
+                <a href="matches.html" class="active">Matches</a>
+                <a href="mylist.html">My List</a>
+                <a href="profile.html">Profile</a>
+                <a href="login.html" id="nav-login-btn">Log in</a>
+            </div>
+        </div>
+    </header>
+ 
+    <main>
+        <div class="wrap">
+            <!-- LOGIN PROMPT -->
+            <section id="login-section" style="display:none;">
+                <div style="background: var(--accent); color: #fff; padding: 48px 24px; margin: 0 -24px 0; margin-bottom: 32px;">
+                    <div style="max-width: var(--max-w); margin: 0 auto;">
+                        <p class="eyebrow" style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">GET MATCHED</p>
+                        <h1 style="color: #fff; margin: 0;">Colleges tailored to you</h1>
+                        <p style="color: rgba(255,255,255,0.85); font-size: 15px; margin: 12px 0 0; max-width: 460px;">Create an account or log in to see colleges matched to your GPA, budget, and preferences.</p>
+                    </div>
+                </div>
+ 
+                <div style="text-align: center; padding: 60px 24px;">
+                    <div style="max-width: 360px; margin: 0 auto;">
+                        <div class="empty-state" style="border: none; padding: 0; background: none;">
+                            <p style="font-size: 15px; color: var(--ink-soft); margin-bottom: 24px;">Ready to find your perfect college fit?</p>
+                            <div style="display: flex; gap: 12px; flex-direction: column;">
+                                <a href="login.html" class="btn" style="text-align: center; padding: 12px 22px;">Log In or Create Account</a>
+                                <a href="explore.html" class="link-btn" style="text-align: center; padding: 12px; font-size: 13px;">Browse all colleges first →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+ 
+            <!-- MATCHES DISPLAY -->
+            <section id="matches-section" style="display:none;">
+                <div style="background: var(--accent); color: #fff; padding: 48px 24px; margin: 0 -24px 0; margin-bottom: 32px;">
+                    <div style="max-width: var(--max-w); margin: 0 auto;">
+                        <p class="eyebrow" style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">PERSONALIZED</p>
+                        <h1 style="color: #fff; margin: 0;">Your matches</h1>
+                        <p id="profile-summary" style="color: rgba(255,255,255,0.85); font-size: 13px; margin: 12px 0 0; font-family: var(--font-mono); letter-spacing: 0.03em;"></p>
+                    </div>
+                </div>
+ 
+                <!-- FILTERS -->
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin: 28px 0 8px; padding-bottom: 16px; border-bottom: 1px solid var(--line);">
+                    <button class="explore-controls" style="border: 1px solid var(--line); background: white; color: var(--ink); padding: 9px 14px; border-radius: 2px; font-size: 13px; cursor: pointer; display: inline-block;" onclick="filterMatches('all')" id="filter-all">All Matches</button>
+                    <button class="explore-controls" style="border: 1px solid var(--line); background: white; color: var(--ink); padding: 9px 14px; border-radius: 2px; font-size: 13px; cursor: pointer; display: inline-block;" onclick="filterMatches('reach')" id="filter-reach">Reach</button>
+                    <button class="explore-controls" style="border: 1px solid var(--line); background: white; color: var(--ink); padding: 9px 14px; border-radius: 2px; font-size: 13px; cursor: pointer; display: inline-block;" onclick="filterMatches('match')" id="filter-match">Match</button>
+                    <button class="explore-controls" style="border: 1px solid var(--line); background: white; color: var(--ink); padding: 9px 14px; border-radius: 2px; font-size: 13px; cursor: pointer; display: inline-block;" onclick="filterMatches('safety')" id="filter-safety">Safety</button>
+                </div>
+ 
+                <!-- RESULTS -->
+                <section id="matches-container" style="padding: 0;">
+                    <p style="text-align: center; color: var(--ink-faint); padding: 40px 0;">Loading matches...</p>
+                </section>
+            </section>
+        </div>
+    </main>
+ 
+    <footer class="home-footer">
+        <div class="wrap">
+            <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+        </div>
+    </footer>
+ 
+    <script src="data.js"></script>
+    <script src="matching.js"></script>
+    <script>
+        let currentFilter = 'all';
+        let userProfile = null;
+ 
+        document.addEventListener('DOMContentLoaded', function() {
+            checkLoginAndDisplay();
+        });
+ 
+        function checkLoginAndDisplay() {
+            const isLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+            userProfile = JSON.parse(localStorage.getItem('userProfile') || 'null');
+ 
+            if (isLoggedIn && userProfile) {
+                document.getElementById('login-section').style.display = 'none';
+                document.getElementById('matches-section').style.display = 'block';
+                showMatches();
+            } else {
+                document.getElementById('login-section').style.display = 'block';
+                document.getElementById('matches-section').style.display = 'none';
+            }
+        }
+ 
+        function showMatches() {
+            const summary = document.getElementById('profile-summary');
+            summary.textContent = `GPA ${userProfile.gpa} | $${(userProfile.budget || 50000).toLocaleString()}/yr | ${userProfile.preferredLocation || 'Flexible'}`;
+ 
+            const matches = calculateMatches(userProfile);
+            updateFilterButtons();
+            displayMatches(matches);
+        }
+ 
+        function calculateMatches(profile) {
+            if (!collegesData) return [];
+ 
+            return collegesData.map(college => {
+                let category = 'match';
+                const gpaGap = (college.avgGPA || 3.5) - profile.gpa;
+                
+                if (gpaGap > 0.5) category = 'reach';
+                else if (gpaGap < -0.5) category = 'safety';
+ 
+                const affordable = (college.netPrice || 50000) <= (profile.budget || 50000);
+ 
+                return { ...college, category, affordable };
+            }).sort((a, b) => {
+                const order = { reach: 0, match: 1, safety: 2 };
+                return order[a.category] - order[b.category];
+            });
+        }
+ 
+        function filterMatches(filter) {
+            currentFilter = filter;
+            updateFilterButtons();
+            
+            const matches = calculateMatches(userProfile);
+            displayMatches(matches);
+        }
+ 
+        function updateFilterButtons() {
+            document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+                btn.style.background = 'white';
+                btn.style.color = 'var(--ink)';
+                btn.style.borderColor = 'var(--line)';
+            });
+ 
+            const activeBtn = document.getElementById('filter-' + currentFilter);
+            if (activeBtn) {
+                activeBtn.style.background = 'var(--accent)';
+                activeBtn.style.color = '#fff';
+                activeBtn.style.borderColor = 'var(--accent)';
+            }
+        }
+ 
+        function displayMatches(matches) {
+            const container = document.getElementById('matches-container');
+            
+            let filtered = matches;
+            if (currentFilter !== 'all') {
+                filtered = matches.filter(m => m.category === currentFilter);
+            }
+ 
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--ink-faint); padding: 40px 0;">No matches in this category.</p>';
+                return;
+            }
+ 
+            let html = '';
+            filtered.forEach(college => {
+                const badgeColor = college.category === 'reach' ? '#FF8B5A' : college.category === 'match' ? '#51CF66' : '#4DABF7';
+                const isSaved = isSavedCollege(college.id);
+ 
+                html += `
+                    <div class="explore-row" style="padding: 20px 0;">
+                        <div style="flex: 1;">
+                            <div class="explore-row-name" style="position: relative; padding-left: 60px;">
+                                <span style="position: absolute; left: 0; top: 0; font-family: var(--font-mono); font-size: 10px; background: ${badgeColor}; color: white; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.05em; font-weight: 600;">${college.category.toUpperCase()}</span>
+                                ${college.name}
+                            </div>
+                            <div class="explore-row-meta">
+                                GPA ${userProfile.gpa} vs ${college.avgGPA || 'N/A'} · Est. \$${(college.netPrice || 0).toLocaleString()} · ${college.affordable ? '✓ Fits budget' : '✗ Over budget'}
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <span class="explore-row-tag">${college.state}</span>
+                            <button class="btn" style="padding: 8px 16px; font-size: 12px; background: #22A84A; color: white; border: 1px solid #22A84A;" onclick="toggleSave('${college.id}', '${college.name.replace(/'/g, "\\'")}', this)">
+                                <span class="save-text-${college.id}">${isSaved ? 'Saved ✓' : 'Save'}</span>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+ 
+            container.innerHTML = html;
+        }
+ 
+        function isSavedCollege(collegeId) {
+            const saved = JSON.parse(localStorage.getItem('savedColleges') || '[]');
+            return saved.some(c => c.id === collegeId);
+        }
+ 
+        function toggleSave(collegeId, collegeName, btn) {
+            let saved = JSON.parse(localStorage.getItem('savedColleges') || '[]');
+            const isSaved = saved.some(c => c.id === collegeId);
+ 
+            if (isSaved) {
+                saved = saved.filter(c => c.id !== collegeId);
+                document.querySelector('.save-text-' + collegeId).textContent = 'Save';
+            } else {
+                saved.push({ id: collegeId, name: collegeName });
+                document.querySelector('.save-text-' + collegeId).textContent = 'Saved ✓';
+            }
+ 
+            localStorage.setItem('savedColleges', JSON.stringify(saved));
+        }
+    </script>
+</body>
+</html>
