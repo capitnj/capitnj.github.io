@@ -791,12 +791,11 @@
                 .replace(/[\/.#$[\]]/g, "_");
 
             const docRef = fb.firestoreFns.doc(
-                fb.db,
-                "users",
-                currentUser.uid,
-                "savedColleges",
-                uid
-            );
+    "users",
+    currentUser.uid,
+    "savedColleges",
+    uid
+);
 
             await fb.firestoreFns.setDoc(docRef, {
                 id: college.id || "",
@@ -823,11 +822,10 @@
         currentUser = user;
 
         try {
-            const profileRef = fb.firestoreFns.doc(
-                fb.db,
-                "users",
-                user.uid
-            );
+          const profileRef = fb.firestoreFns.doc(
+    "users",
+    user.uid
+);
 
             const profileSnap = await fb.firestoreFns.getDoc(profileRef);
 
