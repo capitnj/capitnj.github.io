@@ -372,6 +372,220 @@
     }
 
     function calculateMatch(profile, college) {
+
+    const reasons = [];
+
+    const studentGPA = numberValue(profile.gpa);
+    const studentBudget = numberValue(profile.budget);
+
+    const collegeGPA = getCollegeGPA(college);
+    const collegePrice = getCollegePrice(college);
+
+    let score = 0;
+
+
+    /* =========================
+       GPA SCORE
+    ========================= */
+
+    let gpaDifference = 0;
+
+    if (studentGPA > 0 && collegeGPA > 0) {
+
+        gpaDifference = studentGPA - collegeGPA;
+
+        if (gpaDifference >= 0.50) {
+
+            score += 45;
+            reasons.push("Your GPA is well above this school's typical GPA");
+
+        } else if (gpaDifference >= 0.25) {
+
+            score += 40;
+            reasons.push("Your GPA is above this school's typical range");
+
+        } else if (gpaDifference >= 0.10) {
+
+            score += 34;
+            reasons.push("Your GPA is a strong fit");
+
+        } else if (gpaDifference >= -0.10) {
+
+            score += 27;
+            reasons.push("Your GPA is close to this school's range");
+
+        } else if (gpaDifference >= -0.30) {
+
+            score += 18;
+            reasons.push("This is a competitive academic match");
+
+        } else if (gpaDifference >= -0.50) {
+
+            score += 10;
+            reasons.push("Your GPA makes this a reach");
+
+        } else {
+
+            score += 3;
+            reasons.push("Your GPA makes this a high reach");
+        }
+
+    } else {
+
+        score += 20;
+    }
+
+
+    /* =========================
+       BUDGET SCORE
+    ========================= */
+
+    if (studentBudget > 0 && collegePrice > 0) {
+
+        if (collegePrice <= studentBudget * 0.70) {
+
+            score += 30;
+            reasons.push("Well within your annual budget");
+
+        } else if (collegePrice <= studentBudget) {
+
+            score += 25;
+            reasons.push("Fits within your annual budget");
+
+        } else if (collegePrice <= studentBudget * 1.15) {
+
+            score += 15;
+            reasons.push("Close to your budget");
+
+        } else if (collegePrice <= studentBudget * 1.35) {
+
+            score += 7;
+            reasons.push("Above your budget");
+
+        } else {
+
+            score += 1;
+            reasons.push("Significantly above your budget");
+        }
+
+    } else {
+
+        score += 15;
+    }
+
+
+    /* =========================
+       LOCATION SCORE
+    ========================= */
+
+    const locationResult = getLocationScore(profile, college);
+
+    score += locationResult.points;
+
+    if (locationResult.reason) {
+        reasons.push(locationResult.reason);
+    }
+
+
+    /*
+     * Give colleges outside the selected region
+     * a real ranking penalty.
+     */
+
+    const preference = normalize(profile.preferredLocation);
+    const state = String(college.state || "").trim().toUpperCase();
+
+    let locationMatches = true;
+
+    if (preference === "west") {
+        locationMatches = WEST_STATES.includes(state);
+    } else if (preference === "northeast") {
+        locationMatches = NORTHEAST_STATES.includes(state);
+    } else if (preference === "midwest") {
+        locationMatches = MIDWEST_STATES.includes(state);
+    } else if (preference === "south") {
+        locationMatches = SOUTH_STATES.includes(state);
+    } else if (
+        preference === "nj" ||
+        preference === "new jersey"
+    ) {
+        locationMatches = state === "NJ";
+    }
+
+    if (
+        preference &&
+        preference !== "anywhere" &&
+        !locationMatches
+    ) {
+        score -= 15;
+    }
+
+
+    /* =========================
+       CATEGORY
+       
+       This is based mainly on
+       academic competitiveness,
+       NOT just the total score.
+    ========================= */
+
+    let category;
+
+    if (
+        studentGPA > 0 &&
+        collegeGPA > 0
+    ) {
+
+        if (gpaDifference < -0.25) {
+
+            category = "reach";
+
+        } else if (gpaDifference >= 0.30) {
+
+            category = "safety";
+
+        } else {
+
+            category = "match";
+        }
+
+    } else {
+
+        /*
+         * If GPA data is missing,
+         * use score as fallback.
+         */
+
+        if (score < 35) {
+            category = "reach";
+        } else if (score >= 65) {
+            category = "safety";
+        } else {
+            category = "match";
+        }
+    }
+
+
+    /*
+     * Keep score reasonable.
+     * No more instantly hitting 99%.
+     */
+
+    score = Math.max(
+        1,
+        Math.min(
+            99,
+            Math.round(score)
+        )
+    );
+
+
+    return {
+        score: score,
+        category: category,
+        reasons: reasons
+    };
+}
         let score = 50;
         const reasons = [];
 
