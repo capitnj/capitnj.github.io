@@ -1,1253 +1,895 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Your Profile — CapItNJ</title>
+  <title>Profile — CapItNJ</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .profile-page {
+      padding: 42px 0 64px;
+    }
+
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 30px;
+    }
+
+    .profile-header h1 {
+      margin: 4px 0 8px;
+    }
+
+    .profile-subtitle {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+
+    .profile-edit-btn {
+      flex-shrink: 0;
+      min-width: 84px;
+    }
+
+    .profile-summary {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      margin-bottom: 24px;
+    }
+
+    .profile-avatar {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--accent);
+      color: white;
+      font-family: var(--font-display);
+      font-size: 21px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .profile-summary-name {
+      font-family: var(--font-display);
+      font-size: 21px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .profile-summary-email {
+      font-size: 13px;
+      color: var(--ink-soft);
+      word-break: break-word;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+
+    .profile-info-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 18px;
+      min-height: 92px;
+      transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .profile-info-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(45, 68, 96, 0.35);
+      box-shadow: 0 7px 18px rgba(24, 37, 53, 0.05);
+    }
+
+    .profile-info-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      margin-bottom: 12px;
+    }
+
+    .profile-info-value {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      word-break: break-word;
+    }
+
+    .profile-section {
+      border-top: 1px solid var(--line);
+      padding-top: 34px;
+      margin-top: 8px;
+    }
+
+    .profile-section-title {
+      font-family: var(--font-display);
+      font-size: 22px;
+      margin: 0 0 6px;
+      font-weight: 600;
+    }
+
+    .profile-section-text {
+      color: var(--ink-soft);
+      font-size: 14px;
+      margin: 0 0 20px;
+    }
+
+    .account-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .account-action-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .account-action-title {
+      font-weight: 600;
+      margin-bottom: 7px;
+      color: var(--ink);
+    }
+
+    .account-action-text {
+      color: var(--ink-soft);
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 0 0 18px;
+    }
+
+    .danger-card {
+      border-color: #e6c8c6;
+    }
+
+    .danger-btn {
+      width: 100%;
+      background: #b3413a !important;
+      border-color: #b3413a !important;
+      color: white !important;
+    }
+
+    .danger-btn:hover {
+      background: #963630 !important;
+      border-color: #963630 !important;
+    }
+
+    .logout-btn {
+      width: 100%;
+      background: #b3413a !important;
+      border-color: #b3413a !important;
+      color: white !important;
+    }
+
+    .logout-btn:hover {
+      background: #963630 !important;
+      border-color: #963630 !important;
+    }
+
+    .edit-panel {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .edit-panel.open {
+      display: block;
+    }
+
+    .edit-panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .edit-panel-head h2 {
+      font-family: var(--font-display);
+      margin: 0 0 5px;
+      font-size: 22px;
+    }
+
+    .edit-panel-head p {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 13px;
+    }
+
+    .close-edit {
+      background: transparent;
+      border: 1px solid var(--line);
+      color: var(--ink-soft);
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+
+    .close-edit:hover {
+      color: var(--ink);
+      background: var(--accent-bg);
+    }
+
+    .edit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .edit-grid .field {
+      margin-bottom: 0;
+    }
+
+    .edit-grid .full-width {
+      grid-column: 1 / -1;
+    }
+
+    .edit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .profile-status {
+      display: none;
+      margin-bottom: 18px;
+      padding: 11px 13px;
+      border-radius: 7px;
+      font-size: 13px;
+    }
+
+    .profile-status.success {
+      display: block;
+      background: #f2f7f3;
+      border: 1px solid #cfe0d2;
+      color: #356440;
+    }
+
+    .profile-status.error {
+      display: block;
+      background: #fff5f4;
+      border: 1px solid #e8cbc8;
+      color: #a13e38;
+    }
+
+    .loading-profile {
+      padding: 48px 0;
+      color: var(--ink-soft);
+      font-size: 14px;
+    }
+
+    @media (max-width: 700px) {
+      .profile-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .profile-grid,
+      .account-actions,
+      .edit-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .profile-edit-btn {
+        width: 100%;
+      }
+
+      .edit-grid .full-width {
+        grid-column: auto;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
 <header class="nav">
-    <div class="nav-inner">
+  <div class="nav-inner">
+    <a href="index.html" class="wordmark">CapItNJ</a>
 
-        <a href="index.html" class="wordmark">CapItNJ</a>
-
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="improve.html">Improve</a>
-            <a href="explore.html">Explore</a>
-            <a href="matches.html">Matches</a>
-            <a href="mylist.html">My List</a>
-            <a href="profile.html" class="active">Profile</a>
-            <a href="support.html">Support</a>
-        </div>
-
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="improve.html">Improve</a>
+      <a href="explore.html">Explore</a>
+      <a href="matches.html">Matches</a>
+      <a href="mylist.html">My List</a>
+      <a href="profile.html" class="active">Profile</a>
+      <a href="login.html" id="nav-login-btn">Log in</a>
     </div>
+  </div>
 </header>
 
-
 <main>
+  <div class="wrap profile-page">
 
-<div class="wrap profile-page">
+    <div id="profile-loading" class="loading-profile">
+      Loading your profile...
+    </div>
 
-    <!-- NOT LOGGED IN -->
-    <section id="not-logged-in" class="profile-login-state">
+    <div id="profile-content" style="display:none;">
+
+      <!-- HEADER -->
+      <div class="profile-header">
+        <div>
+          <p class="eyebrow">YOUR PROFILE</p>
+          <h1>Your information</h1>
+          <p class="profile-subtitle">
+            Keep your information up to date so CapItNJ can personalize your results.
+          </p>
+        </div>
+
+        <button id="edit-profile-btn" class="btn profile-edit-btn">
+          Edit profile
+        </button>
+      </div>
+
+      <!-- SUMMARY -->
+      <div class="profile-summary">
+        <div class="profile-avatar" id="profile-avatar">C</div>
+
+        <div>
+          <div class="profile-summary-name" id="summary-name">Your Name</div>
+          <div class="profile-summary-email" id="summary-email">email@example.com</div>
+        </div>
+      </div>
+
+      <!-- STATUS -->
+      <div id="profile-status" class="profile-status"></div>
+
+      <!-- EDIT PANEL -->
+      <section id="edit-panel" class="edit-panel">
+
+        <div class="edit-panel-head">
+          <div>
+            <h2>Edit your profile</h2>
+            <p>Update your information and save your changes.</p>
+          </div>
+
+          <button id="close-edit-btn" class="close-edit" type="button">
+            ×
+          </button>
+        </div>
+
+        <div class="edit-grid">
+
+          <div class="field">
+            <label for="edit-name">Full Name</label>
+            <input type="text" id="edit-name" placeholder="Your name">
+          </div>
+
+          <div class="field">
+            <label for="edit-state">State</label>
+            <input type="text" id="edit-state" placeholder="e.g. NJ">
+          </div>
+
+          <div class="field">
+            <label for="edit-gpa">GPA</label>
+            <input type="number" id="edit-gpa" min="0" max="4.0" step="0.01" placeholder="e.g. 3.90">
+          </div>
+
+          <div class="field">
+            <label for="edit-sat">SAT Score</label>
+            <input type="number" id="edit-sat" min="400" max="1600" placeholder="400-1600">
+          </div>
+
+          <div class="field">
+            <label for="edit-act">ACT Score</label>
+            <input type="number" id="edit-act" min="1" max="36" placeholder="1-36">
+          </div>
+
+          <div class="field">
+            <label for="edit-budget">Yearly Budget</label>
+            <input type="number" id="edit-budget" min="0" placeholder="e.g. 50000">
+          </div>
+
+          <div class="field full-width">
+            <label for="edit-location">College Location Preference</label>
+            <select id="edit-location">
+              <option value="">Select a preference</option>
+              <option value="Northeast">Northeast</option>
+              <option value="South">South</option>
+              <option value="Midwest">Midwest</option>
+              <option value="West">West</option>
+              <option value="No Preference">No Preference</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="edit-actions">
+          <button id="cancel-edit-btn" class="btn-outline" type="button">
+            Cancel
+          </button>
+
+          <button id="save-profile-btn" class="btn" type="button">
+            Save changes
+          </button>
+        </div>
+
+      </section>
+
+      <!-- INFO BOXES -->
+      <div class="profile-grid">
+
+        <div class="profile-info-card">
+          <div class="profile-info-label">Full Name</div>
+          <div class="profile-info-value" id="display-name">—</div>
+        </div>
+
+        <div class="profile-info-card">
+          <div class="profile-info-label">State</div>
+          <div class="profile-info-value" id="display-state">—</div>
+        </div>
+
+        <div class="profile-info-card">
+          <div class="profile-info-label">GPA</div>
+          <div class="profile-info-value" id="display-gpa">—</div>
+        </div>
+
+        <div class="profile-info-card">
+          <div class="profile-info-label">Email</div>
+          <div class="profile-info-value" id="display-email">—</div>
+        </div>
+
+        <div class="profile-info-card">
+          <div class="profile-info-label">SAT</div>
+          <div class="profile-info-value" id="display-sat">—</div>
+        </div>
+
+        <div class="profile-info-card">
+          <div class="profile-info-label">ACT</div>
+          <div class="profile-info-value" id="display-act">—</div>
+        </div>
+
+        <div class="profile-info-card">
+          <div class="profile-info-label">Budget</div>
+          <div class="profile-info-value" id="display-budget">—</div>
+        </div>
+
+        <div class="profile-info-card">
+          <div class="profile-info-label">Location Preference</div>
+          <div class="profile-info-value" id="display-location">—</div>
+        </div>
+
+      </div>
+
+      <!-- ACCOUNT -->
+      <section class="profile-section">
 
         <p class="eyebrow">ACCOUNT</p>
-
-        <h1>Sign in to your profile</h1>
-
-        <p class="profile-subtitle">
-            Create an account or log in to manage your college preferences and save your progress.
+        <h2 class="profile-section-title">Account settings</h2>
+        <p class="profile-section-text">
+          Manage your CapItNJ account below.
         </p>
 
-        <a href="login.html" class="btn">
-            Go to Login
-        </a>
+        <div class="account-actions">
 
-    </section>
+          <div class="account-action-card">
+            <div class="account-action-title">Log out</div>
+            <p class="account-action-text">
+              Sign out of your account on this device.
+            </p>
 
-
-    <!-- LOGGED IN -->
-    <section id="logged-in" style="display:none;">
-
-        <div class="profile-header">
-
-            <div>
-                <p class="eyebrow">ACCOUNT</p>
-
-                <h1>Your profile</h1>
-
-                <p class="profile-subtitle">
-                    Keep your information up to date so CapItNJ can personalize your results.
-                </p>
-            </div>
-
-            <button
-                class="btn profile-edit-button"
-                type="button"
-                onclick="toggleEditMode()"
-                id="edit-btn">
-                Edit
+            <button id="logout-btn" class="btn logout-btn">
+              Log out
             </button>
+          </div>
+
+          <div class="account-action-card danger-card">
+            <div class="account-action-title">Delete account</div>
+            <p class="account-action-text">
+              Permanently delete your account and profile data. This cannot be undone.
+            </p>
+
+            <button id="delete-account-btn" class="btn danger-btn">
+              Delete account
+            </button>
+          </div>
 
         </div>
 
-
-        <!-- SAVE MESSAGE -->
-        <div
-            id="profile-message"
-            class="status-msg"
-            role="status"
-            aria-live="polite">
-        </div>
-
-
-        <!-- VIEW PROFILE -->
-        <section id="view-mode">
-
-            <div class="profile-info-grid">
-
-                <div class="profile-info">
-                    <p class="eyebrow">Full Name</p>
-                    <p id="display-name">-</p>
-                </div>
-
-                <div class="profile-info">
-                    <p class="eyebrow">State</p>
-                    <p id="display-state">-</p>
-                </div>
-
-                <div class="profile-info">
-                    <p class="eyebrow">GPA</p>
-                    <p id="display-gpa">-</p>
-                </div>
-
-                <div class="profile-info">
-                    <p class="eyebrow">Email</p>
-                    <p id="display-email">-</p>
-                </div>
-
-                <div class="profile-info">
-                    <p class="eyebrow">SAT</p>
-                    <p id="display-sat">-</p>
-                </div>
-
-                <div class="profile-info">
-                    <p class="eyebrow">ACT</p>
-                    <p id="display-act">-</p>
-                </div>
-
-                <div class="profile-info">
-                    <p class="eyebrow">Budget</p>
-                    <p id="display-budget">-</p>
-                </div>
-
-                <div class="profile-info">
-                    <p class="eyebrow">Location</p>
-                    <p id="display-location">-</p>
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- EDIT PROFILE -->
-        <section id="edit-mode" style="display:none;">
-
-            <form id="profile-form">
-
-                <p class="form-section-title">
-                    Personal information
-                </p>
-
-
-                <div class="profile-form-grid">
-
-                    <div class="field">
-
-                        <label for="edit-name">
-                            Full Name
-                        </label>
-
-                        <input
-                            type="text"
-                            id="edit-name"
-                            required>
-
-                    </div>
-
-
-                    <div class="field">
-
-                        <label for="edit-email">
-                            Email
-                        </label>
-
-                        <input
-                            type="email"
-                            id="edit-email"
-                            readonly>
-
-                        <p class="field-hint">
-                            Your login email is managed by your account.
-                        </p>
-
-                    </div>
-
-
-                    <div class="field">
-
-                        <label for="edit-state">
-                            State
-                        </label>
-
-                        <select id="edit-state" required>
-
-                            <option value="">
-                                Select State
-                            </option>
-
-                            <option value="AL">Alabama</option>
-                            <option value="AK">Alaska</option>
-                            <option value="AZ">Arizona</option>
-                            <option value="AR">Arkansas</option>
-                            <option value="CA">California</option>
-                            <option value="CO">Colorado</option>
-                            <option value="CT">Connecticut</option>
-                            <option value="DE">Delaware</option>
-                            <option value="FL">Florida</option>
-                            <option value="GA">Georgia</option>
-                            <option value="HI">Hawaii</option>
-                            <option value="ID">Idaho</option>
-                            <option value="IL">Illinois</option>
-                            <option value="IN">Indiana</option>
-                            <option value="IA">Iowa</option>
-                            <option value="KS">Kansas</option>
-                            <option value="KY">Kentucky</option>
-                            <option value="LA">Louisiana</option>
-                            <option value="ME">Maine</option>
-                            <option value="MD">Maryland</option>
-                            <option value="MA">Massachusetts</option>
-                            <option value="MI">Michigan</option>
-                            <option value="MN">Minnesota</option>
-                            <option value="MS">Mississippi</option>
-                            <option value="MO">Missouri</option>
-                            <option value="MT">Montana</option>
-                            <option value="NE">Nebraska</option>
-                            <option value="NV">Nevada</option>
-                            <option value="NH">New Hampshire</option>
-                            <option value="NJ">New Jersey</option>
-                            <option value="NM">New Mexico</option>
-                            <option value="NY">New York</option>
-                            <option value="NC">North Carolina</option>
-                            <option value="ND">North Dakota</option>
-                            <option value="OH">Ohio</option>
-                            <option value="OK">Oklahoma</option>
-                            <option value="OR">Oregon</option>
-                            <option value="PA">Pennsylvania</option>
-                            <option value="RI">Rhode Island</option>
-                            <option value="SC">South Carolina</option>
-                            <option value="SD">South Dakota</option>
-                            <option value="TN">Tennessee</option>
-                            <option value="TX">Texas</option>
-                            <option value="UT">Utah</option>
-                            <option value="VT">Vermont</option>
-                            <option value="VA">Virginia</option>
-                            <option value="WA">Washington</option>
-                            <option value="WV">West Virginia</option>
-                            <option value="WI">Wisconsin</option>
-                            <option value="WY">Wyoming</option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="field">
-
-                        <label for="edit-gpa">
-                            GPA
-                        </label>
-
-                        <input
-                            type="number"
-                            id="edit-gpa"
-                            min="0"
-                            max="4"
-                            step="0.01"
-                            required>
-
-                    </div>
-
-                </div>
-
-
-                <p class="form-section-title">
-                    Academic information
-                </p>
-
-
-                <div class="profile-form-grid">
-
-                    <div class="field">
-
-                        <label for="edit-sat">
-                            SAT Score
-                            <span class="optional">(optional)</span>
-                        </label>
-
-                        <input
-                            type="number"
-                            id="edit-sat"
-                            min="400"
-                            max="1600"
-                            placeholder="400-1600">
-
-                    </div>
-
-
-                    <div class="field">
-
-                        <label for="edit-act">
-                            ACT Score
-                            <span class="optional">(optional)</span>
-                        </label>
-
-                        <input
-                            type="number"
-                            id="edit-act"
-                            min="1"
-                            max="36"
-                            placeholder="1-36">
-
-                    </div>
-
-
-                    <div class="field">
-
-                        <label for="edit-budget">
-                            Annual Budget ($)
-                        </label>
-
-                        <input
-                            type="number"
-                            id="edit-budget"
-                            min="0"
-                            step="1000"
-                            required>
-
-                    </div>
-
-
-                    <div class="field">
-
-                        <label for="edit-location">
-                            Preferred Location
-                        </label>
-
-                        <select id="edit-location">
-
-                            <option value="">
-                                Select Preference
-                            </option>
-
-                            <option value="NJ">
-                                New Jersey
-                            </option>
-
-                            <option value="Northeast">
-                                Northeast
-                            </option>
-
-                            <option value="Midwest">
-                                Midwest
-                            </option>
-
-                            <option value="South">
-                                South
-                            </option>
-
-                            <option value="West">
-                                West
-                            </option>
-
-                            <option value="Anywhere">
-                                Anywhere
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <div class="profile-actions">
-
-                    <button
-                        type="submit"
-                        class="btn"
-                        id="save-profile-btn">
-                        Save Changes
-                    </button>
-
-                    <button
-                        type="button"
-                        class="btn-outline"
-                        onclick="cancelEditMode()">
-                        Cancel
-                    </button>
-
-                </div>
-
-            </form>
-
-        </section>
-
-
-        <!-- ACCOUNT SETTINGS -->
-        <section class="account-section">
-
-            <div class="account-section-heading">
-
-                <p class="eyebrow">
-                    ACCOUNT
-                </p>
-
-                <h2>
-                    Account settings
-                </h2>
-
-            </div>
-
-
-            <div class="account-row">
-
-                <div>
-
-                    <p class="account-label">
-                        Session
-                    </p>
-
-                    <p class="account-description">
-                        Sign out of this CapItNJ account on this device.
-                    </p>
-
-                </div>
-
-                <button
-                    class="btn-outline"
-                    type="button"
-                    onclick="logout()">
-                    Log Out
-                </button>
-
-            </div>
-
-
-            <div class="account-row danger-row">
-
-                <div>
-
-                    <p class="account-label danger-text">
-                        Danger Zone
-                    </p>
-
-                    <p class="account-description">
-                        Permanently delete your account and saved profile data.
-                    </p>
-
-                </div>
-
-                <button
-                    class="btn-outline danger-button"
-                    type="button"
-                    onclick="deleteAccount()">
-                    Delete Account
-                </button>
-
-            </div>
-
-        </section>
-
-    </section>
-
-</div>
-
-</main>
-
-
-<footer class="home-footer">
-
-    <div class="wrap">
-
-        <p>
-            © 2024 CapItNJ. Built for the Congressional App Challenge.
-        </p>
+      </section>
 
     </div>
 
+  </div>
+</main>
+
+<footer class="home-footer">
+  <div class="wrap">
+    <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+  </div>
 </footer>
 
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script src="firebase-init.js"></script>
 
 
 <script>
-
 let currentUser = null;
+let profileData = {};
 
-let currentProfile = null;
-
-let isEditMode = false;
-
-
-/* --------------------------------
-   CHECK LOGIN
--------------------------------- */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-        if (
-            !window.capitnjFirebase ||
-            !window.capitnjFirebase.auth ||
-            !window.capitnjFirebase.db
-        ) {
-
-            showLoggedOutState();
-
-            return;
-
-        }
+const loadingProfile = document.getElementById("profile-loading");
+const profileContent = document.getElementById("profile-content");
+const editPanel = document.getElementById("edit-panel");
+const profileStatus = document.getElementById("profile-status");
 
 
-        window.capitnjFirebase.auth.onAuthStateChanged(
-            async function (user) {
+function showStatus(message, type = "success") {
+  profileStatus.textContent = message;
+  profileStatus.className = "profile-status " + type;
 
-                if (!user) {
-
-                    showLoggedOutState();
-
-                    return;
-
-                }
-
-
-                currentUser = user;
-
-                await loadFirebaseProfile(user);
-
-            }
-        );
-
-    }
-);
-
-
-/* --------------------------------
-   LOAD PROFILE
--------------------------------- */
-
-async function loadFirebaseProfile(user) {
-
-    try {
-
-        const doc =
-            await window.capitnjFirebase.db
-                .collection("users")
-                .doc(user.uid)
-                .get();
-
-
-        let profile =
-            doc.exists
-                ? doc.data()
-                : {};
-
-
-        profile = {
-
-            name:
-                profile.name ||
-                user.displayName ||
-                "",
-
-            email:
-                user.email ||
-                profile.email ||
-                "",
-
-            state:
-                profile.state ||
-                "",
-
-            gpa:
-                profile.gpa !== undefined
-                    ? profile.gpa
-                    : "",
-
-            sat:
-                profile.sat || null,
-
-            act:
-                profile.act || null,
-
-            budget:
-                profile.budget !== undefined
-                    ? profile.budget
-                    : "",
-
-            preferredLocation:
-                profile.preferredLocation ||
-                ""
-
-        };
-
-
-        /*
-           If this user has an Auth account but
-           no Firestore profile yet, create one.
-        */
-
-        if (!doc.exists) {
-
-            await window.capitnjFirebase.db
-                .collection("users")
-                .doc(user.uid)
-                .set(profile);
-
-        }
-
-
-        currentProfile = profile;
-
-
-        localStorage.setItem(
-            "userLoggedIn",
-            "true"
-        );
-
-
-        localStorage.setItem(
-            "userProfile",
-            JSON.stringify(profile)
-        );
-
-
-        document.getElementById(
-            "not-logged-in"
-        ).style.display = "none";
-
-
-        document.getElementById(
-            "logged-in"
-        ).style.display = "block";
-
-
-        loadProfile(profile);
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Profile loading error:",
-            error
-        );
-
-        showLoggedOutState();
-
-    }
-
+  setTimeout(() => {
+    profileStatus.className = "profile-status";
+  }, 4000);
 }
 
 
-/* --------------------------------
-   LOGGED OUT STATE
--------------------------------- */
+function valueOrDash(value) {
+  if (value === undefined || value === null || value === "") {
+    return "—";
+  }
 
-function showLoggedOutState() {
-
-    document.getElementById(
-        "not-logged-in"
-    ).style.display = "block";
+  return value;
+}
 
 
-    document.getElementById(
-        "logged-in"
-    ).style.display = "none";
+function formatMoney(value) {
+  if (value === undefined || value === null || value === "") {
+    return "—";
+  }
+
+  const number = Number(value);
+
+  if (Number.isNaN(number)) {
+    return value;
+  }
+
+  return "$" + number.toLocaleString();
+}
 
 
-    localStorage.removeItem(
-        "userLoggedIn"
+function getFirstName(name) {
+  if (!name) return "C";
+  return name.trim().charAt(0).toUpperCase() || "C";
+}
+
+
+function setProfileDisplay(data) {
+  const name =
+    data.fullName ||
+    data.name ||
+    data.displayName ||
+    currentUser.displayName ||
+    "Your Name";
+
+  const state = data.state || data.userState || "—";
+  const gpa = data.gpa || "—";
+  const sat = data.sat || data.satScore || "—";
+  const act = data.act || data.actScore || "—";
+  const budget = data.budget || data.maxBudget || "";
+  const location =
+    data.location ||
+    data.locationPreference ||
+    data.region ||
+    "—";
+
+  document.getElementById("summary-name").textContent = name;
+  document.getElementById("summary-email").textContent = currentUser.email || "—";
+  document.getElementById("profile-avatar").textContent = getFirstName(name);
+
+  document.getElementById("display-name").textContent = valueOrDash(name);
+  document.getElementById("display-state").textContent = valueOrDash(state);
+  document.getElementById("display-gpa").textContent =
+    gpa !== "—" && gpa !== "" ? Number(gpa).toFixed(2) : "—";
+
+  document.getElementById("display-email").textContent =
+    currentUser.email || "—";
+
+  document.getElementById("display-sat").textContent = valueOrDash(sat);
+  document.getElementById("display-act").textContent = valueOrDash(act);
+  document.getElementById("display-budget").textContent = formatMoney(budget);
+  document.getElementById("display-location").textContent =
+    valueOrDash(location);
+}
+
+
+function fillEditForm(data) {
+  document.getElementById("edit-name").value =
+    data.fullName ||
+    data.name ||
+    data.displayName ||
+    currentUser.displayName ||
+    "";
+
+  document.getElementById("edit-state").value =
+    data.state ||
+    data.userState ||
+    "";
+
+  document.getElementById("edit-gpa").value =
+    data.gpa || "";
+
+  document.getElementById("edit-sat").value =
+    data.sat ||
+    data.satScore ||
+    "";
+
+  document.getElementById("edit-act").value =
+    data.act ||
+    data.actScore ||
+    "";
+
+  document.getElementById("edit-budget").value =
+    data.budget ||
+    data.maxBudget ||
+    "";
+
+  document.getElementById("edit-location").value =
+    data.location ||
+    data.locationPreference ||
+    data.region ||
+    "";
+}
+
+
+async function loadProfile() {
+  const fb = window.capitnjFirebase;
+
+  if (!currentUser || !fb) return;
+
+  try {
+    const userDocRef = fb.firestoreFns.doc(
+      fb.db,
+      "users",
+      currentUser.uid
     );
 
+    const snapshot = await fb.firestoreFns.getDoc(userDocRef);
+
+    profileData = snapshot.exists
+      ? snapshot.data()
+      : {};
+
+    setProfileDisplay(profileData);
+    fillEditForm(profileData);
+
+    loadingProfile.style.display = "none";
+    profileContent.style.display = "block";
+
+  } catch (error) {
+    console.error("Profile load error:", error);
+
+    loadingProfile.innerHTML = `
+      Couldn't load your profile. Please refresh and try again.
+    `;
+  }
 }
 
 
-/* --------------------------------
-   DISPLAY PROFILE
--------------------------------- */
+function startProfile() {
+  const fb = window.capitnjFirebase;
 
-function loadProfile(profile) {
+  if (!fb) {
+    console.error("Firebase did not initialize.");
+    return;
+  }
 
-    document.getElementById(
-        "display-name"
-    ).textContent =
-        profile.name || "-";
-
-
-    document.getElementById(
-        "display-email"
-    ).textContent =
-        profile.email || "-";
-
-
-    document.getElementById(
-        "display-state"
-    ).textContent =
-        profile.state || "-";
-
-
-    document.getElementById(
-        "display-gpa"
-    ).textContent =
-        profile.gpa !== ""
-            ? Number(profile.gpa).toFixed(2)
-            : "-";
-
-
-    document.getElementById(
-        "display-sat"
-    ).textContent =
-        profile.sat || "-";
-
-
-    document.getElementById(
-        "display-act"
-    ).textContent =
-        profile.act || "-";
-
-
-    document.getElementById(
-        "display-budget"
-    ).textContent =
-        profile.budget !== ""
-            ? "$" +
-              Number(profile.budget)
-                .toLocaleString()
-            : "-";
-
-
-    document.getElementById(
-        "display-location"
-    ).textContent =
-        profile.preferredLocation || "-";
-
-
-    /* Fill edit form */
-
-    document.getElementById(
-        "edit-name"
-    ).value =
-        profile.name || "";
-
-
-    document.getElementById(
-        "edit-email"
-    ).value =
-        profile.email || "";
-
-
-    document.getElementById(
-        "edit-state"
-    ).value =
-        profile.state || "";
-
-
-    document.getElementById(
-        "edit-gpa"
-    ).value =
-        profile.gpa ?? "";
-
-
-    document.getElementById(
-        "edit-sat"
-    ).value =
-        profile.sat ?? "";
-
-
-    document.getElementById(
-        "edit-act"
-    ).value =
-        profile.act ?? "";
-
-
-    document.getElementById(
-        "edit-budget"
-    ).value =
-        profile.budget ?? "";
-
-
-    document.getElementById(
-        "edit-location"
-    ).value =
-        profile.preferredLocation || "";
-
-}
-
-
-/* --------------------------------
-   EDIT MODE
--------------------------------- */
-
-function toggleEditMode() {
-
-    if (isEditMode) {
-
-        cancelEditMode();
-
-        return;
-
+  fb.authFns.onAuthStateChanged(async (user) => {
+    if (!user) {
+      window.location.replace("login.html");
+      return;
     }
 
-
-    isEditMode = true;
-
-
-    document.getElementById(
-        "view-mode"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "edit-mode"
-    ).style.display = "block";
-
-
-    document.getElementById(
-        "edit-btn"
-    ).textContent = "Cancel";
-
+    currentUser = user;
+    await loadProfile();
+  });
 }
 
 
-function cancelEditMode() {
+window.addEventListener("firebase-ready", startProfile, { once: true });
 
-    isEditMode = false;
-
-
-    loadProfile(
-        currentProfile || {}
-    );
-
-
-    document.getElementById(
-        "view-mode"
-    ).style.display = "block";
-
-
-    document.getElementById(
-        "edit-mode"
-    ).style.display = "none";
-
-
-    document.getElementById(
-        "edit-btn"
-    ).textContent = "Edit";
-
-
-    clearProfileMessage();
-
+if (window.capitnjFirebase) {
+  startProfile();
 }
 
 
-/* --------------------------------
-   SAVE PROFILE
--------------------------------- */
+/* EDIT OPEN */
+document.getElementById("edit-profile-btn").addEventListener("click", () => {
+  fillEditForm(profileData);
+  editPanel.classList.add("open");
 
-document
-    .getElementById("profile-form")
-    .addEventListener(
-        "submit",
-        saveProfile
+  editPanel.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
+});
+
+
+function closeEditPanel() {
+  editPanel.classList.remove("open");
+}
+
+
+document.getElementById("close-edit-btn").addEventListener("click", closeEditPanel);
+
+document.getElementById("cancel-edit-btn").addEventListener("click", () => {
+  fillEditForm(profileData);
+  closeEditPanel();
+});
+
+
+/* SAVE PROFILE */
+document.getElementById("save-profile-btn").addEventListener("click", async () => {
+  if (!currentUser || !window.capitnjFirebase) return;
+
+  const saveButton = document.getElementById("save-profile-btn");
+  saveButton.disabled = true;
+  saveButton.textContent = "Saving...";
+
+  const name = document.getElementById("edit-name").value.trim();
+  const state = document.getElementById("edit-state").value.trim();
+  const gpa = document.getElementById("edit-gpa").value;
+  const sat = document.getElementById("edit-sat").value;
+  const act = document.getElementById("edit-act").value;
+  const budget = document.getElementById("edit-budget").value;
+  const location = document.getElementById("edit-location").value;
+
+  const updatedData = {
+    fullName: name,
+    name: name,
+    state: state,
+    gpa: gpa === "" ? null : Number(gpa),
+    sat: sat === "" ? null : Number(sat),
+    act: act === "" ? null : Number(act),
+    budget: budget === "" ? null : Number(budget),
+    location: location,
+    locationPreference: location,
+    updatedAt: new Date().toISOString()
+  };
+
+  try {
+    const fb = window.capitnjFirebase;
+
+    const userDocRef = fb.firestoreFns.doc(
+      fb.db,
+      "users",
+      currentUser.uid
     );
 
+    await fb.firestoreFns.setDoc(
+      userDocRef,
+      updatedData,
+      { merge: true }
+    );
 
-async function saveProfile(event) {
-
-    event.preventDefault();
-
-
-    if (!currentUser) {
-
-        window.location.href =
-            "login.html";
-
-        return;
-
+    if (name && currentUser.displayName !== name) {
+      await fb.authFns.updateProfile(currentUser, {
+        displayName: name
+      });
     }
 
-
-    const button =
-        document.getElementById(
-            "save-profile-btn"
-        );
-
-
-    const profile = {
-
-        name:
-            document.getElementById(
-                "edit-name"
-            ).value.trim(),
-
-        email:
-            currentUser.email || "",
-
-        state:
-            document.getElementById(
-                "edit-state"
-            ).value,
-
-        gpa:
-            parseFloat(
-                document.getElementById(
-                    "edit-gpa"
-                ).value
-            ),
-
-        sat:
-            document.getElementById(
-                "edit-sat"
-            ).value
-                ? parseInt(
-                    document.getElementById(
-                        "edit-sat"
-                    ).value,
-                    10
-                )
-                : null,
-
-        act:
-            document.getElementById(
-                "edit-act"
-            ).value
-                ? parseInt(
-                    document.getElementById(
-                        "edit-act"
-                    ).value,
-                    10
-                )
-                : null,
-
-        budget:
-            parseInt(
-                document.getElementById(
-                    "edit-budget"
-                ).value,
-                10
-            ),
-
-        preferredLocation:
-            document.getElementById(
-                "edit-location"
-            ).value
-
+    profileData = {
+      ...profileData,
+      ...updatedData
     };
 
+    setProfileDisplay(profileData);
+    fillEditForm(profileData);
+    closeEditPanel();
 
-    try {
+    showStatus("Profile updated successfully.");
 
-        button.disabled = true;
-
-        button.textContent =
-            "Saving...";
-
-
-        clearProfileMessage();
-
-
-        await window.capitnjFirebase.db
-            .collection("users")
-            .doc(currentUser.uid)
-            .set(
-                profile,
-                {
-                    merge: true
-                }
-            );
+  } catch (error) {
+    console.error("Profile save error:", error);
+    showStatus("Couldn't save your changes. Please try again.", "error");
+  } finally {
+    saveButton.disabled = false;
+    saveButton.textContent = "Save changes";
+  }
+});
 
 
-        currentProfile =
-            profile;
+/* LOG OUT */
+document.getElementById("logout-btn").addEventListener("click", async () => {
+  if (!confirm("Log out of CapItNJ?")) return;
+
+  try {
+    await window.capitnjFirebase.logOut();
+  } catch (error) {
+    console.error("Logout error:", error);
+    showStatus("Couldn't log out. Please try again.", "error");
+  }
+});
 
 
-        localStorage.setItem(
-            "userProfile",
-            JSON.stringify(profile)
-        );
+/* DELETE ACCOUNT */
+document.getElementById("delete-account-btn").addEventListener("click", async () => {
+  if (!currentUser) return;
 
+  const confirmed = confirm(
+    "Are you sure you want to permanently delete your CapItNJ account? This cannot be undone."
+  );
 
-        loadProfile(profile);
+  if (!confirmed) return;
 
+  const finalConfirmed = confirm(
+    "Last warning: your account will be permanently deleted. Continue?"
+  );
 
-        isEditMode = false;
+  if (!finalConfirmed) return;
 
+  const deleteButton = document.getElementById("delete-account-btn");
+  deleteButton.disabled = true;
+  deleteButton.textContent = "Deleting...";
 
-        document.getElementById(
-            "view-mode"
-        ).style.display = "block";
+  try {
+    const fb = window.capitnjFirebase;
 
+    await fb.authFns.deleteUser(currentUser);
 
-        document.getElementById(
-            "edit-mode"
-        ).style.display = "none";
+    window.location.replace("index.html");
 
+  } catch (error) {
+    console.error("Delete account error:", error);
 
-        document.getElementById(
-            "edit-btn"
-        ).textContent = "Edit";
+    deleteButton.disabled = false;
+    deleteButton.textContent = "Delete account";
 
-
-        showProfileMessage(
-            "Profile saved.",
-            "success"
-        );
-
+    if (error.code === "auth/requires-recent-login") {
+      showStatus(
+        "For security, please log out, log back in, then try deleting your account again.",
+        "error"
+      );
+    } else {
+      showStatus(
+        "Couldn't delete your account. Please try again.",
+        "error"
+      );
     }
-
-    catch (error) {
-
-        console.error(
-            "Profile save error:",
-            error
-        );
-
-
-        showProfileMessage(
-            "We could not save your profile. Please try again.",
-            "error"
-        );
-
-    }
-
-    finally {
-
-        button.disabled = false;
-
-        button.textContent =
-            "Save Changes";
-
-    }
-
-}
-
-
-/* --------------------------------
-   MESSAGES
--------------------------------- */
-
-function showProfileMessage(
-    message,
-    type
-) {
-
-    const element =
-        document.getElementById(
-            "profile-message"
-        );
-
-
-    element.textContent =
-        message;
-
-
-    element.className =
-        "status-msg " + type;
-
-}
-
-
-function clearProfileMessage() {
-
-    const element =
-        document.getElementById(
-            "profile-message"
-        );
-
-
-    element.textContent = "";
-
-    element.className =
-        "status-msg";
-
-}
-
-
-/* --------------------------------
-   LOG OUT
--------------------------------- */
-
-async function logout() {
-
-    if (!currentUser) {
-
-        window.location.href =
-            "login.html";
-
-        return;
-
-    }
-
-
-    if (
-        !confirm(
-            "Log out of CapItNJ?"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    try {
-
-        await window.capitnjFirebase.auth
-            .signOut();
-
-
-        localStorage.removeItem(
-            "userLoggedIn"
-        );
-
-
-        localStorage.removeItem(
-            "userProfile"
-        );
-
-
-        window.location.href =
-            "login.html";
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Logout error:",
-            error
-        );
-
-
-        showProfileMessage(
-            "We could not log you out. Please try again.",
-            "error"
-        );
-
-    }
-
-}
-
-
-/* --------------------------------
-   DELETE ACCOUNT
--------------------------------- */
-
-async function deleteAccount() {
-
-    if (!currentUser) {
-
-        return;
-
-    }
-
-
-    if (
-        !confirm(
-            "Delete your CapItNJ account?"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    if (
-        !confirm(
-            "This permanently deletes your account and profile data. Continue?"
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    try {
-
-        await window.capitnjFirebase.db
-            .collection("users")
-            .doc(currentUser.uid)
-            .delete();
-
-
-        await currentUser.delete();
-
-
-        localStorage.removeItem(
-            "userLoggedIn"
-        );
-
-
-        localStorage.removeItem(
-            "userProfile"
-        );
-
-
-        localStorage.removeItem(
-            "savedColleges"
-        );
-
-
-        window.location.href =
-            "index.html";
-
-    }
-
-    catch (error) {
-
-        console.error(
-            "Delete account error:",
-            error
-        );
-
-
-        if (
-            error.code ===
-            "auth/requires-recent-login"
-        ) {
-
-            showProfileMessage(
-                "For security, log out, log back in, and then try deleting your account again.",
-                "error"
-            );
-
-        }
-
-        else {
-
-            showProfileMessage(
-                "We could not delete your account. Please try again.",
-                "error"
-            );
-
-        }
-
-    }
-
-}
-
+  }
+});
 </script>
 
 </body>
