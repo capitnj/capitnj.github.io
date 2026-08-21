@@ -3,16 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>My College List — CapItNJ</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
-    rel="stylesheet"
-  >
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 
@@ -92,7 +86,6 @@
       border-radius: 5px;
       cursor: pointer;
       font-size: 12px;
-      font-family: inherit;
     }
 
     .remove-btn:hover {
@@ -115,7 +108,7 @@
     }
 
     .stat-number {
-      font-family: "IBM Plex Mono", monospace;
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 20px;
       font-weight: 600;
       color: var(--accent);
@@ -126,7 +119,7 @@
       color: var(--ink-faint);
       font-size: 10px;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: .05em;
     }
 
     .empty-list {
@@ -138,7 +131,7 @@
     }
 
     .empty-list h2 {
-      font-family: "Fraunces", serif;
+      font-family: 'Fraunces', serif;
       margin: 0 0 8px;
     }
 
@@ -148,10 +141,8 @@
       margin-bottom: 20px;
     }
 
-    .loading-text {
-      color: var(--ink-soft);
-      font-size: 14px;
-      margin: 0;
+    .retry-btn {
+      margin-top: 8px;
     }
 
     @media (max-width: 650px) {
@@ -179,7 +170,7 @@
       <a href="matches.html">Matches</a>
       <a href="mylist.html" class="active">My List</a>
       <a href="profile.html">Profile</a>
-      <a href="support.html">Support</a>
+      <a href="login.html" id="nav-login-btn">Log in</a>
     </div>
   </div>
 </header>
@@ -195,7 +186,6 @@
       </p>
     </div>
 
-
     <!-- NOT LOGGED IN -->
     <div id="login-gate" class="empty-list" style="display:none;">
       <h2>Log in to see your list</h2>
@@ -203,12 +193,20 @@
       <a href="login.html" class="btn">Log in</a>
     </div>
 
-
     <!-- LOADING -->
     <div id="loading-state" class="empty-list">
-      <p class="loading-text">Loading your saved colleges...</p>
+      <h2>Loading your colleges</h2>
+      <p>Getting your saved list...</p>
     </div>
 
+    <!-- ERROR -->
+    <div id="error-state" class="empty-list" style="display:none;">
+      <h2>Couldn't load your list</h2>
+      <p id="error-message">
+        Something went wrong while loading your saved colleges.
+      </p>
+      <button class="btn retry-btn" onclick="loadList()">Try again</button>
+    </div>
 
     <!-- EMPTY -->
     <div id="empty-state" class="empty-list" style="display:none;">
@@ -221,22 +219,10 @@
       </div>
     </div>
 
-
-    <!-- ERROR -->
-    <div id="error-state" class="empty-list" style="display:none;">
-      <h2>Couldn't load your list</h2>
-      <p id="error-message">
-        Something went wrong. Please refresh and try again.
-      </p>
-      <button class="btn" onclick="loadList()">Try again</button>
-    </div>
-
-
     <!-- LIST -->
     <div id="list-section" style="display:none;">
 
       <div class="list-stats">
-
         <div class="stat-box">
           <div id="stat-total" class="stat-number">0</div>
           <div class="stat-label">Total saved</div>
@@ -256,27 +242,15 @@
           <div id="stat-safety" class="stat-number">0</div>
           <div class="stat-label">Safety backup</div>
         </div>
-
       </div>
 
-
-      <div style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        gap:16px;
-        margin-bottom:16px;
-      ">
-        <p
-          id="list-count"
-          style="margin:0; color:var(--ink-soft); font-size:13px;"
-        ></p>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <p id="list-count" style="margin:0; color:var(--ink-soft); font-size:13px;"></p>
 
         <button id="clear-list-btn" class="remove-btn">
           Clear list
         </button>
       </div>
-
 
       <div id="colleges-container"></div>
 
@@ -284,7 +258,6 @@
 
   </div>
 </main>
-
 
 <footer class="home-footer">
   <div class="wrap">
@@ -300,387 +273,350 @@
 
 <script src="firebase-init.js"></script>
 
-
 <script>
-  let currentUser = null;
-  let savedColleges = [];
-  let myListStarted = false;
+let currentUser = null;
+let savedColleges = [];
+let appStarted = false;
 
-  const loginGate = document.getElementById("login-gate");
-  const loadingState = document.getElementById("loading-state");
-  const emptyState = document.getElementById("empty-state");
-  const errorState = document.getElementById("error-state");
-  const listSection = document.getElementById("list-section");
-  const collegesContainer = document.getElementById("colleges-container");
-  const errorMessage = document.getElementById("error-message");
+const loginGate = document.getElementById("login-gate");
+const loadingState = document.getElementById("loading-state");
+const errorState = document.getElementById("error-state");
+const emptyState = document.getElementById("empty-state");
+const listSection = document.getElementById("list-section");
+const collegesContainer = document.getElementById("colleges-container");
+const errorMessage = document.getElementById("error-message");
 
 
-  function showState(state) {
-    loginGate.style.display = "none";
-    loadingState.style.display = "none";
-    emptyState.style.display = "none";
-    errorState.style.display = "none";
-    listSection.style.display = "none";
+/* -------------------------
+   ESCAPE HTML
+------------------------- */
 
-    state.style.display = "block";
+function escapeHtml(value) {
+  const div = document.createElement("div");
+  div.textContent = value == null ? "" : String(value);
+  return div.innerHTML;
+}
+
+
+/* -------------------------
+   SHOW ONE SECTION
+------------------------- */
+
+function showState(state) {
+  loginGate.style.display = "none";
+  loadingState.style.display = "none";
+  errorState.style.display = "none";
+  emptyState.style.display = "none";
+  listSection.style.display = "none";
+
+  if (state === "login") loginGate.style.display = "block";
+  if (state === "loading") loadingState.style.display = "block";
+  if (state === "error") errorState.style.display = "block";
+  if (state === "empty") emptyState.style.display = "block";
+  if (state === "list") listSection.style.display = "block";
+}
+
+
+/* -------------------------
+   START AFTER FIREBASE
+------------------------- */
+
+function startMyList() {
+  if (appStarted) return;
+
+  if (!window.capitnjFirebase || !window.firebase) {
+    console.error("Firebase is not ready yet.");
+    return;
   }
 
+  appStarted = true;
 
-  function escapeHtml(value) {
-    const div = document.createElement("div");
-    div.textContent = value === undefined || value === null ? "" : String(value);
-    return div.innerHTML;
+  const auth = window.capitnjFirebase.auth;
+
+  auth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+
+    if (!user) {
+      savedColleges = [];
+      showState("login");
+      return;
+    }
+
+    await loadList();
+  });
+}
+
+
+/* Firebase might already be ready */
+if (window.capitnjFirebase) {
+  startMyList();
+}
+
+/* Or wait for firebase-init.js */
+window.addEventListener("firebase-ready", startMyList, { once: true });
+
+
+/* -------------------------
+   LOAD SAVED COLLEGES
+------------------------- */
+
+async function loadList() {
+  if (!currentUser || !window.capitnjFirebase) return;
+
+  showState("loading");
+
+  try {
+    /*
+      IMPORTANT:
+      Using Firestore directly here.
+      Your old code was passing fb.db INTO helpers that
+      already use db internally.
+    */
+
+    const db = window.capitnjFirebase.db;
+
+    const snapshot = await db
+      .collection("users")
+      .doc(currentUser.uid)
+      .collection("savedColleges")
+      .get();
+
+    savedColleges = [];
+
+    snapshot.forEach((docSnap) => {
+      savedColleges.push({
+        id: docSnap.id,
+        ...docSnap.data()
+      });
+    });
+
+
+    /* Sort newest first */
+    savedColleges.sort((a, b) => {
+      let aTime = 0;
+      let bTime = 0;
+
+      if (a.timestamp) {
+        if (typeof a.timestamp.toDate === "function") {
+          aTime = a.timestamp.toDate().getTime();
+        } else {
+          aTime = new Date(a.timestamp).getTime() || 0;
+        }
+      }
+
+      if (b.timestamp) {
+        if (typeof b.timestamp.toDate === "function") {
+          bTime = b.timestamp.toDate().getTime();
+        } else {
+          bTime = new Date(b.timestamp).getTime() || 0;
+        }
+      }
+
+      return bTime - aTime;
+    });
+
+
+    if (savedColleges.length === 0) {
+      showState("empty");
+      return;
+    }
+
+    renderList();
+
+  } catch (error) {
+    console.error("Error loading saved colleges:", error);
+
+    if (
+      error.code === "permission-denied" ||
+      String(error.message).toLowerCase().includes("permission")
+    ) {
+      errorMessage.textContent =
+        "Firebase is blocking access to your saved colleges. Your Firestore rules need permission for users to read their own savedColleges.";
+    } else {
+      errorMessage.textContent =
+        "Something went wrong while loading your saved colleges. Please try again.";
+    }
+
+    showState("error");
+  }
+}
+
+
+/* -------------------------
+   RENDER LIST
+------------------------- */
+
+function renderList() {
+  if (savedColleges.length === 0) {
+    showState("empty");
+    return;
   }
 
+  showState("list");
 
-  function getCollegePriority(college) {
-    return college.priority || college.category || "Considering";
-  }
+  document.getElementById("stat-total").textContent =
+    savedColleges.length;
+
+  document.getElementById("stat-top").textContent =
+    savedColleges.filter(college =>
+      college.priority === "Top Choice"
+    ).length;
+
+  document.getElementById("stat-considering").textContent =
+    savedColleges.filter(college =>
+      !college.priority ||
+      college.priority === "Considering"
+    ).length;
+
+  document.getElementById("stat-safety").textContent =
+    savedColleges.filter(college =>
+      college.priority === "Safety Backup" ||
+      college.priority === "Safety"
+    ).length;
+
+  document.getElementById("list-count").textContent =
+    `${savedColleges.length} college${savedColleges.length === 1 ? "" : "s"} saved`;
 
 
-  function getCollegeName(college) {
-    return (
+  collegesContainer.innerHTML = savedColleges.map(college => {
+
+    const name =
       college.name ||
       college.collegeName ||
-      college.schoolName ||
-      college.institution ||
-      "Unnamed college"
-    );
-  }
-
-
-  function getCollegeLocation(college) {
-    if (college.location) return college.location;
-
-    if (college.city && college.state) {
-      return college.city + ", " + college.state;
-    }
-
-    return college.state || "Location unavailable";
-  }
-
-
-  function getTimestampValue(timestamp) {
-    if (!timestamp) return 0;
-
-    if (typeof timestamp.toDate === "function") {
-      return timestamp.toDate().getTime();
-    }
-
-    if (timestamp.seconds) {
-      return timestamp.seconds * 1000;
-    }
-
-    const date = new Date(timestamp);
-
-    return isNaN(date.getTime()) ? 0 : date.getTime();
-  }
-
-
-  /*
-    Start Firebase once it is ready.
-  */
-  window.addEventListener("firebase-ready", startMyList, { once: true });
-
-  if (window.capitnjFirebase) {
-    startMyList();
-  }
-
-
-  function startMyList() {
-    if (myListStarted) return;
-
-    const fb = window.capitnjFirebase;
-
-    if (!fb) {
-      console.error("Firebase is not available yet.");
-      return;
-    }
-
-    myListStarted = true;
-
-    fb.authFns.onAuthStateChanged(async function(user) {
-      currentUser = user;
-
-      if (!user) {
-        savedColleges = [];
-        showState(loginGate);
-        return;
-      }
-
-      await loadList();
-    });
-  }
-
-
-  async function loadList() {
-    if (!currentUser) return;
-
-    const fb = window.capitnjFirebase;
-
-    if (!fb) {
-      return;
-    }
-
-    showState(loadingState);
-
-    try {
-      /*
-        IMPORTANT:
-        Your firebase-init.js wrapper already contains db.
-
-        So DO NOT do:
-        collection(fb.db, "users", ...)
-
-        Correct:
-        collection("users", ...)
-      */
-      const savedRef = fb.firestoreFns.collection(
-        "users",
-        currentUser.uid,
-        "savedColleges"
-      );
-
-      const snapshot = await fb.firestoreFns.getDocs(savedRef);
-
-      savedColleges = [];
-
-      snapshot.forEach(function(docSnap) {
-        savedColleges.push({
-          id: docSnap.id,
-          ...docSnap.data()
-        });
-      });
-
-
-      savedColleges.sort(function(a, b) {
-        const aTime = getTimestampValue(
-          a.timestamp || a.createdAt || a.savedAt
-        );
-
-        const bTime = getTimestampValue(
-          b.timestamp || b.createdAt || b.savedAt
-        );
-
-        return bTime - aTime;
-      });
-
-
-      if (savedColleges.length === 0) {
-        showState(emptyState);
-        return;
-      }
-
-      renderList();
-
-    } catch (error) {
-      console.error("Error loading saved colleges:", error);
-
-      errorMessage.textContent =
-        error.message ||
-        "Something went wrong while loading your saved colleges.";
-
-      showState(errorState);
-    }
-  }
-
-
-  function renderList() {
-    if (savedColleges.length === 0) {
-      showState(emptyState);
-      return;
-    }
-
-    showState(listSection);
-
-
-    const topChoices = savedColleges.filter(function(college) {
-      const priority = getCollegePriority(college).toLowerCase();
-
-      return priority === "top choice" || priority === "top";
-    }).length;
-
-
-    const safetyChoices = savedColleges.filter(function(college) {
-      const priority = getCollegePriority(college).toLowerCase();
-
-      return (
-        priority === "safety backup" ||
-        priority === "safety"
-      );
-    }).length;
-
-
-    const consideringChoices = savedColleges.length - topChoices - safetyChoices;
-
-
-    document.getElementById("stat-total").textContent =
-      savedColleges.length;
-
-    document.getElementById("stat-top").textContent =
-      topChoices;
-
-    document.getElementById("stat-considering").textContent =
-      consideringChoices;
-
-    document.getElementById("stat-safety").textContent =
-      safetyChoices;
-
-
-    document.getElementById("list-count").textContent =
-      savedColleges.length +
-      " college" +
-      (savedColleges.length === 1 ? "" : "s") +
-      " saved";
-
-
-    collegesContainer.innerHTML = savedColleges.map(function(college) {
-      const priority = getCollegePriority(college);
-      const name = getCollegeName(college);
-      const location = getCollegeLocation(college);
-
-      const rate =
-        college.rate ||
-        college.acceptanceRate ||
-        college.acceptance_rate ||
-        "";
-
-      const notes =
-        college.notes ||
-        college.note ||
-        "";
-
-
-      return `
-        <div class="saved-college-card">
-
-          <div class="saved-college-top">
-
-            <div>
-              <div class="saved-college-name">
-                ${escapeHtml(name)}
-              </div>
-
-              <div class="saved-college-meta">
-                ${escapeHtml(location)}
-                ${
-                  rate && rate !== "N/A"
-                    ? " · Acceptance rate: " + escapeHtml(rate)
-                    : ""
-                }
-              </div>
+      "Unnamed college";
+
+    const location =
+      college.state ||
+      college.location ||
+      college.city ||
+      "Location unavailable";
+
+    const rate =
+      college.rate ||
+      college.acceptanceRate ||
+      "";
+
+    const priority =
+      college.priority ||
+      "Considering";
+
+    return `
+      <div class="saved-college-card">
+
+        <div class="saved-college-top">
+
+          <div>
+            <div class="saved-college-name">
+              ${escapeHtml(name)}
             </div>
 
-            <span class="priority-badge">
-              ${escapeHtml(priority)}
-            </span>
-
+            <div class="saved-college-meta">
+              ${escapeHtml(location)}
+              ${
+                rate && rate !== "N/A"
+                  ? ` · Acceptance rate: ${escapeHtml(rate)}`
+                  : ""
+              }
+            </div>
           </div>
 
-          ${
-            notes
-              ? `
-                <div class="saved-notes">
-                  <strong>Notes:</strong> ${escapeHtml(notes)}
-                </div>
-              `
-              : ""
-          }
-
-          <div class="saved-actions">
-            <button
-              class="remove-btn"
-              onclick="removeCollege('${college.id}')"
-            >
-              Remove
-            </button>
-          </div>
+          <span class="priority-badge">
+            ${escapeHtml(priority)}
+          </span>
 
         </div>
-      `;
-    }).join("");
+
+        ${
+          college.notes
+            ? `
+              <div class="saved-notes">
+                <strong>Notes:</strong>
+                ${escapeHtml(college.notes)}
+              </div>
+            `
+            : ""
+        }
+
+        <div class="saved-actions">
+          <button
+            class="remove-btn"
+            onclick="removeCollege('${college.id}')">
+            Remove
+          </button>
+        </div>
+
+      </div>
+    `;
+  }).join("");
+}
+
+
+/* -------------------------
+   REMOVE ONE COLLEGE
+------------------------- */
+
+async function removeCollege(collegeId) {
+  if (!currentUser) return;
+
+  try {
+    const db = window.capitnjFirebase.db;
+
+    await db
+      .collection("users")
+      .doc(currentUser.uid)
+      .collection("savedColleges")
+      .doc(collegeId)
+      .delete();
+
+    savedColleges = savedColleges.filter(
+      college => college.id !== collegeId
+    );
+
+    renderList();
+
+  } catch (error) {
+    console.error("Error removing college:", error);
+    alert("Couldn't remove that college. Please try again.");
   }
+}
 
 
-  async function removeCollege(collegeId) {
-    if (!currentUser) return;
+/* -------------------------
+   CLEAR ENTIRE LIST
+------------------------- */
 
-    if (!confirm("Remove this college from your list?")) {
-      return;
-    }
+document.getElementById("clear-list-btn").addEventListener("click", async () => {
 
-    const fb = window.capitnjFirebase;
+  if (!currentUser || savedColleges.length === 0) return;
 
-    try {
-      /*
-        Again: do NOT pass fb.db here.
-      */
-      const collegeRef = fb.firestoreFns.doc(
-        "users",
-        currentUser.uid,
-        "savedColleges",
-        collegeId
-      );
+  const confirmed = confirm(
+    "Clear your entire saved college list?"
+  );
 
-      await fb.firestoreFns.deleteDoc(collegeRef);
+  if (!confirmed) return;
 
+  try {
+    const db = window.capitnjFirebase.db;
 
-      savedColleges = savedColleges.filter(function(college) {
-        return college.id !== collegeId;
-      });
+    await Promise.all(
+      savedColleges.map(college =>
+        db
+          .collection("users")
+          .doc(currentUser.uid)
+          .collection("savedColleges")
+          .doc(college.id)
+          .delete()
+      )
+    );
 
+    savedColleges = [];
+    showState("empty");
 
-      if (savedColleges.length === 0) {
-        showState(emptyState);
-      } else {
-        renderList();
-      }
-
-    } catch (error) {
-      console.error("Error removing college:", error);
-      alert("Couldn't remove that college. Please try again.");
-    }
+  } catch (error) {
+    console.error("Error clearing list:", error);
+    alert("Couldn't clear your list. Please try again.");
   }
-
-
-  document
-    .getElementById("clear-list-btn")
-    .addEventListener("click", async function() {
-
-      if (!currentUser || savedColleges.length === 0) {
-        return;
-      }
-
-      if (!confirm("Clear your entire saved college list?")) {
-        return;
-      }
-
-      const fb = window.capitnjFirebase;
-
-      try {
-        await Promise.all(
-          savedColleges.map(function(college) {
-
-            const collegeRef = fb.firestoreFns.doc(
-              "users",
-              currentUser.uid,
-              "savedColleges",
-              college.id
-            );
-
-            return fb.firestoreFns.deleteDoc(collegeRef);
-          })
-        );
-
-
-        savedColleges = [];
-        showState(emptyState);
-
-      } catch (error) {
-        console.error("Error clearing list:", error);
-        alert("Couldn't clear your list. Please try again.");
-      }
-    });
+});
 </script>
 
 </body>
