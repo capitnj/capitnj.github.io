@@ -12,9 +12,7 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        .matches-header {
-            margin-bottom: 38px;
-        }
+        .matches-header { margin-bottom: 38px; }
 
         .matches-summary {
             display: flex;
@@ -283,35 +281,28 @@
     </div>
 </main>
 
-
-<!-- FIREBASE COMPAT -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-<!-- PROJECT FILES -->
 <script src="firebase-init.js"></script>
 <script src="data.js"></script>
 
-
 <script>
 (function () {
-
     "use strict";
-
 
     let currentUser = null;
     let currentProfile = null;
     let allMatches = [];
     let activeFilter = "all";
 
-
     const content = document.getElementById("matches-content");
 
-
-    /* =====================================================
-       HELPERS
-    ===================================================== */
+    const NORTHEAST_STATES = ["ME","NH","VT","MA","RI","CT","NY","NJ","PA"];
+    const MIDWEST_STATES = ["OH","IN","IL","MI","WI","MN","IA","MO","ND","SD","NE","KS"];
+    const SOUTH_STATES = ["DE","MD","DC","VA","WV","NC","SC","GA","FL","KY","TN","MS","AL","OK","TX","AR","LA"];
+    const WEST_STATES = ["MT","ID","WY","CO","NM","AZ","UT","NV","CA","OR","WA","AK","HI"];
 
     function escapeHtml(value) {
         const div = document.createElement("div");
@@ -319,77 +310,32 @@
         return div.innerHTML;
     }
 
+    function normalize(value) {
+        return String(value || "").trim().toLowerCase();
+    }
+
+    function numberValue(value) {
+        if (value === null || value === undefined || value === "") return 0;
+
+        const cleaned = String(value).replace(/[$,]/g, "").trim();
+        const number = Number(cleaned);
+
+        return Number.isFinite(number) ? number : 0;
+    }
+
+    function formatMoney(value) {
+        const number = numberValue(value);
+        return number ? "$" + Math.round(number).toLocaleString() : "N/A";
+    }
 
     function getCollegeData() {
-
-        /*
-         * Supports both versions of the project data.
-         */
-
-        if (
-            typeof window.COLLEGES !== "undefined" &&
-            Array.isArray(window.COLLEGES) &&
-            window.COLLEGES.length > 0
-        ) {
-            return window.COLLEGES;
-        }
-
-        if (
-            typeof collegesData !== "undefined" &&
-            Array.isArray(collegesData) &&
-            collegesData.length > 0
-        ) {
-            return collegesData;
-        }
-
-        if (
-            typeof window.collegesData !== "undefined" &&
-            Array.isArray(window.collegesData) &&
-            window.collegesData.length > 0
-        ) {
-            return window.collegesData;
-        }
-
+        if (Array.isArray(window.COLLEGES) && window.COLLEGES.length) return window.COLLEGES;
+        if (typeof collegesData !== "undefined" && Array.isArray(collegesData) && collegesData.length) return collegesData;
+        if (Array.isArray(window.collegesData) && window.collegesData.length) return window.collegesData;
         return [];
     }
 
-
-    function numberValue(value) {
-
-        if (
-            value === null ||
-            value === undefined ||
-            value === ""
-        ) {
-            return 0;
-        }
-
-        const cleaned = String(value)
-            .replace(/[$,]/g, "")
-            .trim();
-
-        const number = Number(cleaned);
-
-        return Number.isFinite(number)
-            ? number
-            : 0;
-    }
-
-
-    function formatMoney(value) {
-
-        const number = numberValue(value);
-
-        if (!number) {
-            return "N/A";
-        }
-
-        return "$" + Math.round(number).toLocaleString();
-    }
-
-
     function getCollegeGPA(college) {
-
         return numberValue(
             college.avgGPA ||
             college.avgGpa ||
@@ -398,9 +344,7 @@
         );
     }
 
-
     function getCollegePrice(college) {
-
         return numberValue(
             college.netPrice ||
             college.averageNetPrice ||
@@ -409,366 +353,135 @@
         );
     }
 
+    function locationMatches(preference, state) {
+        preference = normalize(preference);
+        state = String(state || "").trim().toUpperCase();
 
-    function normalize(value) {
-        return String(value || "")
-            .trim()
-            .toLowerCase();
+        if (!preference || preference === "anywhere") return true;
+
+        if (preference === "nj" || preference === "new jersey") {
+            return state === "NJ";
+        }
+
+        if (preference === "northeast") return NORTHEAST_STATES.includes(state);
+        if (preference === "midwest") return MIDWEST_STATES.includes(state);
+        if (preference === "south") return SOUTH_STATES.includes(state);
+        if (preference === "west") return WEST_STATES.includes(state);
+
+        return true;
     }
-
-
-    /* =====================================================
-       LOCATION MATCHING
-    ===================================================== */
-
-    const NORTHEAST_STATES = [
-        "ME", "NH", "VT", "MA", "RI",
-        "CT", "NY", "NJ", "PA"
-    ];
-
-    const MIDWEST_STATES = [
-        "OH", "IN", "IL", "MI", "WI",
-        "MN", "IA", "MO", "ND", "SD",
-        "NE", "KS"
-    ];
-
-    const SOUTH_STATES = [
-        "DE", "MD", "DC", "VA", "WV",
-        "NC", "SC", "GA", "FL", "KY",
-        "TN", "MS", "AL", "OK", "TX",
-        "AR", "LA"
-    ];
-
-    const WEST_STATES = [
-        "MT", "ID", "WY", "CO", "NM",
-        "AZ", "UT", "NV", "CA", "OR",
-        "WA", "AK", "HI"
-    ];
-
-
-    function getLocationScore(profile, college) {
-
-        const preference = normalize(
-            profile.preferredLocation
-        );
-
-        const state = String(
-            college.state || ""
-        ).trim().toUpperCase();
-
-
-        /*
-         * No preference = don't punish the college.
-         */
-
-        if (
-            !preference ||
-            preference === "anywhere"
-        ) {
-            return {
-                points: 0,
-                reason: ""
-            };
-        }
-
-
-        if (
-            preference === "nj" ||
-            preference === "new jersey"
-        ) {
-
-            if (state === "NJ") {
-                return {
-                    points: 12,
-                    reason: "Matches your New Jersey preference"
-                };
-            }
-
-            return {
-                points: -2,
-                reason: ""
-            };
-        }
-
-
-        if (preference === "northeast") {
-
-            if (NORTHEAST_STATES.includes(state)) {
-                return {
-                    points: 12,
-                    reason: "Matches your Northeast preference"
-                };
-            }
-        }
-
-
-        if (preference === "midwest") {
-
-            if (MIDWEST_STATES.includes(state)) {
-                return {
-                    points: 12,
-                    reason: "Matches your Midwest preference"
-                };
-            }
-        }
-
-
-        if (preference === "south") {
-
-            if (SOUTH_STATES.includes(state)) {
-                return {
-                    points: 12,
-                    reason: "Matches your South preference"
-                };
-            }
-        }
-
-
-        if (preference === "west") {
-
-            if (WEST_STATES.includes(state)) {
-                return {
-                    points: 12,
-                    reason: "Matches your West preference"
-                };
-            }
-        }
-
-
-        return {
-            points: 0,
-            reason: ""
-        };
-    }
-
-
-    /* =====================================================
-       MATCH CALCULATION
-    ===================================================== */
 
     function calculateMatch(profile, college) {
-
         let score = 50;
-
         const reasons = [];
-
 
         const studentGPA = numberValue(profile.gpa);
         const studentBudget = numberValue(profile.budget);
-
         const collegeGPA = getCollegeGPA(college);
         const collegePrice = getCollegePrice(college);
 
-
-        /* -------------------------
-           GPA
-        ------------------------- */
-
-        if (
-            studentGPA > 0 &&
-            collegeGPA > 0
-        ) {
-
-            const difference =
-                studentGPA - collegeGPA;
-
+        if (studentGPA > 0 && collegeGPA > 0) {
+            const difference = studentGPA - collegeGPA;
 
             if (difference >= 0.50) {
-
                 score += 25;
-
-                reasons.push(
-                    "Your GPA is well above this school's typical GPA"
-                );
-
+                reasons.push("Your GPA is well above this school's typical GPA");
             } else if (difference >= 0.15) {
-
                 score += 20;
-
-                reasons.push(
-                    "Your GPA is a strong fit"
-                );
-
+                reasons.push("Your GPA is a strong fit");
             } else if (difference >= -0.20) {
-
                 score += 14;
-
-                reasons.push(
-                    "Your GPA is close to this school's range"
-                );
-
+                reasons.push("Your GPA is close to this school's range");
             } else if (difference >= -0.50) {
-
-                score += 4;
-
-                reasons.push(
-                    "This is a competitive academic match"
-                );
-
-            } else {
-
-                score -= 20;
-
-                reasons.push(
-                    "Your GPA makes this more of a reach"
-                );
-            }
-        }
-
-
-        /* -------------------------
-           BUDGET
-        ------------------------- */
-
-        if (
-            studentBudget > 0 &&
-            collegePrice > 0
-        ) {
-
-            if (
-                collegePrice <= studentBudget * 0.75
-            ) {
-
-                score += 20;
-
-                reasons.push(
-                    "Well within your annual budget"
-                );
-
-            } else if (
-                collegePrice <= studentBudget
-            ) {
-
-                score += 16;
-
-                reasons.push(
-                    "Fits within your annual budget"
-                );
-
-            } else if (
-                collegePrice <= studentBudget * 1.15
-            ) {
-
                 score += 5;
-
-                reasons.push(
-                    "Close to your budget"
-                );
-
+                reasons.push("Competitive based on your GPA");
             } else {
-
-                score -= 14;
-
-                reasons.push(
-                    "Estimated cost is above your budget"
-                );
+                score -= 18;
+                reasons.push("Your GPA makes this a reach");
             }
         }
 
-
-        /* -------------------------
-           LOCATION
-        ------------------------- */
-
-        const locationResult =
-            getLocationScore(profile, college);
-
-        score += locationResult.points;
-
-        if (locationResult.reason) {
-            reasons.push(locationResult.reason);
+        if (studentBudget > 0 && collegePrice > 0) {
+            if (collegePrice <= studentBudget * 0.75) {
+                score += 20;
+                reasons.push("Well within your annual budget");
+            } else if (collegePrice <= studentBudget) {
+                score += 16;
+                reasons.push("Fits within your annual budget");
+            } else if (collegePrice <= studentBudget * 1.15) {
+                score += 5;
+                reasons.push("Close to your budget");
+            } else {
+                score -= 12;
+                reasons.push("Estimated cost is above your budget");
+            }
         }
 
+        const preference = normalize(profile.preferredLocation);
 
-        /*
-         * Keep score between 1 and 99.
-         */
+        if (preference && preference !== "anywhere") {
+            score += 10;
+            reasons.push("Matches your location preference");
+        }
 
-        score = Math.max(
-            1,
-            Math.min(
-                99,
-                Math.round(score)
-            )
-        );
-
+        score = Math.max(1, Math.min(99, Math.round(score)));
 
         let category;
 
+        /*
+         * GPA-based categories so Reach doesn't randomly disappear.
+         */
+        if (studentGPA > 0 && collegeGPA > 0) {
+            const difference = studentGPA - collegeGPA;
 
-        if (score < 50) {
-
-            category = "reach";
-
-        } else if (score >= 78) {
-
-            category = "safety";
-
+            if (difference < -0.25) {
+                category = "reach";
+            } else if (difference >= 0.35) {
+                category = "safety";
+            } else {
+                category = "match";
+            }
         } else {
-
-            category = "match";
+            if (score < 55) category = "reach";
+            else if (score >= 75) category = "safety";
+            else category = "match";
         }
 
-
-        return {
-            score: score,
-            category: category,
-            reasons: reasons
-        };
+        return { score, category, reasons };
     }
 
-
-    /* =====================================================
-       BUILD MATCHES
-    ===================================================== */
-
     function buildMatches() {
-
-        const colleges = getCollegeData();
-
+        let colleges = getCollegeData();
 
         if (!colleges.length) {
-
-            console.error(
-                "No college data found.",
-                {
-                    COLLEGES: window.COLLEGES,
-                    collegesData:
-                        typeof collegesData !== "undefined"
-                            ? collegesData
-                            : undefined
-                }
-            );
-
             content.innerHTML = `
                 <div class="empty-state">
                     <h2>College data couldn't load</h2>
-                    <p>
-                        Your profile loaded, but the college database
-                        wasn't available yet.
-                    </p>
+                    <p>Your college database wasn't available yet.</p>
                 </div>
             `;
-
             return;
         }
 
+        /*
+         * REAL LOCATION FILTER.
+         * West means West schools only.
+         * PA will NOT show when West is selected.
+         */
+        const preference = normalize(currentProfile.preferredLocation);
+
+        if (preference && preference !== "anywhere") {
+            colleges = colleges.filter(function(college) {
+                return locationMatches(preference, college.state);
+            });
+        }
 
         allMatches = colleges
-            .filter(function (college) {
-
-                return college &&
-                    college.name;
-
+            .filter(function(college) {
+                return college && college.name;
             })
-            .map(function (college) {
-
-                const result =
-                    calculateMatch(
-                        currentProfile,
-                        college
-                    );
-
+            .map(function(college) {
+                const result = calculateMatch(currentProfile, college);
 
                 return {
                     college: college,
@@ -777,530 +490,231 @@
                     reasons: result.reasons
                 };
             })
-            .sort(function (a, b) {
-
+            .sort(function(a, b) {
                 return b.score - a.score;
-
             });
-
 
         renderMatchesPage();
     }
 
-
-    /* =====================================================
-       RENDER PAGE
-    ===================================================== */
-
     function renderMatchesPage() {
-
-        const gpa =
-            numberValue(currentProfile.gpa);
-
-        const budget =
-            numberValue(currentProfile.budget);
-
-        const location =
-            currentProfile.preferredLocation || "Anywhere";
-
+        const gpa = numberValue(currentProfile.gpa);
+        const budget = numberValue(currentProfile.budget);
+        const location = currentProfile.preferredLocation || "Anywhere";
 
         content.innerHTML = `
-
             <div class="matches-summary">
+                ${gpa ? `
+                    <div class="summary-pill">
+                        <strong>GPA:</strong> ${escapeHtml(gpa)}
+                    </div>
+                ` : ""}
 
-                ${
-                    gpa
-                        ? `
-                            <div class="summary-pill">
-                                <strong>GPA:</strong>
-                                ${escapeHtml(gpa)}
-                            </div>
-                        `
-                        : ""
-                }
-
-                ${
-                    budget
-                        ? `
-                            <div class="summary-pill">
-                                <strong>Budget:</strong>
-                                ${escapeHtml(formatMoney(budget))}/yr
-                            </div>
-                        `
-                        : ""
-                }
+                ${budget ? `
+                    <div class="summary-pill">
+                        <strong>Budget:</strong> ${escapeHtml(formatMoney(budget))}/yr
+                    </div>
+                ` : ""}
 
                 <div class="summary-pill">
-                    <strong>Location:</strong>
-                    ${escapeHtml(location)}
+                    <strong>Location:</strong> ${escapeHtml(location)}
                 </div>
-
             </div>
-
 
             <div class="match-filters">
-
-                <button
-                    class="filter-btn active"
-                    data-filter="all"
-                >
-                    All
-                </button>
-
-                <button
-                    class="filter-btn"
-                    data-filter="reach"
-                >
-                    Reach
-                </button>
-
-                <button
-                    class="filter-btn"
-                    data-filter="match"
-                >
-                    Match
-                </button>
-
-                <button
-                    class="filter-btn"
-                    data-filter="safety"
-                >
-                    Safety
-                </button>
-
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="reach">Reach</button>
+                <button class="filter-btn" data-filter="match">Match</button>
+                <button class="filter-btn" data-filter="safety">Safety</button>
             </div>
 
-
-            <p
-                id="match-count"
-                class="match-count"
-            ></p>
-
+            <p id="match-count" class="match-count"></p>
 
             <div id="matches-list"></div>
-
         `;
 
+        document.querySelectorAll(".filter-btn").forEach(function(button) {
+            button.addEventListener("click", function() {
+                activeFilter = button.dataset.filter;
 
-        document
-            .querySelectorAll(".filter-btn")
-            .forEach(function (button) {
+                document.querySelectorAll(".filter-btn").forEach(function(item) {
+                    item.classList.remove("active");
+                });
 
-                button.addEventListener(
-                    "click",
-                    function () {
-
-                        activeFilter =
-                            button.dataset.filter;
-
-
-                        document
-                            .querySelectorAll(".filter-btn")
-                            .forEach(function (item) {
-
-                                item.classList.remove(
-                                    "active"
-                                );
-
-                            });
-
-
-                        button.classList.add(
-                            "active"
-                        );
-
-
-                        renderMatchCards();
-
-                    }
-                );
-
+                button.classList.add("active");
+                renderMatchCards();
             });
-
+        });
 
         renderMatchCards();
     }
 
-
-    /* =====================================================
-       RENDER CARDS
-    ===================================================== */
-
     function renderMatchCards() {
+        const list = document.getElementById("matches-list");
+        const count = document.getElementById("match-count");
 
-        const list =
-            document.getElementById(
-                "matches-list"
-            );
+        if (!list || !count) return;
 
-
-        const count =
-            document.getElementById(
-                "match-count"
-            );
-
-
-        if (!list || !count) {
-            return;
-        }
-
-
-        let visibleMatches =
-            allMatches;
-
+        let visibleMatches = allMatches;
 
         if (activeFilter !== "all") {
-
-            visibleMatches =
-                allMatches.filter(
-                    function (item) {
-
-                        return item.category ===
-                            activeFilter;
-
-                    }
-                );
+            visibleMatches = allMatches.filter(function(item) {
+                return item.category === activeFilter;
+            });
         }
-
 
         count.textContent =
             visibleMatches.length +
             " college" +
-            (
-                visibleMatches.length === 1
-                    ? ""
-                    : "s"
-            ) +
-            (
-                activeFilter === "all"
-                    ? " ranked"
-                    : " in this category"
-            );
+            (visibleMatches.length === 1 ? "" : "s") +
+            (activeFilter === "all" ? " ranked" : " in this category");
 
-
-        /*
-         * Show first 100 so the page stays fast.
-         */
-
-        const matchesToShow =
-            visibleMatches.slice(0, 100);
-
-
-        if (!matchesToShow.length) {
-
+        if (!visibleMatches.length) {
             list.innerHTML = `
                 <div class="empty-state">
                     <h2>No colleges here yet</h2>
-                    <p>
-                        Try another match category.
-                    </p>
+                    <p>There aren't any schools matching this category with your current profile.</p>
                 </div>
             `;
-
             return;
         }
 
+        const matchesToShow = visibleMatches.slice(0, 100);
 
-        list.innerHTML =
-            matchesToShow
-                .map(function (item) {
+        list.innerHTML = matchesToShow.map(function(item) {
+            const college = item.college;
+            const collegeGPA = getCollegeGPA(college);
+            const collegePrice = getCollegePrice(college);
+            const collegeId = String(college.id || college.name);
 
-                    const college =
-                        item.college;
+            const reasons = item.reasons.slice(0, 3).map(function(reason) {
+                return `<span class="match-tag">${escapeHtml(reason)}</span>`;
+            }).join("");
 
+            return `
+                <article class="match-card">
+                    <div class="match-top">
+                        <div>
+                            <h2 class="match-name">${escapeHtml(college.name)}</h2>
 
-                    const collegeGPA =
-                        getCollegeGPA(college);
-
-
-                    const collegePrice =
-                        getCollegePrice(college);
-
-
-                    const collegeId =
-                        String(
-                            college.id ||
-                            college.name
-                        );
-
-
-                    const reasons =
-                        item.reasons
-                            .slice(0, 3)
-                            .map(function (reason) {
-
-                                return `
-                                    <span class="match-tag">
-                                        ${escapeHtml(reason)}
-                                    </span>
-                                `;
-
-                            })
-                            .join("");
-
-
-                    return `
-
-                        <article class="match-card">
-
-                            <div class="match-top">
-
-                                <div>
-
-                                    <h2 class="match-name">
-                                        ${escapeHtml(college.name)}
-                                    </h2>
-
-
-                                    <div class="match-meta">
-
-                                        ${escapeHtml(
-                                            [
-                                                college.type,
-                                                college.setting,
-                                                college.state,
-                                                college.country
-                                            ]
-                                                .filter(Boolean)
-                                                .join(" · ")
-                                        )}
-
-                                    </div>
-
-                                </div>
-
-
-                                <div class="match-score-box">
-
-                                    <div class="match-score">
-                                        ${item.score}%
-                                    </div>
-
-                                    <div class="match-score-label">
-                                        profile fit
-                                    </div>
-
-                                </div>
-
+                            <div class="match-meta">
+                                ${escapeHtml(
+                                    [
+                                        college.type,
+                                        college.setting,
+                                        college.state,
+                                        college.country
+                                    ].filter(Boolean).join(" · ")
+                                )}
                             </div>
+                        </div>
 
+                        <div class="match-score-box">
+                            <div class="match-score">${item.score}%</div>
+                            <div class="match-score-label">profile fit</div>
+                        </div>
+                    </div>
 
-                            <div class="match-tags">
+                    <div class="match-tags">
+                        <span class="match-tag ${item.category}">
+                            ${escapeHtml(item.category.toUpperCase())}
+                        </span>
 
-                                <span
-                                    class="match-tag ${item.category}"
-                                >
-                                    ${escapeHtml(
-                                        item.category
-                                            .toUpperCase()
-                                    )}
-                                </span>
+                        ${reasons}
+                    </div>
 
-                                ${reasons}
+                    <div class="match-info">
+                        <span>
+                            Typical GPA:
+                            ${collegeGPA ? escapeHtml(collegeGPA) : "N/A"}
+                        </span>
 
-                            </div>
+                        <span>
+                            Est. cost:
+                            ${escapeHtml(formatMoney(collegePrice))}
+                        </span>
+                    </div>
 
+                    <div class="match-actions">
+                        <button
+                            class="save-match-btn"
+                            data-college-id="${escapeHtml(collegeId)}"
+                        >
+                            Save to My List
+                        </button>
+                    </div>
+                </article>
+            `;
+        }).join("");
 
-                            <div class="match-info">
+        document.querySelectorAll(".save-match-btn").forEach(function(button) {
+            button.addEventListener("click", async function() {
+                const id = button.dataset.collegeId;
 
-                                <span>
-                                    Typical GPA:
-                                    ${
-                                        collegeGPA
-                                            ? escapeHtml(collegeGPA)
-                                            : "N/A"
-                                    }
-                                </span>
+                const item = allMatches.find(function(match) {
+                    return String(match.college.id || match.college.name) === String(id);
+                });
 
-
-                                <span>
-                                    Est. cost:
-                                    ${escapeHtml(
-                                        formatMoney(
-                                            collegePrice
-                                        )
-                                    )}
-                                </span>
-
-                            </div>
-
-
-                            <div class="match-actions">
-
-                                <button
-                                    class="save-match-btn"
-                                    data-college-id="${escapeHtml(collegeId)}"
-                                >
-                                    Save to My List
-                                </button>
-
-                            </div>
-
-                        </article>
-
-                    `;
-
-                })
-                .join("");
-
-
-        if (visibleMatches.length > 100) {
-
-            count.textContent +=
-                " · showing top 100";
-
-        }
-
-
-        document
-            .querySelectorAll(".save-match-btn")
-            .forEach(function (button) {
-
-                button.addEventListener(
-                    "click",
-                    async function () {
-
-                        const id =
-                            button.dataset.collegeId;
-
-
-                        const item =
-                            allMatches.find(
-                                function (match) {
-
-                                    return String(
-                                        match.college.id ||
-                                        match.college.name
-                                    ) === id;
-
-                                }
-                            );
-
-
-                        if (!item) {
-                            return;
-                        }
-
-
-                        await saveCollege(
-                            item.college,
-                            button
-                        );
-
-                    }
-                );
-
+                if (item) {
+                    await saveCollege(item.college, button);
+                }
             });
+        });
     }
 
-
-    /* =====================================================
-       SAVE TO MY LIST
-    ===================================================== */
-
-    async function saveCollege(
-        college,
-        button
-    ) {
-
+    async function saveCollege(college, button) {
         if (!currentUser) {
-
-            alert(
-                "Please log in first."
-            );
-
+            alert("Please log in first.");
             return;
         }
-
 
         button.disabled = true;
         button.textContent = "Saving...";
 
-
         try {
-
-            /*
-             * Save locally in the format My List expects.
-             */
-
-            let savedColleges;
-
+            let savedColleges = [];
 
             try {
-
-                savedColleges =
-                    JSON.parse(
-                        localStorage.getItem(
-                            "savedColleges"
-                        ) || "[]"
-                    );
-
-            } catch (error) {
-
-                savedColleges = [];
-
-            }
-
-
-            if (
-                !Array.isArray(savedColleges)
-            ) {
-
-                savedColleges = [];
-
-            }
-
-
-            const collegeId =
-                college.id ||
-                college.name;
-
-
-            const alreadySaved =
-                savedColleges.some(
-                    function (saved) {
-
-                        return String(
-                            saved.id
-                        ) === String(
-                            collegeId
-                        );
-
-                    }
+                savedColleges = JSON.parse(
+                    localStorage.getItem("savedColleges") || "[]"
                 );
+            } catch (error) {
+                savedColleges = [];
+            }
 
+            if (!Array.isArray(savedColleges)) {
+                savedColleges = [];
+            }
 
+            const collegeId = String(college.id || college.name);
+
+            const alreadySaved = savedColleges.some(function(saved) {
+                return String(saved.id || saved.name) === collegeId;
+            });
+
+            /*
+             * Save the FULL college object locally.
+             * This gives My List the data it actually needs.
+             */
             if (!alreadySaved) {
-
                 savedColleges.push({
+                    ...college,
                     id: collegeId,
-                    name: college.name
+                    source: "Matches",
+                    priority: college.priority || "Considering",
+                    savedAt: new Date().toISOString()
                 });
-
 
                 localStorage.setItem(
                     "savedColleges",
-                    JSON.stringify(
-                        savedColleges
-                    )
+                    JSON.stringify(savedColleges)
                 );
             }
 
-
             /*
-             * Also save in Firebase.
-             *
-             * DIRECT COMPAT FIRESTORE SYNTAX.
-             * No firestoreFns.doc wrapper here.
+             * Firebase copy.
              */
-
-            const safeDocumentId =
-                String(collegeId)
-                    .replace(
-                        /[\/.#$[\]]/g,
-                        "_"
-                    );
-
+            const safeDocumentId = collegeId.replace(/[\/.#$[\]]/g, "_");
 
             await window.capitnjFirebase.db
                 .collection("users")
@@ -1308,303 +722,130 @@
                 .collection("savedColleges")
                 .doc(safeDocumentId)
                 .set({
+                    ...college,
                     id: collegeId,
                     name: college.name || "",
                     state: college.state || "",
                     country: college.country || "",
-                    priority: "Considering",
+                    priority: college.priority || "Considering",
                     source: "Matches",
                     savedAt: new Date().toISOString()
-                });
-
+                }, { merge: true });
 
             button.textContent = "Saved ✓";
 
         } catch (error) {
-
-            console.error(
-                "Error saving college:",
-                error
-            );
-
+            console.error("Error saving college:", error);
 
             button.disabled = false;
-            button.textContent =
-                "Save to My List";
+            button.textContent = "Save to My List";
 
+            alert("Couldn't save this college. Check the console for the error.");
         }
     }
 
-
-    /* =====================================================
-       LOAD PROFILE
-    ===================================================== */
-
     async function loadProfile(user) {
-
         try {
-
-            /*
-             * THIS IS THE IMPORTANT FIX.
-             *
-             * Directly matches the working Profile page:
-             *
-             * db.collection("users").doc(user.uid).get()
-             */
-
             const profileSnapshot =
                 await window.capitnjFirebase.db
                     .collection("users")
                     .doc(user.uid)
                     .get();
 
+            let profile = null;
 
-            let profile;
-
-
-            if (
-                profileSnapshot.exists
-            ) {
-
-                profile =
-                    profileSnapshot.data();
-
+            if (profileSnapshot.exists) {
+                profile = profileSnapshot.data();
             } else {
-
-                /*
-                 * If no Firestore profile exists,
-                 * try the local copy.
-                 */
-
-                const localProfile =
-                    localStorage.getItem(
-                        "userProfile"
-                    );
-
-
-                profile =
-                    localProfile
-                        ? JSON.parse(localProfile)
-                        : null;
+                const localProfile = localStorage.getItem("userProfile");
+                profile = localProfile ? JSON.parse(localProfile) : null;
             }
 
-
             if (!profile) {
-
                 content.innerHTML = `
-
                     <div class="empty-state">
-
                         <h2>Finish your profile first</h2>
-
-                        <p>
-                            Add your GPA, annual budget, and location
-                            preferences so CapItNJ can rank colleges
-                            for you.
-                        </p>
-
-                        <a
-                            href="profile.html"
-                            class="btn-link"
-                        >
-                            Go to Profile
-                        </a>
-
+                        <p>Add your GPA, annual budget, and location preferences so we can rank colleges for you.</p>
+                        <a href="profile.html" class="btn-link">Go to Profile</a>
                     </div>
-
                 `;
-
                 return;
             }
 
-
-            /*
-             * Normalize the exact fields used
-             * by Profile.
-             */
-
             currentProfile = {
-
-                name:
-                    profile.name || "",
-
-                email:
-                    profile.email ||
-                    user.email ||
-                    "",
-
-                state:
-                    profile.state || "",
-
-                gpa:
-                    profile.gpa !== undefined
-                        ? profile.gpa
-                        : "",
-
-                sat:
-                    profile.sat || null,
-
-                act:
-                    profile.act || null,
-
-                budget:
-                    profile.budget !== undefined
-                        ? profile.budget
-                        : "",
-
-                preferredLocation:
-                    profile.preferredLocation ||
-                    ""
-
+                name: profile.name || "",
+                email: profile.email || user.email || "",
+                state: profile.state || "",
+                gpa: profile.gpa !== undefined ? profile.gpa : "",
+                sat: profile.sat || null,
+                act: profile.act || null,
+                budget: profile.budget !== undefined ? profile.budget : "",
+                preferredLocation: profile.preferredLocation || ""
             };
-
-
-            /*
-             * Keep My List and other pages synced.
-             */
 
             localStorage.setItem(
                 "userProfile",
-                JSON.stringify(
-                    currentProfile
-                )
+                JSON.stringify(currentProfile)
             );
-
 
             buildMatches();
 
         } catch (error) {
-
-            console.error(
-                "Could not load profile:",
-                error
-            );
-
-
-            /*
-             * Last-resort fallback:
-             * localStorage profile.
-             */
+            console.error("Could not load profile:", error);
 
             try {
-
-                const localProfile =
-                    JSON.parse(
-                        localStorage.getItem(
-                            "userProfile"
-                        ) || "null"
-                    );
-
-
-                if (localProfile) {
-
-                    currentProfile =
-                        localProfile;
-
-                    buildMatches();
-
-                    return;
-                }
-
-            } catch (localError) {
-
-                console.error(
-                    "Local profile fallback failed:",
-                    localError
+                const localProfile = JSON.parse(
+                    localStorage.getItem("userProfile") || "null"
                 );
 
+                if (localProfile) {
+                    currentProfile = localProfile;
+                    buildMatches();
+                    return;
+                }
+            } catch (localError) {
+                console.error("Local profile fallback failed:", localError);
             }
 
-
             content.innerHTML = `
-
                 <div class="empty-state">
-
                     <h2>We couldn't load your profile</h2>
-
-                    <p>
-                        Please refresh and try again.
-                    </p>
-
+                    <p>Please refresh and try again.</p>
                 </div>
-
             `;
         }
     }
 
-
-    /* =====================================================
-       START APP
-    ===================================================== */
-
     function startMatches() {
-
         if (
             !window.capitnjFirebase ||
             !window.capitnjFirebase.auth ||
             !window.capitnjFirebase.db
         ) {
-
             window.addEventListener(
                 "firebase-ready",
                 startMatches,
                 { once: true }
             );
-
             return;
         }
 
+        window.capitnjFirebase.auth.onAuthStateChanged(function(user) {
+            if (!user) {
+                content.innerHTML = `
+                    <div class="login-gate">
+                        <h2>Log in to get your matches</h2>
+                        <p>Your saved GPA, budget, and location preferences are used to rank colleges for you.</p>
+                        <a href="login.html" class="btn-link">Log in</a>
+                    </div>
+                `;
+                return;
+            }
 
-        /*
-         * Direct auth listener.
-         * No .ready.
-         * No module imports.
-         * No wrapper argument mismatch.
-         */
-
-        window.capitnjFirebase.auth
-            .onAuthStateChanged(
-                function (user) {
-
-                    if (!user) {
-
-                        content.innerHTML = `
-
-                            <div class="login-gate">
-
-                                <h2>
-                                    Log in to get your matches
-                                </h2>
-
-                                <p>
-                                    Your saved GPA, budget, and location
-                                    preferences are used to rank colleges
-                                    for you.
-                                </p>
-
-                                <a
-                                    href="login.html"
-                                    class="btn-link"
-                                >
-                                    Log in
-                                </a>
-
-                            </div>
-
-                        `;
-
-                        return;
-                    }
-
-
-                    currentUser = user;
-
-                    loadProfile(user);
-
-                }
-            );
+            currentUser = user;
+            loadProfile(user);
+        });
     }
-
 
     startMatches();
 
