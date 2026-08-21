@@ -1,313 +1,1059 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Improve Your Profile — CapItNJ</title>
-    <link rel="preconnect" href="https://googleapis.com">
-    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
+
+    <style>
+        .improve-header {
+            padding: 10px 0 8px;
+            margin-bottom: 38px;
+        }
+
+        .improve-header h1 {
+            margin-bottom: 12px;
+        }
+
+        .improve-section {
+            padding: 46px 0 0;
+            margin-top: 46px;
+            border-top: 1px solid var(--line);
+        }
+
+        .section-heading {
+            margin-bottom: 24px;
+        }
+
+        .section-heading h2 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 5px;
+        }
+
+        .section-heading p {
+            margin: 0;
+            color: var(--ink-soft);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* TIPS DROPDOWNS */
+        .tip-list {
+            border-top: 1px solid var(--line);
+        }
+
+        .tip-item {
+            border-bottom: 1px solid var(--line);
+        }
+
+        .tip-toggle {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 18px 0;
+            background: none;
+            border: none;
+            color: var(--ink);
+            cursor: pointer;
+            text-align: left;
+            font-family: Inter, sans-serif;
+        }
+
+        .tip-title {
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .tip-icon {
+            font-family: "IBM Plex Mono", monospace;
+            font-size: 18px;
+            color: var(--accent);
+            transition: transform .2s ease;
+            flex-shrink: 0;
+        }
+
+        .tip-item.open .tip-icon {
+            transform: rotate(45deg);
+        }
+
+        .tip-content {
+            display: none;
+            padding: 0 32px 20px 0;
+            color: var(--ink-soft);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .tip-item.open .tip-content {
+            display: block;
+        }
+
+        /* SCORE TRACKER */
+        .score-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin-top: 28px;
+        }
+
+        .score-card,
+        .reminder-form {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 3px;
+            padding: 24px;
+        }
+
+        .score-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin: 0 0 16px;
+            font-weight: 600;
+        }
+
+        .history-box {
+            margin-top: 16px;
+            padding: 14px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 3px;
+        }
+
+        .history-title {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--ink-faint);
+            margin: 0 0 9px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .history-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 0;
+            border-top: 1px solid var(--line);
+            font-size: 13px;
+            color: var(--ink-soft);
+        }
+
+        .history-row:first-of-type {
+            border-top: none;
+        }
+
+        .history-score {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        /* REMINDERS */
+        .reminder-grid {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) minmax(180px, 1fr) minmax(160px, 1fr) auto;
+            gap: 16px;
+            align-items: end;
+        }
+
+        .email-note {
+            margin: 14px 0 0;
+            color: var(--ink-faint);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .email-note strong {
+            color: var(--ink-soft);
+            font-weight: 600;
+        }
+
+        .reminder-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            padding: 17px 0;
+            border-top: 1px solid var(--line);
+        }
+
+        .reminder-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .reminder-meta {
+            font-size: 12px;
+            color: var(--ink-soft);
+            line-height: 1.5;
+        }
+
+        .delete-btn {
+            background: transparent;
+            color: var(--ink-soft);
+            border: 1px solid var(--line);
+            border-radius: 3px;
+            padding: 7px 11px;
+            font-family: Inter, sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .delete-btn:hover {
+            color: #b3413a;
+            border-color: #e3c9c7;
+        }
+
+        .empty-small {
+            padding: 18px 0;
+            color: var(--ink-faint);
+            font-size: 13px;
+            border-top: 1px solid var(--line);
+        }
+
+        @media (max-width: 760px) {
+            .score-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .reminder-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .reminder-grid .btn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <header class="nav">
-        <div class="nav-inner">
-            <a href="index.html" class="wordmark">CapItNJ</a>
-            <div class="nav-links">
-                <a href="index.html">Home</a>
-                <a href="improve.html" class="active">Improve</a>
-                <a href="explore.html">Explore</a>
-                <a href="matches.html">Matches</a>
-                <a href="mylist.html">My List</a>
-                <a href="profile.html">Profile</a>
-                <a href="login.html" id="nav-login-btn">Log in</a>
+
+<header class="nav">
+    <div class="nav-inner">
+        <a href="index.html" class="wordmark">CapItNJ</a>
+
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="improve.html" class="active">Improve</a>
+            <a href="explore.html">Explore</a>
+            <a href="matches.html">Matches</a>
+            <a href="mylist.html">My List</a>
+            <a href="profile.html">Profile</a>
+            <a href="login.html" id="nav-login-btn">Log in</a>
+        </div>
+    </div>
+</header>
+
+
+<main>
+    <div class="wrap">
+
+        <!-- CLEAN HEADER -->
+        <section class="improve-header">
+            <p class="eyebrow">STRENGTHEN YOUR APPLICATION</p>
+
+            <h1>Small moves that help.</h1>
+
+            <p class="subtitle">
+                Track your scores, keep up with deadlines, and find ways
+                to strengthen your college application.
+            </p>
+        </section>
+
+
+        <!-- APPLICATION TIPS -->
+        <section>
+            <div class="section-heading">
+                <p class="eyebrow">APPLICATION TIPS</p>
+                <h2>Quick wins for your profile</h2>
+                <p>Tap a topic to see more.</p>
             </div>
-        </div>
-    </header>
- 
-    <main>
-        <div class="wrap">
-            <!-- HERO -->
-            <section style="background: var(--accent); color: #fff; padding: 48px 24px; margin: 0 -24px 0; margin-bottom: 32px;">
-                <div style="max-width: var(--max-w); margin: 0 auto;">
-                    <p class="eyebrow" style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">STRENGTHEN YOUR APPLICATION</p>
-                    <h1 style="color: #fff; margin: 0;">Small moves that help.</h1>
-                    <p style="color: rgba(255,255,255,0.85); font-size: 15px; margin: 12px 0 0; max-width: 460px;">Track your test scores, set application reminders, and get tips for a stronger profile.</p>
-                </div>
-            </section>
- 
-            <!-- TIPS SECTION -->
-            <section style="padding: 32px 0 0;">
-                <div style="margin-bottom: 32px;">
-                    <p class="eyebrow">APPLICATION TIPS</p>
-                    <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0 0 4px;">Quick wins for your profile</h2>
-                </div>
- 
-                <div style="border-bottom: 1px solid var(--line); margin-bottom: 2px;"></div>
- 
-                <div class="explore-row" style="padding: 20px 0;">
-                    <div>
-                        <div class="explore-row-name">Strong Essays</div>
-                        <div class="explore-row-meta">Write authentically about who you are and why each school fits you. Admissions officers read thousands — stand out by being genuine.</div>
+
+            <div class="tip-list">
+
+                <div class="tip-item">
+                    <button class="tip-toggle" type="button">
+                        <span class="tip-title">Strong Essays</span>
+                        <span class="tip-icon">+</span>
+                    </button>
+                    <div class="tip-content">
+                        Write authentically about who you are, what has shaped you,
+                        and why a college fits your goals. Specific details and your
+                        own voice usually matter more than trying to sound overly formal.
                     </div>
                 </div>
- 
-                <div class="explore-row" style="padding: 20px 0;">
-                    <div>
-                        <div class="explore-row-name">Test Strategy</div>
-                        <div class="explore-row-meta">Take the SAT/ACT multiple times. Most schools consider your highest score, and retaking often raises results.</div>
+
+                <div class="tip-item">
+                    <button class="tip-toggle" type="button">
+                        <span class="tip-title">Test Strategy</span>
+                        <span class="tip-icon">+</span>
+                    </button>
+                    <div class="tip-content">
+                        Check whether your colleges are test-optional and compare your
+                        scores with their typical admitted student ranges. If you decide
+                        to retake the SAT or ACT, give yourself enough time to prepare.
                     </div>
                 </div>
- 
-                <div class="explore-row" style="padding: 20px 0;">
-                    <div>
-                        <div class="explore-row-name">Extracurriculars</div>
-                        <div class="explore-row-meta">Depth beats breadth. Schools value meaningful commitment to a few activities over a long list of minimal involvement.</div>
+
+                <div class="tip-item">
+                    <button class="tip-toggle" type="button">
+                        <span class="tip-title">Extracurriculars</span>
+                        <span class="tip-icon">+</span>
+                    </button>
+                    <div class="tip-content">
+                        Depth can be more meaningful than joining everything. Long-term
+                        commitment, leadership, improvement, and genuine interests can
+                        help show colleges what matters to you.
                     </div>
                 </div>
- 
-                <div class="explore-row" style="padding: 20px 0;">
-                    <div>
-                        <div class="explore-row-name">GPA Trends</div>
-                        <div class="explore-row-meta">If your GPA improved over time, that shows growth. Colleges see the full picture, not just the final number.</div>
+
+                <div class="tip-item">
+                    <button class="tip-toggle" type="button">
+                        <span class="tip-title">GPA Trends</span>
+                        <span class="tip-icon">+</span>
+                    </button>
+                    <div class="tip-content">
+                        An upward academic trend can show growth and persistence.
+                        Keep challenging yourself at an appropriate level while
+                        maintaining strong performance.
                     </div>
                 </div>
- 
-                <div class="explore-row" style="padding: 20px 0;">
-                    <div>
-                        <div class="explore-row-name">Letters of Rec</div>
-                        <div class="explore-row-meta">Ask teachers who know you well and can speak to your character, not just your grades.</div>
+
+                <div class="tip-item">
+                    <button class="tip-toggle" type="button">
+                        <span class="tip-title">Letters of Recommendation</span>
+                        <span class="tip-icon">+</span>
+                    </button>
+                    <div class="tip-content">
+                        Ask teachers or counselors who genuinely know your work and
+                        character. Give them plenty of notice and share helpful context
+                        about your goals.
                     </div>
                 </div>
- 
-                <div class="explore-row" style="padding: 20px 0;">
-                    <div>
-                        <div class="explore-row-name">Start Early</div>
-                        <div class="explore-row-meta">Apply early (September/October). It reduces stress and shows genuine interest to schools that track application timing.</div>
+
+                <div class="tip-item">
+                    <button class="tip-toggle" type="button">
+                        <span class="tip-title">Start Early</span>
+                        <span class="tip-icon">+</span>
+                    </button>
+                    <div class="tip-content">
+                        Break applications into smaller tasks instead of waiting until
+                        the deadline. Starting early gives you more time to revise essays,
+                        request recommendations, and double-check requirements.
                     </div>
                 </div>
-            </section>
- 
-            <!-- TEST SCORE TRACKER -->
-            <section style="padding: 48px 0 0; border-top: 1px solid var(--line); margin-top: 48px;">
-                <div style="margin-bottom: 24px;">
-                    <p class="eyebrow">TRACK YOUR SCORES</p>
-                    <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0 0 4px;">SAT and ACT attempts</h2>
-                </div>
- 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 28px;">
-                    <!-- SAT -->
-                    <div>
-                        <div style="background: var(--surface); border: 1px solid var(--line); padding: 24px; border-radius: 2px; margin-bottom: 16px;">
-                            <p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px; font-weight: 600;">SAT</p>
-                            
-                            <div class="field">
-                                <label>Test Date</label>
-                                <input type="date" class="sat-date">
-                            </div>
-                            <div class="field">
-                                <label>Reading & Writing</label>
-                                <input type="number" class="sat-rw" min="200" max="800" placeholder="200-800">
-                            </div>
-                            <div class="field">
-                                <label>Math</label>
-                                <input type="number" class="sat-math" min="200" max="800" placeholder="200-800">
-                            </div>
-                            <button class="btn" style="width: 100%; margin-top: 4px;" onclick="addSATScore()">Add SAT Score</button>
-                        </div>
-                        <div id="sat-history" style="font-size: 13px; color: var(--ink-soft);"></div>
-                    </div>
- 
-                    <!-- ACT -->
-                    <div>
-                        <div style="background: var(--surface); border: 1px solid var(--line); padding: 24px; border-radius: 2px; margin-bottom: 16px;">
-                            <p style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); margin: 0 0 16px; font-weight: 600;">ACT</p>
-                            
-                            <div class="field">
-                                <label>Test Date</label>
-                                <input type="date" class="act-date">
-                            </div>
-                            <div class="field">
-                                <label>English</label>
-                                <input type="number" class="act-e" min="1" max="36" placeholder="1-36">
-                            </div>
-                            <div class="field">
-                                <label>Math</label>
-                                <input type="number" class="act-m" min="1" max="36" placeholder="1-36">
-                            </div>
-                            <div class="field">
-                                <label>Reading</label>
-                                <input type="number" class="act-r" min="1" max="36" placeholder="1-36">
-                            </div>
-                            <div class="field">
-                                <label>Science</label>
-                                <input type="number" class="act-s" min="1" max="36" placeholder="1-36">
-                            </div>
-                            <button class="btn" style="width: 100%; margin-top: 4px;" onclick="addACTScore()">Add ACT Score</button>
-                        </div>
-                        <div id="act-history" style="font-size: 13px; color: var(--ink-soft);"></div>
-                    </div>
-                </div>
-            </section>
- 
-            <!-- REMINDERS -->
-            <section style="padding: 48px 0 0; border-top: 1px solid var(--line); margin-top: 48px;">
-                <div style="margin-bottom: 24px;">
-                    <p class="eyebrow">APPLICATION REMINDERS</p>
-                    <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0 0 4px;">Set deadlines you won't miss</h2>
-                </div>
- 
-                <div style="background: var(--surface); border: 1px solid var(--line); padding: 24px; border-radius: 2px; margin: 28px 0;">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: flex-end;">
+
+            </div>
+        </section>
+
+
+        <!-- TEST SCORES -->
+        <section class="improve-section">
+
+            <div class="section-heading">
+                <p class="eyebrow">TRACK YOUR SCORES</p>
+                <h2>SAT and ACT attempts</h2>
+                <p>Save your attempts and keep track of your progress.</p>
+            </div>
+
+            <div class="score-grid">
+
+                <!-- SAT -->
+                <div>
+                    <div class="score-card">
+                        <p class="score-label">SAT</p>
+
                         <div class="field">
-                            <label>School Name</label>
-                            <input type="text" id="school-name" placeholder="e.g., Rutgers University">
+                            <label for="sat-date">Test Date</label>
+                            <input type="date" id="sat-date">
                         </div>
+
                         <div class="field">
-                            <label>Application Deadline</label>
-                            <input type="date" id="deadline-date">
+                            <label for="sat-rw">Reading &amp; Writing</label>
+                            <input type="number" id="sat-rw" min="200" max="800" placeholder="200–800">
                         </div>
+
                         <div class="field">
-                            <label>Remind Me</label>
-                            <select id="reminder-days">
-                                <option value="7">1 week before</option>
-                                <option value="14">2 weeks before</option>
-                                <option value="30">1 month before</option>
-                            </select>
+                            <label for="sat-math">Math</label>
+                            <input type="number" id="sat-math" min="200" max="800" placeholder="200–800">
                         </div>
-                        <button class="btn" onclick="addReminder()">Set Reminder</button>
+
+                        <button class="btn" style="width: 100%; margin-top: 4px;" type="button" onclick="addSATScore()">
+                            Add SAT Score
+                        </button>
                     </div>
+
+                    <div id="sat-history"></div>
                 </div>
- 
-                <div id="reminders-list"></div>
-            </section>
-        </div>
-    </main>
- 
-    <footer class="home-footer">
-        <div class="wrap">
-            <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
-        </div>
-    </footer>
- 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            loadTestScores();
-            loadReminders();
+
+
+                <!-- ACT -->
+                <div>
+                    <div class="score-card">
+                        <p class="score-label">ACT</p>
+
+                        <div class="field">
+                            <label for="act-date">Test Date</label>
+                            <input type="date" id="act-date">
+                        </div>
+
+                        <div class="field">
+                            <label for="act-e">English</label>
+                            <input type="number" id="act-e" min="1" max="36" placeholder="1–36">
+                        </div>
+
+                        <div class="field">
+                            <label for="act-m">Math</label>
+                            <input type="number" id="act-m" min="1" max="36" placeholder="1–36">
+                        </div>
+
+                        <div class="field">
+                            <label for="act-r">Reading</label>
+                            <input type="number" id="act-r" min="1" max="36" placeholder="1–36">
+                        </div>
+
+                        <div class="field">
+                            <label for="act-s">Science</label>
+                            <input type="number" id="act-s" min="1" max="36" placeholder="1–36">
+                        </div>
+
+                        <button class="btn" style="width: 100%; margin-top: 4px;" type="button" onclick="addACTScore()">
+                            Add ACT Score
+                        </button>
+                    </div>
+
+                    <div id="act-history"></div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- REMINDERS -->
+        <section class="improve-section">
+
+            <div class="section-heading">
+                <p class="eyebrow">APPLICATION REMINDERS</p>
+                <h2>Set deadlines you won't miss</h2>
+                <p>Choose when you want CapItNJ to remind you about an application deadline.</p>
+            </div>
+
+            <div class="reminder-form">
+
+                <div class="reminder-grid">
+
+                    <div class="field">
+                        <label for="school-name">School Name</label>
+                        <input
+                            type="text"
+                            id="school-name"
+                            placeholder="e.g., Rutgers University"
+                        >
+                    </div>
+
+                    <div class="field">
+                        <label for="deadline-date">Application Deadline</label>
+                        <input type="date" id="deadline-date">
+                    </div>
+
+                    <div class="field">
+                        <label for="reminder-days">Remind Me</label>
+
+                        <select id="reminder-days">
+                            <option value="1">1 day before</option>
+                            <option value="3">3 days before</option>
+                            <option value="7" selected>1 week before</option>
+                            <option value="14">2 weeks before</option>
+                            <option value="30">1 month before</option>
+                        </select>
+                    </div>
+
+                    <button class="btn" type="button" onclick="addReminder()">
+                        Set Reminder
+                    </button>
+
+                </div>
+
+                <p class="email-note">
+                    <strong>Email reminder:</strong>
+                    We'll send your reminder to your account email at the selected time.
+                    Make sure to check your spam folder.
+                </p>
+
+            </div>
+
+            <div id="reminders-list"></div>
+
+        </section>
+
+    </div>
+</main>
+
+
+<footer class="home-footer">
+    <div class="wrap">
+        <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+    </div>
+</footer>
+
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+<script src="firebase-init.js"></script>
+
+
+<script>
+(function () {
+
+    "use strict";
+
+    let currentUser = null;
+
+
+    /* =========================================
+       DROPDOWN TIPS
+    ========================================= */
+
+    function setupTips() {
+
+        document.querySelectorAll(".tip-toggle").forEach(function (button) {
+
+            button.addEventListener("click", function () {
+
+                const item = button.closest(".tip-item");
+
+                document.querySelectorAll(".tip-item").forEach(function (otherItem) {
+
+                    if (otherItem !== item) {
+                        otherItem.classList.remove("open");
+                    }
+
+                });
+
+                item.classList.toggle("open");
+
+            });
+
         });
- 
-        function addSATScore() {
-            const date = document.querySelector('.sat-date').value;
-            const rw = parseInt(document.querySelector('.sat-rw').value) || 0;
-            const math = parseInt(document.querySelector('.sat-math').value) || 0;
- 
-            if (!date || rw === 0 || math === 0) {
-                alert('Please fill in all SAT fields');
-                return;
-            }
- 
-            let scores = JSON.parse(localStorage.getItem('satScores') || '[]');
-            scores.push({ date, rw, math, total: rw + math, id: Date.now() });
-            localStorage.setItem('satScores', JSON.stringify(scores));
- 
-            document.querySelector('.sat-date').value = '';
-            document.querySelector('.sat-rw').value = '';
-            document.querySelector('.sat-math').value = '';
-            loadTestScores();
+
+    }
+
+
+    /* =========================================
+       SAFE LOCAL STORAGE
+    ========================================= */
+
+    function getStorageArray(key) {
+
+        try {
+            const data = JSON.parse(localStorage.getItem(key) || "[]");
+            return Array.isArray(data) ? data : [];
+        } catch (error) {
+            return [];
         }
- 
-        function addACTScore() {
-            const date = document.querySelector('.act-date').value;
-            const e = parseInt(document.querySelector('.act-e').value) || 0;
-            const m = parseInt(document.querySelector('.act-m').value) || 0;
-            const r = parseInt(document.querySelector('.act-r').value) || 0;
-            const s = parseInt(document.querySelector('.act-s').value) || 0;
- 
-            if (!date || e === 0 || m === 0 || r === 0 || s === 0) {
-                alert('Please fill in all ACT fields');
-                return;
+
+    }
+
+
+    function setStorageArray(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+    }
+
+
+    function escapeHtml(value) {
+
+        const div = document.createElement("div");
+        div.textContent = value == null ? "" : String(value);
+
+        return div.innerHTML;
+    }
+
+
+    function formatDate(dateString) {
+
+        if (!dateString) return "";
+
+        const date = new Date(dateString + "T12:00:00");
+
+        return date.toLocaleDateString(
+            undefined,
+            {
+                month: "short",
+                day: "numeric",
+                year: "numeric"
             }
- 
-            let scores = JSON.parse(localStorage.getItem('actScores') || '[]');
-            scores.push({ date, e, m, r, s, avg: Math.round((e+m+r+s)/4), id: Date.now() });
-            localStorage.setItem('actScores', JSON.stringify(scores));
- 
-            document.querySelector('.act-date').value = '';
-            document.querySelector('.act-e').value = '';
-            document.querySelector('.act-m').value = '';
-            document.querySelector('.act-r').value = '';
-            document.querySelector('.act-s').value = '';
-            loadTestScores();
+        );
+    }
+
+
+    /* =========================================
+       SAT
+    ========================================= */
+
+    window.addSATScore = function () {
+
+        const date = document.getElementById("sat-date").value;
+        const rw = Number(document.getElementById("sat-rw").value);
+        const math = Number(document.getElementById("sat-math").value);
+
+        if (!date || !rw || !math) {
+            alert("Please fill in all SAT fields.");
+            return;
         }
- 
-        function loadTestScores() {
-            const sat = JSON.parse(localStorage.getItem('satScores') || '[]');
-            const act = JSON.parse(localStorage.getItem('actScores') || '[]');
- 
-            let satHtml = '';
-            if (sat.length > 0) {
-                satHtml = '<div style="margin-top: 16px; padding: 12px; background: white; border: 1px solid var(--line); border-radius: 2px;">' +
-                    '<p style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em;">Your SAT Attempts</p>' +
-                    sat.map(s => `<p style="margin: 6px 0; font-size: 13px;">📅 ${new Date(s.date).toLocaleDateString()} — <strong>${s.total}</strong></p>`).join('') +
-                    '</div>';
-            }
-            document.getElementById('sat-history').innerHTML = satHtml;
- 
-            let actHtml = '';
-            if (act.length > 0) {
-                actHtml = '<div style="margin-top: 16px; padding: 12px; background: white; border: 1px solid var(--line); border-radius: 2px;">' +
-                    '<p style="font-family: var(--font-mono); font-size: 11px; color: var(--ink-faint); margin: 0 0 8px; text-transform: uppercase; letter-spacing: 0.05em;">Your ACT Attempts</p>' +
-                    act.map(s => `<p style="margin: 6px 0; font-size: 13px;">📅 ${new Date(s.date).toLocaleDateString()} — <strong>${s.avg}</strong> avg</p>`).join('') +
-                    '</div>';
-            }
-            document.getElementById('act-history').innerHTML = actHtml;
+
+        if (rw < 200 || rw > 800 || math < 200 || math > 800) {
+            alert("SAT section scores must be between 200 and 800.");
+            return;
         }
- 
-        function addReminder() {
-            const name = document.getElementById('school-name').value;
-            const date = document.getElementById('deadline-date').value;
-            const days = document.getElementById('reminder-days').value;
- 
-            if (!name || !date) {
-                alert('Please fill in school name and deadline');
-                return;
-            }
- 
-            let reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
-            reminders.push({ name, date, days, id: Date.now() });
-            localStorage.setItem('reminders', JSON.stringify(reminders));
- 
-            document.getElementById('school-name').value = '';
-            document.getElementById('deadline-date').value = '';
-            loadReminders();
+
+        const scores = getStorageArray("satScores");
+
+        scores.push({
+            id: Date.now(),
+            date: date,
+            rw: rw,
+            math: math,
+            total: rw + math
+        });
+
+        scores.sort(function (a, b) {
+            return new Date(b.date) - new Date(a.date);
+        });
+
+        setStorageArray("satScores", scores);
+
+        document.getElementById("sat-date").value = "";
+        document.getElementById("sat-rw").value = "";
+        document.getElementById("sat-math").value = "";
+
+        loadTestScores();
+    };
+
+
+    /* =========================================
+       ACT
+    ========================================= */
+
+    window.addACTScore = function () {
+
+        const date = document.getElementById("act-date").value;
+        const e = Number(document.getElementById("act-e").value);
+        const m = Number(document.getElementById("act-m").value);
+        const r = Number(document.getElementById("act-r").value);
+        const s = Number(document.getElementById("act-s").value);
+
+        if (!date || !e || !m || !r || !s) {
+            alert("Please fill in all ACT fields.");
+            return;
         }
- 
-        function loadReminders() {
-            const reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
-            const list = document.getElementById('reminders-list');
- 
-            if (reminders.length === 0) return;
- 
-            let html = '';
-            reminders.forEach(r => {
-                html += `
-                    <div class="explore-row" style="padding: 16px 0; border-top: 1px solid var(--line);">
-                        <div style="flex: 1;">
-                            <div class="explore-row-name">${r.name}</div>
-                            <div class="explore-row-meta">Deadline: ${new Date(r.date).toLocaleDateString()}</div>
+
+        const values = [e, m, r, s];
+
+        if (values.some(function (score) {
+            return score < 1 || score > 36;
+        })) {
+            alert("ACT section scores must be between 1 and 36.");
+            return;
+        }
+
+        const scores = getStorageArray("actScores");
+
+        scores.push({
+            id: Date.now(),
+            date: date,
+            e: e,
+            m: m,
+            r: r,
+            s: s,
+            avg: Math.round((e + m + r + s) / 4)
+        });
+
+        scores.sort(function (a, b) {
+            return new Date(b.date) - new Date(a.date);
+        });
+
+        setStorageArray("actScores", scores);
+
+        document.getElementById("act-date").value = "";
+        document.getElementById("act-e").value = "";
+        document.getElementById("act-m").value = "";
+        document.getElementById("act-r").value = "";
+        document.getElementById("act-s").value = "";
+
+        loadTestScores();
+    };
+
+
+    /* =========================================
+       LOAD SCORES
+    ========================================= */
+
+    function loadTestScores() {
+
+        const satScores = getStorageArray("satScores");
+        const actScores = getStorageArray("actScores");
+
+        const satHistory = document.getElementById("sat-history");
+        const actHistory = document.getElementById("act-history");
+
+
+        if (satScores.length) {
+
+            satHistory.innerHTML = `
+                <div class="history-box">
+                    <p class="history-title">Your SAT Attempts</p>
+
+                    ${satScores.map(function (score) {
+                        return `
+                            <div class="history-row">
+                                <span>${escapeHtml(formatDate(score.date))}</span>
+                                <span class="history-score">${escapeHtml(score.total)}</span>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            `;
+
+        } else {
+            satHistory.innerHTML = "";
+        }
+
+
+        if (actScores.length) {
+
+            actHistory.innerHTML = `
+                <div class="history-box">
+                    <p class="history-title">Your ACT Attempts</p>
+
+                    ${actScores.map(function (score) {
+                        return `
+                            <div class="history-row">
+                                <span>${escapeHtml(formatDate(score.date))}</span>
+                                <span class="history-score">${escapeHtml(score.avg)} avg</span>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            `;
+
+        } else {
+            actHistory.innerHTML = "";
+        }
+
+    }
+
+
+    /* =========================================
+       REMINDERS
+    ========================================= */
+
+    window.addReminder = async function () {
+
+        const name = document.getElementById("school-name").value.trim();
+        const deadline = document.getElementById("deadline-date").value;
+        const daysBefore = Number(
+            document.getElementById("reminder-days").value
+        );
+
+
+        if (!name || !deadline) {
+            alert("Please fill in the school name and application deadline.");
+            return;
+        }
+
+
+        const deadlineDate = new Date(deadline + "T09:00:00");
+
+
+        if (Number.isNaN(deadlineDate.getTime())) {
+            alert("Please choose a valid deadline.");
+            return;
+        }
+
+
+        const reminderDate = new Date(deadlineDate);
+
+        reminderDate.setDate(
+            reminderDate.getDate() - daysBefore
+        );
+
+
+        if (reminderDate.getTime() < Date.now()) {
+            alert(
+                "That reminder date has already passed. Choose a later deadline or a shorter reminder time."
+            );
+            return;
+        }
+
+
+        const reminder = {
+            id: String(Date.now()),
+            name: name,
+            deadline: deadline,
+            daysBefore: daysBefore,
+            reminderAt: reminderDate.toISOString(),
+            createdAt: new Date().toISOString(),
+            emailStatus: "pending"
+        };
+
+
+        /* Save locally */
+
+        const reminders = getStorageArray("reminders");
+
+        reminders.push(reminder);
+
+        reminders.sort(function (a, b) {
+            return new Date(a.deadline) - new Date(b.deadline);
+        });
+
+        setStorageArray("reminders", reminders);
+
+
+        /*
+         * Save to Firestore too.
+         *
+         * This is where the future email backend will
+         * find reminders that need to be sent.
+         */
+
+        if (
+            currentUser &&
+            window.capitnjFirebase &&
+            window.capitnjFirebase.db
+        ) {
+
+            try {
+
+                await window.capitnjFirebase.db
+                    .collection("users")
+                    .doc(currentUser.uid)
+                    .collection("reminders")
+                    .doc(reminder.id)
+                    .set({
+                        ...reminder,
+                        userId: currentUser.uid,
+                        email: currentUser.email || ""
+                    });
+
+            } catch (error) {
+
+                console.error(
+                    "Reminder saved locally but Firestore save failed:",
+                    error
+                );
+
+            }
+        }
+
+
+        document.getElementById("school-name").value = "";
+        document.getElementById("deadline-date").value = "";
+        document.getElementById("reminder-days").value = "7";
+
+        loadReminders();
+
+        alert("Reminder saved.");
+    };
+
+
+    /* =========================================
+       LOAD REMINDERS
+    ========================================= */
+
+    function loadReminders() {
+
+        const reminders = getStorageArray("reminders");
+
+        const list =
+            document.getElementById("reminders-list");
+
+
+        if (!reminders.length) {
+
+            list.innerHTML = `
+                <div class="empty-small">
+                    No reminders yet.
+                </div>
+            `;
+
+            return;
+        }
+
+
+        list.innerHTML =
+            reminders.map(function (reminder) {
+
+                let reminderText;
+
+                if (reminder.daysBefore === 1) {
+                    reminderText = "1 day before";
+                } else if (reminder.daysBefore === 7) {
+                    reminderText = "1 week before";
+                } else if (reminder.daysBefore === 14) {
+                    reminderText = "2 weeks before";
+                } else if (reminder.daysBefore === 30) {
+                    reminderText = "1 month before";
+                } else {
+                    reminderText =
+                        reminder.daysBefore + " days before";
+                }
+
+
+                return `
+                    <div class="reminder-row">
+
+                        <div>
+
+                            <div class="reminder-name">
+                                ${escapeHtml(reminder.name)}
+                            </div>
+
+                            <div class="reminder-meta">
+                                Deadline: ${escapeHtml(formatDate(reminder.deadline))}
+                                · Reminder: ${escapeHtml(reminderText)}
+                            </div>
+
                         </div>
-                        <button class="btn-outline" style="color: #B3413A; border: 1px solid #E3C9C7; padding: 8px 14px; font-size: 12px;" onclick="deleteReminder(${r.id})">Delete</button>
+
+                        <button
+                            type="button"
+                            class="delete-btn"
+                            onclick="deleteReminder('${escapeHtml(reminder.id)}')"
+                        >
+                            Delete
+                        </button>
+
                     </div>
                 `;
-            });
-            list.innerHTML = html;
+
+            }).join("");
+    }
+
+
+    /* =========================================
+       DELETE REMINDER
+    ========================================= */
+
+    window.deleteReminder = async function (id) {
+
+        let reminders = getStorageArray("reminders");
+
+        reminders = reminders.filter(function (reminder) {
+            return String(reminder.id) !== String(id);
+        });
+
+        setStorageArray("reminders", reminders);
+
+        loadReminders();
+
+
+        if (
+            currentUser &&
+            window.capitnjFirebase &&
+            window.capitnjFirebase.db
+        ) {
+
+            try {
+
+                await window.capitnjFirebase.db
+                    .collection("users")
+                    .doc(currentUser.uid)
+                    .collection("reminders")
+                    .doc(String(id))
+                    .delete();
+
+            } catch (error) {
+
+                console.error(
+                    "Could not delete Firestore reminder:",
+                    error
+                );
+
+            }
         }
- 
-        function deleteReminder(id) {
-            let reminders = JSON.parse(localStorage.getItem('reminders') || '[]');
-            reminders = reminders.filter(r => r.id !== id);
-            localStorage.setItem('reminders', JSON.stringify(reminders));
+    };
+
+
+    /* =========================================
+       FIREBASE AUTH
+    ========================================= */
+
+    function startFirebase() {
+
+        if (
+            !window.capitnjFirebase ||
+            !window.capitnjFirebase.auth
+        ) {
+
+            window.addEventListener(
+                "firebase-ready",
+                startFirebase,
+                { once: true }
+            );
+
+            return;
+        }
+
+
+        window.capitnjFirebase.auth.onAuthStateChanged(
+            function (user) {
+
+                currentUser = user || null;
+
+                const navButton =
+                    document.getElementById("nav-login-btn");
+
+
+                if (user && navButton) {
+
+                    navButton.textContent = "Profile";
+                    navButton.href = "profile.html";
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =========================================
+       START
+    ========================================= */
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        function () {
+
+            setupTips();
+            loadTestScores();
             loadReminders();
+            startFirebase();
+
         }
-    </script>
+    );
+
+})();
+</script>
+
 </body>
 </html>
