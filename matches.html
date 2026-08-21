@@ -1,239 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>CapItNJ — Matches</title>
+    <title>Matches — CapItNJ</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
 
     <style>
         .matches-header {
-            margin-bottom: 38px;
+            margin-bottom: 36px;
         }
 
-        .matches-summary {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 24px;
+        .matches-header h1 {
+            margin-bottom: 8px;
         }
 
-        .summary-pill {
-            font-size: 12px;
+        .matches-subtitle {
             color: var(--ink-soft);
-            background: var(--surface);
-            border: 1px solid var(--line);
-            padding: 7px 11px;
-            border-radius: 4px;
-        }
-
-        .summary-pill strong {
-            color: var(--ink);
-            font-weight: 600;
-        }
-
-        .match-filters {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 22px;
-        }
-
-        .filter-btn {
-            font-family: Inter, sans-serif;
-            font-size: 12px;
-            font-weight: 500;
-            background: var(--surface);
-            color: var(--ink-soft);
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            padding: 8px 13px;
-            cursor: pointer;
-        }
-
-        .filter-btn:hover {
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
-        .filter-btn.active {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-        }
-
-        .match-count {
-            font-family: "IBM Plex Mono", monospace;
-            color: var(--ink-faint);
-            font-size: 11px;
-            margin: 0 0 14px;
-        }
-
-        .match-card {
-            background: var(--surface);
-            border: 1px solid var(--line);
-            border-radius: 7px;
-            padding: 21px;
-            margin-bottom: 12px;
-        }
-
-        .match-card:hover {
-            border-color: #c9cdd4;
-        }
-
-        .match-top {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            align-items: flex-start;
-        }
-
-        .match-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--ink);
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 620px;
             margin: 0;
         }
 
-        .match-meta {
-            color: var(--ink-soft);
-            font-size: 13px;
-            margin-top: 6px;
+        .match-summary {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 24px 0 0;
         }
 
-        .match-score-box {
+        .summary-chip {
+            border: 1px solid var(--line);
+            background: var(--surface);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--ink-soft);
+        }
+
+        .summary-chip strong {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .match-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--line);
+            margin-bottom: 30px;
+            padding-bottom: 14px;
+        }
+
+        .match-tab {
+            appearance: none;
+            border: 1px solid var(--line);
+            background: var(--surface);
+            color: var(--ink-soft);
+            padding: 9px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            transition: all .18s ease;
+        }
+
+        .match-tab:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .match-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .match-tab-count {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            margin-left: 5px;
+            opacity: .8;
+        }
+
+        .match-section {
+            margin-bottom: 42px;
+        }
+
+        .match-section-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: flex-end;
+            margin-bottom: 14px;
+        }
+
+        .match-section h2 {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 600;
+            margin: 0 0 5px;
+        }
+
+        .match-section p {
+            margin: 0;
+            color: var(--ink-soft);
+            font-size: 14px;
+        }
+
+        .college-match-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 12px;
+            transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+        }
+
+        .college-match-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,.04);
+        }
+
+        .college-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+        }
+
+        .college-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ink);
+            line-height: 1.3;
+        }
+
+        .college-meta {
+            color: var(--ink-soft);
+            font-size: 13px;
+            margin-top: 5px;
+            line-height: 1.5;
+        }
+
+        .college-price {
             text-align: right;
             flex-shrink: 0;
         }
 
-        .match-score {
-            font-family: "IBM Plex Mono", monospace;
-            font-size: 24px;
-            font-weight: 500;
-            color: var(--ink);
-        }
-
-        .match-score-label {
+        .college-price-label {
+            font-family: var(--font-mono);
             font-size: 10px;
             color: var(--ink-faint);
             text-transform: uppercase;
-            letter-spacing: .06em;
+            letter-spacing: .05em;
+        }
+
+        .college-price-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--ink);
             margin-top: 3px;
         }
 
-        .match-tags {
+        .college-details {
             display: flex;
+            gap: 8px;
             flex-wrap: wrap;
-            gap: 7px;
-            margin-top: 17px;
-        }
-
-        .match-tag {
-            font-size: 11px;
-            padding: 5px 9px;
-            border-radius: 3px;
-            background: var(--accent-bg);
-            color: var(--accent);
-        }
-
-        .match-tag.reach {
-            background: #fff0ea;
-            color: #c2542a;
-        }
-
-        .match-tag.match {
-            background: #edf9f0;
-            color: #23823d;
-        }
-
-        .match-tag.safety {
-            background: #edf5ff;
-            color: #2871b8;
-        }
-
-        .match-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 18px;
-            padding-top: 15px;
             margin-top: 16px;
+            padding-top: 14px;
             border-top: 1px solid var(--line);
-            color: var(--ink-soft);
-            font-size: 12px;
         }
 
-        .match-actions {
-            margin-top: 17px;
+        .detail-pill {
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 11px;
+            color: var(--ink-soft);
+        }
+
+        .detail-pill strong {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .why-fit {
+            margin-top: 14px;
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--ink-soft);
+        }
+
+        .why-fit strong {
+            color: var(--ink);
+        }
+
+        .save-area {
+            margin-top: 16px;
+            padding-top: 15px;
+            border-top: 1px dashed var(--line);
+        }
+
+        .save-options {
+            display: grid;
+            grid-template-columns: 170px 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .save-options select,
+        .save-options textarea {
+            width: 100%;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 13px;
+            border: 1px solid var(--line);
+            border-radius: 5px;
+            background: white;
+            color: var(--ink);
+            padding: 9px 10px;
+        }
+
+        .save-options textarea {
+            resize: vertical;
+            min-height: 40px;
+        }
+
+        .save-row-bottom {
             display: flex;
-            justify-content: flex-end;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .save-status {
+            font-size: 12px;
+            color: var(--ink-faint);
         }
 
         .save-match-btn {
-            background: #16a34a;
-            color: #fff;
             border: none;
-            border-radius: 4px;
-            padding: 8px 15px;
-            font-family: Inter, sans-serif;
+            background: var(--accent);
+            color: white;
+            border-radius: 5px;
+            padding: 9px 14px;
+            cursor: pointer;
+            font-family: inherit;
             font-size: 12px;
             font-weight: 500;
-            cursor: pointer;
+            transition: opacity .18s ease, transform .18s ease;
         }
 
         .save-match-btn:hover {
-            background: #15803d;
+            opacity: .9;
+            transform: translateY(-1px);
         }
 
         .save-match-btn:disabled {
             opacity: .65;
             cursor: default;
+            transform: none;
         }
 
         .empty-state,
-        .login-gate {
-            text-align: center;
-            padding: 52px 24px;
+        .login-gate,
+        .loading-state {
             border: 1px dashed var(--line);
-            border-radius: 8px;
             background: var(--surface);
+            border-radius: 8px;
+            padding: 52px 24px;
+            text-align: center;
         }
 
         .empty-state h2,
-        .login-gate h2 {
-            font-family: Fraunces, serif;
-            font-size: 24px;
-            margin: 0 0 10px;
+        .login-gate h2,
+        .loading-state h2 {
+            font-family: var(--font-display);
+            font-size: 22px;
+            margin: 0 0 9px;
         }
 
         .empty-state p,
-        .login-gate p {
+        .login-gate p,
+        .loading-state p {
             color: var(--ink-soft);
-            margin: 0 auto 18px;
-            max-width: 480px;
-            line-height: 1.6;
+            font-size: 14px;
+            margin: 0 0 20px;
         }
 
-        .btn-link {
-            display: inline-block;
-            background: var(--accent);
-            color: white;
-            text-decoration: none;
-            padding: 10px 16px;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-
-        @media (max-width: 650px) {
-            .match-top {
+        @media (max-width: 700px) {
+            .college-top {
                 flex-direction: column;
-                gap: 12px;
+                gap: 10px;
             }
 
-            .match-score-box {
+            .college-price {
                 text-align: left;
+            }
+
+            .save-options {
+                grid-template-columns: 1fr;
+            }
+
+            .match-section-head {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
             }
         }
     </style>
@@ -260,852 +343,976 @@
 <main>
     <div class="wrap">
 
-        <section class="matches-header">
+        <div class="matches-header">
             <p class="eyebrow">YOUR MATCHES</p>
+            <h1>Colleges that fit your profile</h1>
 
-            <h1>Ranked for you</h1>
-
-            <p class="subtitle">
-                Colleges matched using your saved profile, including your GPA,
-                budget, location preferences, and available college information.
+            <p class="matches-subtitle">
+                Reach, Match, and Safety are based mainly on your academic profile
+                and each school's competitiveness — not your location preference.
             </p>
-        </section>
 
-        <div id="matches-content">
-            <div class="empty-state">
-                <h2>Loading your matches</h2>
-                <p>Checking your profile and ranking colleges for you...</p>
+            <div id="profile-summary" class="match-summary"></div>
+        </div>
+
+        <div id="loading-state" class="loading-state">
+            <h2>Finding your matches</h2>
+            <p>Checking your profile against available college data...</p>
+        </div>
+
+        <div id="login-gate" class="login-gate" style="display:none;">
+            <h2>Log in to see your matches</h2>
+            <p>
+                Save your GPA and preferences in your profile, then we'll organize
+                colleges into Reach, Match, and Safety.
+            </p>
+            <a href="login.html" class="btn">Log in</a>
+        </div>
+
+        <div id="no-profile" class="empty-state" style="display:none;">
+            <h2>Finish your profile first</h2>
+            <p>
+                Add at least your GPA to get academic Reach, Match, and Safety results.
+            </p>
+            <a href="profile.html" class="btn">Go to Profile</a>
+        </div>
+
+        <div id="error-state" class="empty-state" style="display:none;">
+            <h2>Couldn't load your matches</h2>
+            <p id="error-message">
+                Something went wrong. Please refresh and try again.
+            </p>
+        </div>
+
+        <div id="matches-area" style="display:none;">
+
+            <div class="match-tabs">
+                <button class="match-tab active" data-filter="all">
+                    All <span id="all-count" class="match-tab-count">0</span>
+                </button>
+
+                <button class="match-tab" data-filter="reach">
+                    Reach <span id="reach-count" class="match-tab-count">0</span>
+                </button>
+
+                <button class="match-tab" data-filter="match">
+                    Match <span id="match-count" class="match-tab-count">0</span>
+                </button>
+
+                <button class="match-tab" data-filter="safety">
+                    Safety <span id="safety-count" class="match-tab-count">0</span>
+                </button>
             </div>
+
+            <div id="results-groups"></div>
+
         </div>
 
     </div>
 </main>
+
+<footer class="home-footer">
+    <div class="wrap">
+        <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+    </div>
+</footer>
+
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-<!-- PROJECT FILES -->
 <script src="firebase-init.js"></script>
+
 <script src="data.js"></script>
 
 <script>
-(function () {
-    "use strict";
+let currentUser = null;
+let userProfile = null;
+let allMatches = [];
+let currentFilter = "all";
+let pageStarted = false;
 
-    let currentUser = null;
-    let currentProfile = null;
-    let allMatches = [];
-    let activeFilter = "all";
 
-    const content = document.getElementById("matches-content");
+function formatCurrency(value) {
+    const num = Number(value);
 
-    function escapeHtml(value) {
-        const div = document.createElement("div");
-        div.textContent = value == null ? "" : String(value);
-        return div.innerHTML;
+    if (!Number.isFinite(num) || num <= 0) {
+        return "Not listed";
     }
 
-    function normalize(value) {
-        return String(value || "")
-            .trim()
-            .toLowerCase();
+    return "$" + num.toLocaleString();
+}
+
+
+function escapeHtml(value) {
+    const div = document.createElement("div");
+    div.textContent = value == null ? "" : String(value);
+    return div.innerHTML;
+}
+
+
+function sanitizeId(value) {
+    return String(value || "")
+        .replace(/[^a-zA-Z0-9]/g, "")
+        .slice(0, 50);
+}
+
+
+function isUS(country) {
+    if (!country) return true;
+
+    const c = String(country).trim().toLowerCase();
+
+    return (
+        c === "us" ||
+        c === "usa" ||
+        c === "united states" ||
+        c === "united states of america"
+    );
+}
+
+
+function showOnly(state) {
+    const states = {
+        loading: document.getElementById("loading-state"),
+        login: document.getElementById("login-gate"),
+        profile: document.getElementById("no-profile"),
+        error: document.getElementById("error-state"),
+        matches: document.getElementById("matches-area")
+    };
+
+    Object.values(states).forEach(el => {
+        el.style.display = "none";
+    });
+
+    if (states[state]) {
+        states[state].style.display = "block";
     }
+}
 
-    function numberValue(value) {
-        if (
-            value === null ||
-            value === undefined ||
-            value === ""
-        ) {
-            return 0;
-        }
 
-        const cleaned = String(value)
-            .replace(/[$,]/g, "")
-            .trim();
+/* ---------------------------
+   GET PROFILE VALUES
+--------------------------- */
 
-        const number = Number(cleaned);
-
-        return Number.isFinite(number) ? number : 0;
-    }
-
-    function formatMoney(value) {
-        const number = numberValue(value);
-
-        if (!number) {
-            return "N/A";
-        }
-
-        return "$" + Math.round(number).toLocaleString();
-    }
-
-    function getCollegeData() {
-        if (
-            Array.isArray(window.COLLEGES) &&
-            window.COLLEGES.length
-        ) {
-            return window.COLLEGES;
-        }
-
-        if (
-            typeof collegesData !== "undefined" &&
-            Array.isArray(collegesData) &&
-            collegesData.length
-        ) {
-            return collegesData;
-        }
-
-        if (
-            Array.isArray(window.collegesData) &&
-            window.collegesData.length
-        ) {
-            return window.collegesData;
-        }
-
-        return [];
-    }
-
-    function getCollegeGPA(college) {
-        return numberValue(
-            college.avgGPA ||
-            college.avgGpa ||
-            college.gpa ||
-            college.averageGPA
-        );
-    }
-
-    function getCollegePrice(college) {
-        return numberValue(
-            college.netPrice ||
-            college.averageNetPrice ||
-            college.tuition ||
-            college.cost
-        );
-    }
-
-    /* =========================
-       LOCATION DATA
-    ========================= */
-
-    const NORTHEAST_STATES = [
-        "ME", "NH", "VT", "MA", "RI",
-        "CT", "NY", "NJ", "PA"
+function getProfileGPA(data) {
+    const possibleValues = [
+        data.gpa,
+        data.GPA,
+        data.currentGPA,
+        data.weightedGPA
     ];
 
-    const MIDWEST_STATES = [
-        "OH", "IN", "IL", "MI", "WI",
-        "MN", "IA", "MO", "ND", "SD",
-        "NE", "KS"
-    ];
+    for (const value of possibleValues) {
+        const num = parseFloat(value);
 
-    const SOUTH_STATES = [
-        "DE", "MD", "DC", "VA", "WV",
-        "NC", "SC", "GA", "FL", "KY",
-        "TN", "MS", "AL", "OK", "TX",
-        "AR", "LA"
-    ];
-
-    const WEST_STATES = [
-        "MT", "ID", "WY", "CO", "NM",
-        "AZ", "UT", "NV", "CA", "OR",
-        "WA", "AK", "HI"
-    ];
-
-    function locationMatchesPreference(preference, state) {
-        const pref = normalize(preference);
-        const collegeState = String(state || "")
-            .trim()
-            .toUpperCase();
-
-        if (!pref || pref === "anywhere") {
-            return true;
+        if (Number.isFinite(num) && num > 0) {
+            return num;
         }
-
-        if (
-            pref === "nj" ||
-            pref === "new jersey"
-        ) {
-            return collegeState === "NJ";
-        }
-
-        if (pref === "northeast") {
-            return NORTHEAST_STATES.includes(collegeState);
-        }
-
-        if (pref === "midwest") {
-            return MIDWEST_STATES.includes(collegeState);
-        }
-
-        if (pref === "south") {
-            return SOUTH_STATES.includes(collegeState);
-        }
-
-        if (pref === "west") {
-            return WEST_STATES.includes(collegeState);
-        }
-
-        return true;
     }
 
-    function getLocationScore(profile, college) {
-        const preference = normalize(profile.preferredLocation);
+    return null;
+}
 
-        if (!preference || preference === "anywhere") {
-            return {
-                points: 10,
-                reason: ""
-            };
+
+function getBudget(data) {
+    const possibleValues = [
+        data.maxTuition,
+        data.budget,
+        data.maxBudget,
+        data.tuitionCap
+    ];
+
+    for (const value of possibleValues) {
+        const num = parseFloat(value);
+
+        if (Number.isFinite(num) && num > 0) {
+            return num;
         }
-
-        if (
-            locationMatchesPreference(
-                preference,
-                college.state
-            )
-        ) {
-            return {
-                points: 20,
-                reason: "Matches your location preference"
-            };
-        }
-
-        return {
-            points: -20,
-            reason: "Outside your location preference"
-        };
     }
 
-    /* =========================
-       MATCH CALCULATION
-    ========================= */
+    return null;
+}
 
-    function calculateMatch(profile, college) {
-        let score = 0;
-        const reasons = [];
 
-        const studentGPA = numberValue(profile.gpa);
-        const studentBudget = numberValue(profile.budget);
+function getLocationPreference(data) {
+    return (
+        data.locationPreference ||
+        data.location ||
+        data.preferredLocation ||
+        data.locationPref ||
+        ""
+    );
+}
 
-        const collegeGPA = getCollegeGPA(college);
-        const collegePrice = getCollegePrice(college);
 
-        let gpaDifference = null;
+/* ---------------------------
+   GET COLLEGE ACADEMIC DATA
+--------------------------- */
 
-        /* GPA */
+function getCollegeGPA(college) {
+    const possibleValues = [
+        college.avgGPA,
+        college.averageGPA,
+        college.avg_gpa,
+        college.gpa,
+        college.average_gpa
+    ];
 
-        if (studentGPA > 0 && collegeGPA > 0) {
-            gpaDifference = studentGPA - collegeGPA;
+    for (const value of possibleValues) {
+        const num = parseFloat(value);
 
-            if (gpaDifference >= 0.70) {
-                score += 40;
-                reasons.push("Your GPA is well above this school's typical GPA");
-            } else if (gpaDifference >= 0.40) {
-                score += 34;
-                reasons.push("Your GPA is above this school's typical range");
-            } else if (gpaDifference >= 0.15) {
-                score += 28;
-                reasons.push("Your GPA is a strong fit");
-            } else if (gpaDifference >= -0.15) {
-                score += 22;
-                reasons.push("Your GPA is close to this school's range");
-            } else if (gpaDifference >= -0.35) {
-                score += 14;
-                reasons.push("This is a competitive academic match");
-            } else if (gpaDifference >= -0.60) {
-                score += 7;
-                reasons.push("Your GPA makes this a reach");
-            } else {
-                score += 2;
-                reasons.push("Your GPA makes this a high reach");
-            }
-        } else {
-            score += 20;
+        if (Number.isFinite(num) && num > 0) {
+            return num;
+        }
+    }
+
+    return null;
+}
+
+
+function getAcceptanceRate(college) {
+    const possibleValues = [
+        college.acceptanceRate,
+        college.acceptance_rate,
+        college.rate,
+        college.admissionRate
+    ];
+
+    for (const value of possibleValues) {
+        if (value === null || value === undefined || value === "") continue;
+
+        const cleaned = String(value).replace("%", "").trim();
+        const num = parseFloat(cleaned);
+
+        if (!Number.isFinite(num)) continue;
+
+        return num <= 1 ? num * 100 : num;
+    }
+
+    return null;
+}
+
+
+function getCollegePrice(college) {
+    const possibleValues = [
+        college.netPrice,
+        college.net_price,
+        college.cost,
+        college.price
+    ];
+
+    for (const value of possibleValues) {
+        const num = parseFloat(value);
+
+        if (Number.isFinite(num) && num > 0) {
+            return num;
+        }
+    }
+
+    return null;
+}
+
+
+/* ---------------------------
+   ACADEMIC CATEGORY
+
+   GPA is the MAIN factor.
+
+   Reach:
+   School GPA noticeably above yours
+   OR extremely selective when GPA is unavailable.
+
+   Match:
+   School GPA around yours.
+
+   Safety:
+   School GPA clearly below yours
+   AND/OR less selective.
+--------------------------- */
+
+function categorizeCollege(college, userGPA) {
+    const collegeGPA = getCollegeGPA(college);
+    const acceptanceRate = getAcceptanceRate(college);
+
+    /* Best case: actual GPA data exists */
+    if (collegeGPA !== null) {
+        const gap = collegeGPA - userGPA;
+
+        /*
+          Example with a 3.9:
+          4.05+  = Reach
+          3.70-4.04 = Match
+          below 3.70 = Safety
+        */
+
+        if (gap >= 0.15) {
+            return "reach";
         }
 
-        /* BUDGET */
-
-        if (studentBudget > 0 && collegePrice > 0) {
-            if (collegePrice <= studentBudget * 0.70) {
-                score += 25;
-                reasons.push("Well within your annual budget");
-            } else if (collegePrice <= studentBudget) {
-                score += 21;
-                reasons.push("Fits within your annual budget");
-            } else if (collegePrice <= studentBudget * 1.15) {
-                score += 13;
-                reasons.push("Close to your budget");
-            } else if (collegePrice <= studentBudget * 1.35) {
-                score += 6;
-                reasons.push("Above your budget");
-            } else {
-                score += 1;
-                reasons.push("Significantly above your budget");
-            }
-        } else {
-            score += 12;
-        }
-
-        /* LOCATION */
-
-        const locationResult = getLocationScore(profile, college);
-
-        score += locationResult.points;
-
-        if (locationResult.reason) {
-            reasons.push(locationResult.reason);
+        if (gap <= -0.20) {
+            return "safety";
         }
 
         /*
-         * Convert the score to a percentage-like number.
-         * This keeps the scores spread out instead of
-         * every college becoming 99%.
-         */
-
-        score = Math.round(
-            Math.max(1, Math.min(99, score))
-        );
-
-        /* CATEGORY */
-
-        let category;
-
-        if (gpaDifference !== null) {
-            if (gpaDifference < -0.20) {
-                category = "reach";
-            } else if (gpaDifference >= 0.55) {
-                category = "safety";
-            } else {
-                category = "match";
-            }
-        } else {
-            if (score < 35) {
-                category = "reach";
-            } else if (score >= 65) {
-                category = "safety";
-            } else {
-                category = "match";
-            }
+          GPA is close.
+          Very selective schools can still move to Reach.
+        */
+        if (acceptanceRate !== null && acceptanceRate < 12) {
+            return "reach";
         }
 
-        return {
-            score: score,
-            category: category,
-            reasons: reasons
-        };
+        return "match";
     }
 
-    /* =========================
-       BUILD MATCHES
-    ========================= */
 
-    function buildMatches() {
-        const colleges = getCollegeData();
+    /*
+      Backup when college GPA isn't in your data.js.
+      Use competitiveness instead of pretending
+      location has anything to do with Reach/Match/Safety.
+    */
 
-        if (!colleges.length) {
-            content.innerHTML = `
-                <div class="empty-state">
-                    <h2>College data couldn't load</h2>
-                    <p>Please make sure data.js is loading correctly.</p>
-                </div>
+    if (acceptanceRate !== null) {
+        if (acceptanceRate < 15) return "reach";
+        if (acceptanceRate >= 55) return "safety";
+
+        return "match";
+    }
+
+
+    /*
+      If your college dataset has neither GPA nor
+      acceptance rate, put it in Match rather than
+      making up a fake percentage.
+    */
+    return "match";
+}
+
+
+function categoryTitle(category) {
+    if (category === "reach") return "Reach schools";
+    if (category === "match") return "Match schools";
+    return "Safety schools";
+}
+
+
+function categorySubtitle(category, userGPA) {
+    if (category === "reach") {
+        return `More academically competitive than your current ${userGPA.toFixed(1)} GPA profile.`;
+    }
+
+    if (category === "match") {
+        return `Your academic profile is generally in range for these schools.`;
+    }
+
+    return `Your current academic profile is stronger than the typical range used here.`;
+}
+
+
+/* ---------------------------
+   WHY THIS SCHOOL IS HERE
+--------------------------- */
+
+function getWhyFit(college, category, userGPA, budget) {
+    const collegeGPA = getCollegeGPA(college);
+    const rate = getAcceptanceRate(college);
+    const price = getCollegePrice(college);
+
+    let reasons = [];
+
+    if (collegeGPA !== null) {
+        if (category === "reach") {
+            reasons.push(
+                `its listed average GPA (${collegeGPA.toFixed(1)}) is above your ${userGPA.toFixed(1)}`
+            );
+        } else if (category === "match") {
+            reasons.push(
+                `its listed average GPA (${collegeGPA.toFixed(1)}) is close to your ${userGPA.toFixed(1)}`
+            );
+        } else {
+            reasons.push(
+                `its listed average GPA (${collegeGPA.toFixed(1)}) is below your ${userGPA.toFixed(1)}`
+            );
+        }
+    }
+
+    if (rate !== null) {
+        if (rate < 15) {
+            reasons.push(`it is highly selective with about a ${rate.toFixed(0)}% acceptance rate`);
+        } else if (rate >= 55 && category === "safety") {
+            reasons.push(`its admission rate of about ${rate.toFixed(0)}% adds to its Safety profile`);
+        }
+    }
+
+    if (budget && price) {
+        if (price <= budget) {
+            reasons.push(`its estimated yearly cost fits your budget`);
+        } else {
+            reasons.push(`its estimated yearly cost is above your saved budget`);
+        }
+    }
+
+    if (reasons.length === 0) {
+        reasons.push(
+            "available college data places it in this academic group"
+        );
+    }
+
+    return reasons.join(" · ");
+}
+
+
+/* ---------------------------
+   LOCATION IS ONLY A DETAIL
+   NOT THE CATEGORY
+--------------------------- */
+
+function locationNote(college) {
+    const state = college.state || "";
+    const preference = String(getLocationPreference(userProfile)).toLowerCase();
+
+    if (!preference) return "";
+
+    if (
+        preference.includes("new jersey") ||
+        preference === "nj"
+    ) {
+        return state === "NJ"
+            ? "Matches your NJ location preference"
+            : "Outside your NJ location preference";
+    }
+
+    return "";
+}
+
+
+/* ---------------------------
+   RENDER CARD
+--------------------------- */
+
+function collegeCardHtml(college) {
+    const category = college.matchCategory;
+    const uid = sanitizeId(college.id || college.name);
+
+    const collegeGPA = getCollegeGPA(college);
+    const acceptanceRate = getAcceptanceRate(college);
+    const price = getCollegePrice(college);
+    const budget = getBudget(userProfile);
+
+    const name = college.name || "Unnamed college";
+    const type = college.type || "College";
+    const city = college.city || "";
+    const state = college.state || "";
+    const country = college.country || "";
+
+    const location = [city, state, country]
+        .filter(Boolean)
+        .join(", ");
+
+    const locationText = location || "Location unavailable";
+
+    let budgetPill = "";
+
+    if (budget && price) {
+        if (price <= budget) {
+            budgetPill = `
+                <span class="detail-pill">
+                    <strong>Budget:</strong> Within your cap
+                </span>
             `;
+        } else {
+            budgetPill = `
+                <span class="detail-pill">
+                    <strong>Budget:</strong> Above your cap
+                </span>
+            `;
+        }
+    }
+
+    const locationPreferenceText = locationNote(college);
+
+    return `
+        <article class="college-match-card">
+
+            <div class="college-top">
+
+                <div>
+                    <div class="college-name">
+                        ${escapeHtml(name)}
+                    </div>
+
+                    <div class="college-meta">
+                        ${escapeHtml(type)} · ${escapeHtml(locationText)}
+                    </div>
+                </div>
+
+                ${
+                    price
+                        ? `
+                            <div class="college-price">
+                                <div class="college-price-label">
+                                    Est. cost / year
+                                </div>
+                                <div class="college-price-number">
+                                    ${formatCurrency(price)}
+                                </div>
+                            </div>
+                        `
+                        : ""
+                }
+
+            </div>
+
+
+            <div class="college-details">
+
+                ${
+                    collegeGPA !== null
+                        ? `
+                            <span class="detail-pill">
+                                <strong>Avg GPA:</strong> ${collegeGPA.toFixed(1)}
+                            </span>
+                        `
+                        : ""
+                }
+
+                ${
+                    acceptanceRate !== null
+                        ? `
+                            <span class="detail-pill">
+                                <strong>Acceptance:</strong> ${acceptanceRate.toFixed(0)}%
+                            </span>
+                        `
+                        : ""
+                }
+
+                ${budgetPill}
+
+                ${
+                    locationPreferenceText
+                        ? `
+                            <span class="detail-pill">
+                                ${escapeHtml(locationPreferenceText)}
+                            </span>
+                        `
+                        : ""
+                }
+
+            </div>
+
+
+            <div class="why-fit">
+                <strong>Why it's here:</strong>
+                ${escapeHtml(
+                    getWhyFit(
+                        college,
+                        category,
+                        getProfileGPA(userProfile),
+                        budget
+                    )
+                )}
+            </div>
+
+
+            <div class="save-area">
+
+                <div class="save-options">
+
+                    <select id="priority-${uid}">
+                        <option value="Top Choice">Top Choice / #1 Pick</option>
+                        <option value="Considering" selected>Considering</option>
+                        <option value="Safety Backup">Safety Backup</option>
+                    </select>
+
+                    <textarea
+                        id="notes-${uid}"
+                        placeholder="Add notes about this college..."
+                    ></textarea>
+
+                </div>
+
+                <div class="save-row-bottom">
+
+                    <span id="save-status-${uid}" class="save-status">
+                        Save it to keep it in My List.
+                    </span>
+
+                    <button
+                        class="save-match-btn"
+                        id="save-btn-${uid}"
+                        onclick="saveCollege('${escapeHtml(String(college.id || uid))}')"
+                    >
+                        Save to My List
+                    </button>
+
+                </div>
+
+            </div>
+
+        </article>
+    `;
+}
+
+
+/* ---------------------------
+   RENDER RESULTS
+--------------------------- */
+
+function renderResults() {
+    const container = document.getElementById("results-groups");
+
+    const reach = allMatches.filter(c => c.matchCategory === "reach");
+    const match = allMatches.filter(c => c.matchCategory === "match");
+    const safety = allMatches.filter(c => c.matchCategory === "safety");
+
+    document.getElementById("all-count").textContent = allMatches.length;
+    document.getElementById("reach-count").textContent = reach.length;
+    document.getElementById("match-count").textContent = match.length;
+    document.getElementById("safety-count").textContent = safety.length;
+
+
+    let groups = [];
+
+    if (currentFilter === "all" || currentFilter === "reach") {
+        groups.push({
+            category: "reach",
+            items: reach
+        });
+    }
+
+    if (currentFilter === "all" || currentFilter === "match") {
+        groups.push({
+            category: "match",
+            items: match
+        });
+    }
+
+    if (currentFilter === "all" || currentFilter === "safety") {
+        groups.push({
+            category: "safety",
+            items: safety
+        });
+    }
+
+
+    const visibleGroups = groups.filter(group => group.items.length > 0);
+
+    if (visibleGroups.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <h2>No colleges in this group</h2>
+                <p>
+                    Try another category or check that your college data includes GPA or admission information.
+                </p>
+            </div>
+        `;
+        return;
+    }
+
+
+    container.innerHTML = visibleGroups.map(group => `
+        <section class="match-section">
+
+            <div class="match-section-head">
+                <div>
+                    <p class="eyebrow">
+                        ${group.category.toUpperCase()}
+                    </p>
+
+                    <h2>
+                        ${categoryTitle(group.category)}
+                    </h2>
+
+                    <p>
+                        ${categorySubtitle(
+                            group.category,
+                            getProfileGPA(userProfile)
+                        )}
+                    </p>
+                </div>
+            </div>
+
+            ${group.items.map(college => collegeCardHtml(college)).join("")}
+
+        </section>
+    `).join("");
+}
+
+
+/* ---------------------------
+   TABS
+--------------------------- */
+
+document.querySelectorAll(".match-tab").forEach(button => {
+    button.addEventListener("click", () => {
+        currentFilter = button.dataset.filter;
+
+        document.querySelectorAll(".match-tab").forEach(tab => {
+            tab.classList.remove("active");
+        });
+
+        button.classList.add("active");
+
+        renderResults();
+
+        document.getElementById("results-groups").scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    });
+});
+
+
+/* ---------------------------
+   SAVE TO MY LIST
+--------------------------- */
+
+async function saveCollege(collegeId) {
+    if (!currentUser) return;
+
+    const college = allMatches.find(c =>
+        String(c.id || sanitizeId(c.name)) === String(collegeId)
+    );
+
+    if (!college) {
+        console.error("College not found:", collegeId);
+        return;
+    }
+
+    const uid = sanitizeId(college.id || college.name);
+
+    const button = document.getElementById(`save-btn-${uid}`);
+    const status = document.getElementById(`save-status-${uid}`);
+    const priority = document.getElementById(`priority-${uid}`).value;
+    const notes = document.getElementById(`notes-${uid}`).value.trim();
+
+    button.disabled = true;
+    button.textContent = "Saving...";
+    status.textContent = "Saving to your account...";
+
+    try {
+        const db = window.capitnjFirebase.db;
+
+        await db
+            .collection("users")
+            .doc(currentUser.uid)
+            .collection("savedColleges")
+            .doc(uid)
+            .set({
+                name: college.name || "Unnamed college",
+                state: college.state || "",
+                city: college.city || "",
+                country: college.country || "",
+                type: college.type || "",
+                rate: college.rate || college.acceptanceRate || "N/A",
+                acceptanceRate: getAcceptanceRate(college),
+                avgGPA: getCollegeGPA(college),
+                netPrice: getCollegePrice(college),
+                priority: priority,
+                notes: notes,
+                timestamp: new Date().toISOString()
+            });
+
+        button.textContent = "Saved ✓";
+        status.textContent = "Saved to My List.";
+
+    } catch (error) {
+        console.error("Error saving college:", error);
+
+        button.disabled = false;
+        button.textContent = "Save to My List";
+        status.textContent = "Couldn't save. Try again.";
+    }
+}
+
+
+/* ---------------------------
+   LOAD PROFILE + MATCHES
+--------------------------- */
+
+async function loadMatches(user) {
+    currentUser = user;
+    showOnly("loading");
+
+    try {
+        const db = window.capitnjFirebase.db;
+
+        const profileSnapshot = await db
+            .collection("users")
+            .doc(user.uid)
+            .get();
+
+        userProfile = profileSnapshot.exists
+            ? profileSnapshot.data()
+            : null;
+
+
+        const userGPA = userProfile
+            ? getProfileGPA(userProfile)
+            : null;
+
+
+        if (!userProfile || userGPA === null) {
+            showOnly("profile");
             return;
         }
 
-        allMatches = colleges
-            .filter(function (college) {
-                return college && college.name;
-            })
-            .map(function (college) {
-                const result = calculateMatch(
-                    currentProfile,
-                    college
-                );
 
-                return {
-                    college: college,
-                    score: result.score,
-                    category: result.category,
-                    reasons: result.reasons
-                };
-            })
-            .sort(function (a, b) {
-                return b.score - a.score;
-            });
+        const budget = getBudget(userProfile);
+        const locationPreference = getLocationPreference(userProfile);
 
-        renderMatchesPage();
-    }
 
-    /* =========================
-       RENDER PAGE
-    ========================= */
-
-    function renderMatchesPage() {
-        const gpa = numberValue(currentProfile.gpa);
-        const budget = numberValue(currentProfile.budget);
-        const location =
-            currentProfile.preferredLocation || "Anywhere";
-
-        content.innerHTML = `
-            <div class="matches-summary">
-
-                ${
-                    gpa
-                        ? `
-                            <div class="summary-pill">
-                                <strong>GPA:</strong> ${escapeHtml(gpa)}
-                            </div>
-                        `
-                        : ""
-                }
-
-                ${
-                    budget
-                        ? `
-                            <div class="summary-pill">
-                                <strong>Budget:</strong>
-                                ${escapeHtml(formatMoney(budget))}/yr
-                            </div>
-                        `
-                        : ""
-                }
-
-                <div class="summary-pill">
-                    <strong>Location:</strong>
-                    ${escapeHtml(location)}
-                </div>
-
+        document.getElementById("profile-summary").innerHTML = `
+            <div class="summary-chip">
+                GPA: <strong>${userGPA.toFixed(1)}</strong>
             </div>
 
-            <div class="match-filters">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="reach">Reach</button>
-                <button class="filter-btn" data-filter="match">Match</button>
-                <button class="filter-btn" data-filter="safety">Safety</button>
-            </div>
+            ${
+                budget
+                    ? `
+                        <div class="summary-chip">
+                            Budget: <strong>up to ${formatCurrency(budget)}/yr</strong>
+                        </div>
+                    `
+                    : ""
+            }
 
-            <p id="match-count" class="match-count"></p>
-
-            <div id="matches-list"></div>
+            ${
+                locationPreference
+                    ? `
+                        <div class="summary-chip">
+                            Location: <strong>${escapeHtml(locationPreference)}</strong>
+                        </div>
+                    `
+                    : ""
+            }
         `;
 
-        document
-            .querySelectorAll(".filter-btn")
-            .forEach(function (button) {
-                button.addEventListener("click", function () {
-                    activeFilter = button.dataset.filter;
 
-                    document
-                        .querySelectorAll(".filter-btn")
-                        .forEach(function (item) {
-                            item.classList.remove("active");
-                        });
+        const colleges = Array.isArray(window.COLLEGES)
+            ? window.COLLEGES
+            : [];
 
-                    button.classList.add("active");
 
-                    renderMatchCards();
-                });
-            });
-
-        renderMatchCards();
-    }
-
-    /* =========================
-       RENDER CARDS
-    ========================= */
-
-    function renderMatchCards() {
-        const list =
-            document.getElementById("matches-list");
-
-        const count =
-            document.getElementById("match-count");
-
-        if (!list || !count) {
-            return;
-        }
-
-        let visibleMatches = allMatches;
-
-        if (activeFilter !== "all") {
-            visibleMatches = allMatches.filter(function (item) {
-                return item.category === activeFilter;
-            });
-        }
-
-        count.textContent =
-            visibleMatches.length +
-            " college" +
-            (visibleMatches.length === 1 ? "" : "s") +
-            (
-                activeFilter === "all"
-                    ? " ranked"
-                    : " in this category"
+        if (colleges.length === 0) {
+            throw new Error(
+                "No college data was found. Make sure data.js loads before Matches."
             );
-
-        const matchesToShow =
-            visibleMatches.slice(0, 100);
-
-        if (!matchesToShow.length) {
-            list.innerHTML = `
-                <div class="empty-state">
-                    <h2>No colleges here yet</h2>
-                    <p>Try another match category.</p>
-                </div>
-            `;
-            return;
         }
 
-        list.innerHTML = matchesToShow
-            .map(function (item) {
-                const college = item.college;
-                const collegeGPA = getCollegeGPA(college);
-                const collegePrice = getCollegePrice(college);
 
-                const collegeId = String(
-                    college.id || college.name
-                );
+        /*
+          IMPORTANT:
 
-                const reasons = item.reasons
-                    .slice(0, 3)
-                    .map(function (reason) {
-                        return `
-                            <span class="match-tag">
-                                ${escapeHtml(reason)}
-                            </span>
-                        `;
-                    })
-                    .join("");
+          Budget and location DO NOT decide whether
+          something is Reach, Match, or Safety.
 
-                return `
-                    <article class="match-card">
+          Every available college gets categorized
+          academically so your page doesn't randomly
+          become empty just because of a budget filter.
+        */
 
-                        <div class="match-top">
+        allMatches = colleges.map(college => ({
+            ...college,
+            matchCategory: categorizeCollege(college, userGPA)
+        }));
 
-                            <div>
-                                <h2 class="match-name">
-                                    ${escapeHtml(college.name)}
-                                </h2>
 
-                                <div class="match-meta">
-                                    ${escapeHtml(
-                                        [
-                                            college.type,
-                                            college.setting,
-                                            college.state,
-                                            college.country
-                                        ]
-                                        .filter(Boolean)
-                                        .join(" · ")
-                                    )}
-                                </div>
-                            </div>
+        /*
+          Sort within each category:
 
-                            <div class="match-score-box">
-                                <div class="match-score">
-                                    ${item.score}%
-                                </div>
+          1. Schools inside budget first
+          2. Then closest academic fit
+        */
 
-                                <div class="match-score-label">
-                                    profile fit
-                                </div>
-                            </div>
+        allMatches.sort((a, b) => {
+            const aCategory = ["reach", "match", "safety"].indexOf(a.matchCategory);
+            const bCategory = ["reach", "match", "safety"].indexOf(b.matchCategory);
 
-                        </div>
-
-                        <div class="match-tags">
-
-                            <span class="match-tag ${item.category}">
-                                ${escapeHtml(
-                                    item.category.toUpperCase()
-                                )}
-                            </span>
-
-                            ${reasons}
-
-                        </div>
-
-                        <div class="match-info">
-
-                            <span>
-                                Typical GPA:
-                                ${
-                                    collegeGPA
-                                        ? escapeHtml(collegeGPA)
-                                        : "N/A"
-                                }
-                            </span>
-
-                            <span>
-                                Est. cost:
-                                ${escapeHtml(formatMoney(collegePrice))}
-                            </span>
-
-                        </div>
-
-                        <div class="match-actions">
-                            <button
-                                class="save-match-btn"
-                                data-college-id="${escapeHtml(collegeId)}"
-                            >
-                                Save to My List
-                            </button>
-                        </div>
-
-                    </article>
-                `;
-            })
-            .join("");
-
-        if (visibleMatches.length > 100) {
-            count.textContent += " · showing top 100";
-        }
-
-        document
-            .querySelectorAll(".save-match-btn")
-            .forEach(function (button) {
-                button.addEventListener("click", async function () {
-                    const id = button.dataset.collegeId;
-
-                    const item = allMatches.find(function (match) {
-                        return String(
-                            match.college.id ||
-                            match.college.name
-                        ) === id;
-                    });
-
-                    if (!item) {
-                        return;
-                    }
-
-                    await saveCollege(
-                        item.college,
-                        button
-                    );
-                });
-            });
-    }
-
-    /* =========================
-       SAVE COLLEGE
-    ========================= */
-
-    async function saveCollege(college, button) {
-        if (!currentUser) {
-            alert("Please log in first.");
-            return;
-        }
-
-        button.disabled = true;
-        button.textContent = "Saving...";
-
-        try {
-            let savedColleges = [];
-
-            try {
-                savedColleges = JSON.parse(
-                    localStorage.getItem("savedColleges") || "[]"
-                );
-            } catch (error) {
-                savedColleges = [];
+            if (aCategory !== bCategory) {
+                return aCategory - bCategory;
             }
 
-            if (!Array.isArray(savedColleges)) {
-                savedColleges = [];
-            }
+            const aPrice = getCollegePrice(a);
+            const bPrice = getCollegePrice(b);
 
-            const collegeId =
-                college.id || college.name;
+            if (budget) {
+                const aFits = aPrice !== null && aPrice <= budget;
+                const bFits = bPrice !== null && bPrice <= budget;
 
-            const alreadySaved = savedColleges.some(
-                function (saved) {
-                    return String(saved.id) === String(collegeId);
-                }
-            );
-
-            if (!alreadySaved) {
-                savedColleges.push({
-                    id: collegeId,
-                    name: college.name
-                });
-
-                localStorage.setItem(
-                    "savedColleges",
-                    JSON.stringify(savedColleges)
-                );
-            }
-
-            const safeDocumentId = String(collegeId)
-                .replace(/[\/.#$[\]]/g, "_");
-
-            await window.capitnjFirebase.db
-                .collection("users")
-                .doc(currentUser.uid)
-                .collection("savedColleges")
-                .doc(safeDocumentId)
-                .set({
-                    id: collegeId,
-                    name: college.name || "",
-                    state: college.state || "",
-                    country: college.country || "",
-                    priority: "Considering",
-                    source: "Matches",
-                    savedAt: new Date().toISOString()
-                }, {
-                    merge: true
-                });
-
-            button.textContent = "Saved ✓";
-
-        } catch (error) {
-            console.error(
-                "Error saving college:",
-                error
-            );
-
-            button.disabled = false;
-            button.textContent = "Save to My List";
-        }
-    }
-
-    /* =========================
-       LOAD PROFILE
-    ========================= */
-
-    async function loadProfile(user) {
-        try {
-            const profileSnapshot =
-                await window.capitnjFirebase.db
-                    .collection("users")
-                    .doc(user.uid)
-                    .get();
-
-            let profile = null;
-
-            if (profileSnapshot.exists) {
-                profile = profileSnapshot.data();
-            }
-
-            if (!profile) {
-                const localProfile =
-                    localStorage.getItem("userProfile");
-
-                if (localProfile) {
-                    try {
-                        profile = JSON.parse(localProfile);
-                    } catch (error) {
-                        profile = null;
-                    }
+                if (aFits !== bFits) {
+                    return aFits ? -1 : 1;
                 }
             }
 
-            if (!profile) {
-                content.innerHTML = `
-                    <div class="empty-state">
-                        <h2>Finish your profile first</h2>
-                        <p>
-                            Add your GPA, annual budget, and location
-                            preferences so CapItNJ can rank colleges for you.
-                        </p>
+            const aGPA = getCollegeGPA(a);
+            const bGPA = getCollegeGPA(b);
 
-                        <a href="profile.html" class="btn-link">
-                            Go to Profile
-                        </a>
-                    </div>
-                `;
-                return;
-            }
+            const aGap = aGPA !== null
+                ? Math.abs(aGPA - userGPA)
+                : 999;
 
-            currentProfile = {
-                name: profile.name || "",
-                email: profile.email || user.email || "",
-                state: profile.state || "",
-                gpa:
-                    profile.gpa !== undefined
-                        ? profile.gpa
-                        : "",
-                sat: profile.sat || null,
-                act: profile.act || null,
-                budget:
-                    profile.budget !== undefined
-                        ? profile.budget
-                        : "",
-                preferredLocation:
-                    profile.preferredLocation || ""
-            };
+            const bGap = bGPA !== null
+                ? Math.abs(bGPA - userGPA)
+                : 999;
 
-            localStorage.setItem(
-                "userProfile",
-                JSON.stringify(currentProfile)
-            );
+            return aGap - bGap;
+        });
 
-            buildMatches();
 
-        } catch (error) {
-            console.error(
-                "Could not load profile:",
-                error
-            );
+        showOnly("matches");
+        renderResults();
 
-            content.innerHTML = `
-                <div class="empty-state">
-                    <h2>We couldn't load your profile</h2>
-                    <p>Please refresh and try again.</p>
-                </div>
-            `;
-        }
+    } catch (error) {
+        console.error("Error loading matches:", error);
+
+        document.getElementById("error-message").textContent =
+            error.message ||
+            "Something went wrong while loading your matches.";
+
+        showOnly("error");
+    }
+}
+
+
+/* ---------------------------
+   FIREBASE START
+--------------------------- */
+
+function startMatches() {
+    if (pageStarted) return;
+
+    if (!window.capitnjFirebase) {
+        return;
     }
 
-    /* =========================
-       START
-    ========================= */
+    pageStarted = true;
 
-    function startMatches() {
-        if (
-            !window.capitnjFirebase ||
-            !window.capitnjFirebase.auth ||
-            !window.capitnjFirebase.db
-        ) {
-            window.addEventListener(
-                "firebase-ready",
-                startMatches,
-                { once: true }
-            );
-
+    window.capitnjFirebase.auth.onAuthStateChanged(async user => {
+        if (!user) {
+            document.getElementById("profile-summary").innerHTML = "";
+            showOnly("login");
             return;
         }
 
-        window.capitnjFirebase.auth.onAuthStateChanged(
-            function (user) {
-                if (!user) {
-                    content.innerHTML = `
-                        <div class="login-gate">
-                            <h2>Log in to get your matches</h2>
+        await loadMatches(user);
+    });
+}
 
-                            <p>
-                                Your saved GPA, budget, and location
-                                preferences are used to rank colleges for you.
-                            </p>
 
-                            <a href="login.html" class="btn-link">
-                                Log in
-                            </a>
-                        </div>
-                    `;
-
-                    return;
-                }
-
-                currentUser = user;
-                loadProfile(user);
-            }
-        );
-    }
-
+/* Firebase already loaded */
+if (window.capitnjFirebase) {
     startMatches();
+}
 
-})();
+/* Or wait for firebase-init.js */
+window.addEventListener(
+    "firebase-ready",
+    startMatches,
+    { once: true }
+);
 </script>
 
 </body>
