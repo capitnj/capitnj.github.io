@@ -1,4 +1,10 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+
+import {
+    initializeAppCheck,
+    ReCaptchaEnterpriseProvider
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app-check.js";
+
 import {
     getAI,
     getGenerativeModel,
@@ -17,19 +23,32 @@ const firebaseConfig = {
 };
 
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 
+// Initialize Firebase App Check
+const appCheck = initializeAppCheck(app, {
+    provider: new ReCaptchaEnterpriseProvider(
+        "6Le3v5QtAAAAADmrLYAj45flAtG13rwxjrZUIe83"
+    ),
+    isTokenAutoRefreshEnabled: true
+});
+
+
+// Initialize Firebase AI
 const ai = getAI(app, {
     backend: new GoogleAIBackend()
 });
 
 
+// Gemini model
 const model = getGenerativeModel(ai, {
     model: "gemini-3.6-flash"
 });
 
 
+// Page elements
 const chatMessages = document.getElementById("chatMessages");
 const questionInput = document.getElementById("questionInput");
 const sendButton = document.getElementById("sendButton");
@@ -61,6 +80,7 @@ async function sendQuestion() {
     addMessage(question, "user");
 
     questionInput.value = "";
+
     sendButton.disabled = true;
     sendButton.textContent = "Thinking...";
 
@@ -99,19 +119,21 @@ ${question}
         const result = await model.generateContent(prompt);
 
         const response = result.response;
+
         const answer = response.text();
 
         addMessage(answer, "ai");
 
     } catch (error) {
 
-        console.error(error);
+        console.error("CAPI ERROR:", error);
 
+        // Show the actual error while we're debugging
         addMessage(
-            "Oops 😭 Capi couldn't answer right now. Please try again in a moment.",
+            "Capi hit an error 😭\n\n" +
+            (error?.message || "Unknown error"),
             "ai"
         );
-
     }
 
 
