@@ -4,120 +4,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Ask Capi | CapitNJ</title>
+    <title>Ask Capi | CapItNJ</title>
 
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* =========================================================
-           CAPI — NEW LAYOUT
-           ========================================================= */
+        /* =====================================================
+           ASK CAPI — CHATGPT-STYLE LAYOUT
+           ===================================================== */
 
         body {
             background: var(--bg);
+            overflow: hidden;
         }
 
-        .capi-page {
-            min-height: calc(100vh - 70px);
+        /* =====================================================
+           NAV
+           ===================================================== */
+
+        .nav {
+            position: relative;
+            z-index: 10;
+        }
+
+        .nav-links a.active {
+            color: var(--accent);
+        }
+
+        /* =====================================================
+           CHAT APP
+           ===================================================== */
+
+        .capi-app {
+            height: calc(100vh - 70px);
             display: flex;
             flex-direction: column;
+            background: var(--bg);
         }
 
-        /* =========================================================
-           HERO
-           ========================================================= */
+        /* =====================================================
+           CHAT AREA
+           ===================================================== */
 
-        .capi-hero {
+        .capi-chat {
+            flex: 1;
             width: 100%;
-            max-width: 1120px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        .capi-chat-inner {
+            width: 100%;
+            max-width: 850px;
             margin: 0 auto;
-
-            padding: 72px 32px 38px;
+            padding: 55px 28px 150px;
         }
 
-        .capi-eyebrow {
-            font-family: var(--font-mono);
-            font-size: 10px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+        /* =====================================================
+           WELCOME
+           ===================================================== */
 
-            color: var(--accent);
-
-            margin-bottom: 14px;
+        .capi-welcome {
+            min-height: 430px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
         }
 
-        .capi-hero h1 {
+        .capi-mark {
+            width: 48px;
+            height: 48px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 14px;
+
+            background: var(--accent);
+            color: #fff;
+
+            font-family: var(--font-display);
+            font-size: 23px;
+            font-weight: 600;
+
+            margin-bottom: 20px;
+
+            box-shadow:
+                0 8px 24px rgba(30, 58, 95, 0.14);
+        }
+
+        .capi-welcome h1 {
             margin: 0;
 
             font-family: var(--font-display);
-            font-size: 58px;
+            font-size: 38px;
             font-weight: 600;
 
             letter-spacing: -0.035em;
-            line-height: 1;
+            line-height: 1.05;
 
             color: var(--ink);
         }
 
-        .capi-hero h1 em {
+        .capi-welcome h1 em {
             color: var(--accent-light);
             font-style: italic;
         }
 
-        .capi-hero-copy {
-            max-width: 570px;
+        .capi-welcome p {
+            max-width: 520px;
 
-            margin: 18px 0 0;
+            margin: 14px auto 0;
 
             color: var(--ink-soft);
-            font-size: 15px;
+
+            font-size: 14px;
             line-height: 1.65;
         }
 
-        /* =========================================================
-           MAIN CHAT WORKSPACE
-           ========================================================= */
-
-        .capi-workspace {
-            width: 100%;
-            max-width: 1120px;
-
-            margin: 0 auto;
-
-            padding: 0 32px 70px;
-
-            flex: 1;
-        }
-
-        .capi-divider {
-            width: 100%;
-            height: 1px;
-
-            background: var(--line);
-
-            margin-bottom: 0;
-        }
-
-        /* =========================================================
-           CHAT
-           ========================================================= */
+        /* =====================================================
+           MESSAGES
+           ===================================================== */
 
         #chatMessages {
-            min-height: 390px;
-
-            padding: 34px 4px 20px;
-
-            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
         }
 
         .message {
             width: 100%;
-
             display: flex;
 
-            margin-bottom: 24px;
-
-            animation: messageIn 0.25s ease both;
+            animation: messageIn 0.2s ease both;
         }
 
         .message.ai {
@@ -131,86 +154,70 @@
         .bubble {
             font-family: var(--font-body);
             font-size: 14px;
-            line-height: 1.65;
+            line-height: 1.7;
 
             white-space: pre-wrap;
         }
 
-        /* CAPI MESSAGE */
+        /* AI */
 
         .ai .bubble {
-            max-width: 760px;
-
-            padding: 0;
-
+            max-width: 720px;
             color: var(--ink);
         }
 
         .capi-label {
             display: flex;
             align-items: center;
-
             gap: 8px;
 
-            margin-bottom: 9px;
+            margin-bottom: 8px;
 
             font-family: var(--font-mono);
             font-size: 10px;
-            letter-spacing: 0.06em;
+            letter-spacing: 0.07em;
             text-transform: uppercase;
 
             color: var(--accent);
         }
 
         .capi-label-line {
-            width: 18px;
+            width: 17px;
             height: 1px;
-
             background: var(--accent-light);
         }
 
-        .capi-welcome-text {
-            max-width: 680px;
-
-            font-size: 15px;
-            line-height: 1.7;
-        }
-
-        .capi-welcome-text p {
-            margin: 0 0 12px;
-        }
-
-        .capi-welcome-text p:last-child {
-            margin-bottom: 0;
-        }
-
-        /* USER MESSAGE */
+        /* USER */
 
         .user .bubble {
             max-width: 650px;
 
-            padding: 12px 17px;
+            padding: 11px 16px;
 
             background: var(--accent);
             color: #fff;
 
-            border-radius: 15px 15px 3px 15px;
+            border-radius: 15px 15px 4px 15px;
 
             box-shadow:
-                0 6px 16px rgba(30, 58, 95, 0.13);
+                0 5px 14px rgba(30, 58, 95, 0.12);
         }
 
-        /* =========================================================
+        /* =====================================================
            SUGGESTIONS
-           ========================================================= */
+           ===================================================== */
 
         .capi-suggestions {
             display: flex;
+            justify-content: center;
             flex-wrap: wrap;
 
-            gap: 9px;
+            gap: 8px;
 
-            margin: 10px 0 18px;
+            margin: 0 auto 18px;
+
+            max-width: 850px;
+            padding: 0 28px;
         }
 
         .suggestion {
@@ -226,6 +233,8 @@
             font-family: var(--font-body);
             font-size: 12px;
 
+            cursor: pointer;
+
             transition:
                 background 0.18s ease,
                 border-color 0.18s ease,
@@ -235,17 +244,36 @@
 
         .suggestion:hover {
             background: var(--accent-bg);
-
             border-color: var(--accent-light);
-
             color: var(--accent);
 
             transform: translateY(-1px);
         }
 
-        /* =========================================================
-           COMPOSER
-           ========================================================= */
+        /* =====================================================
+           COMPOSER AREA
+           ===================================================== */
+
+        .capi-bottom {
+            position: relative;
+
+            width: 100%;
+
+            padding: 0 20px 20px;
+
+            background: linear-gradient(
+                to bottom,
+                transparent,
+                var(--bg) 18%
+            );
+        }
+
+        .capi-composer-wrap {
+            width: 100%;
+            max-width: 850px;
+
+            margin: 0 auto;
+        }
 
         .capi-composer {
             width: 100%;
@@ -253,17 +281,17 @@
             display: flex;
             align-items: center;
 
-            gap: 12px;
+            gap: 10px;
 
-            padding: 6px 7px 6px 18px;
-
-            border: 1px solid var(--line);
-            border-radius: 13px;
+            padding: 7px 7px 7px 18px;
 
             background: var(--bg);
 
+            border: 1px solid var(--line);
+            border-radius: 16px;
+
             box-shadow:
-                0 8px 26px rgba(11, 18, 32, 0.055);
+                0 8px 30px rgba(11, 18, 32, 0.07);
 
             transition:
                 border-color 0.18s ease,
@@ -275,12 +303,11 @@
 
             box-shadow:
                 0 0 0 4px var(--accent-bg),
-                0 8px 26px rgba(11, 18, 32, 0.055);
+                0 8px 30px rgba(11, 18, 32, 0.07);
         }
 
         #questionInput {
             flex: 1;
-
             min-width: 0;
 
             height: 44px;
@@ -289,7 +316,6 @@
             outline: none;
 
             background: transparent;
-
             color: var(--ink);
 
             font-family: var(--font-body);
@@ -301,7 +327,7 @@
         }
 
         #sendButton {
-            width: 86px;
+            width: 78px;
             height: 42px;
 
             flex-shrink: 0;
@@ -311,14 +337,16 @@
             justify-content: center;
 
             border: none;
-            border-radius: 9px;
+            border-radius: 11px;
 
             background: var(--accent);
-            color: white;
+            color: #fff;
 
             font-family: var(--font-body);
             font-size: 13px;
             font-weight: 500;
+
+            cursor: pointer;
 
             transition:
                 background 0.18s ease,
@@ -336,13 +364,27 @@
         }
 
         #sendButton:disabled {
-            opacity: 1;
+            opacity: 0.7;
             cursor: wait;
         }
 
-        /* =========================================================
+        /* =====================================================
+           NOTE
+           ===================================================== */
+
+        .capi-note {
+            margin: 8px 0 0;
+
+            text-align: center;
+
+            color: var(--ink-faint);
+
+            font-size: 10px;
+        }
+
+        /* =====================================================
            LOADER
-           ========================================================= */
+           ===================================================== */
 
         .dot-loader {
             display: flex;
@@ -358,7 +400,7 @@
 
             border-radius: 50%;
 
-            background: #fff;
+            background: var(--accent-light);
 
             animation: dotPulse 1.15s infinite ease-in-out;
         }
@@ -371,26 +413,14 @@
             animation-delay: 0.3s;
         }
 
-        /* =========================================================
-           NOTE
-           ========================================================= */
-
-        .capi-note {
-            margin: 12px 0 0;
-
-            text-align: center;
-
-            color: var(--ink-faint);
-
-            font-size: 11px;
-        }
-
-        /* =========================================================
-           ANIMATION
-           ========================================================= */
+        /* =====================================================
+           ANIMATIONS
+           ===================================================== */
 
         @keyframes dotPulse {
-            0%, 60%, 100% {
+            0%,
+            60%,
+            100% {
                 transform: translateY(0);
                 opacity: 0.3;
             }
@@ -413,35 +443,52 @@
             }
         }
 
-        /* =========================================================
+        /* =====================================================
            MOBILE
-           ========================================================= */
+           ===================================================== */
 
         @media (max-width: 760px) {
 
-            .capi-hero {
-                padding: 52px 20px 30px;
+            body {
+                overflow: hidden;
             }
 
-            .capi-hero h1 {
-                font-size: 46px;
+            .capi-app {
+                height: calc(100vh - 64px);
             }
 
-            .capi-workspace {
-                padding: 0 20px 50px;
+            .capi-chat-inner {
+                padding:
+                    30px
+                    16px
+                    130px;
             }
 
-            #chatMessages {
-                min-height: 430px;
+            .capi-welcome {
+                min-height: 380px;
+            }
 
-                padding-top: 28px;
+            .capi-welcome h1 {
+                font-size: 32px;
+            }
+
+            .capi-welcome p {
+                font-size: 13px;
             }
 
             .capi-suggestions {
+                justify-content: flex-start;
+
                 overflow-x: auto;
                 flex-wrap: nowrap;
 
                 scrollbar-width: none;
+
+                padding:
+                    0
+                    16px;
+
+                margin-bottom: 14px;
             }
 
             .capi-suggestions::-webkit-scrollbar {
@@ -452,33 +499,42 @@
                 flex-shrink: 0;
                 white-space: nowrap;
             }
+
+            .capi-bottom {
+                padding:
+                    0
+                    12px
+                    14px;
+            }
+
+            .capi-composer {
+                border-radius: 14px;
+                padding-left: 14px;
+            }
+
+            #sendButton {
+                width: 70px;
+            }
+
+            .user .bubble {
+                max-width: 84%;
+            }
         }
 
         @media (max-width: 480px) {
 
-            .capi-hero {
-                padding-top: 42px;
+            .capi-welcome h1 {
+                font-size: 29px;
             }
 
-            .capi-hero h1 {
-                font-size: 38px;
+            .capi-mark {
+                width: 44px;
+                height: 44px;
+                font-size: 21px;
             }
 
-            .capi-hero-copy {
-                font-size: 14px;
-            }
-
-            .capi-workspace {
-                padding-left: 16px;
-                padding-right: 16px;
-            }
-
-            .user .bubble {
-                max-width: 85%;
-            }
-
-            #sendButton {
-                width: 74px;
+            #questionInput {
+                font-size: 13px;
             }
         }
     </style>
@@ -486,162 +542,161 @@
 
 <body>
 
-    <!-- NAV -->
+    <!-- =====================================================
+         NAV
+         ===================================================== -->
 
-    <nav class="nav">
+    <header class="nav">
         <div class="nav-inner">
 
-            <a href="capitnj.html" class="wordmark">
-                CapitNJ
+            <a href="index.html" class="wordmark">
+                CapItNJ
             </a>
 
             <div class="nav-links">
 
-                <a href="capitnj.html">
+                <a href="index.html">
                     Home
-                </a>
-
-                <a href="explore.html">
-                    Explore
                 </a>
 
                 <a href="improve.html">
                     Improve
                 </a>
 
+                <a href="explore.html">
+                    Explore
+                </a>
+
+                <a href="matches.html">
+                    Matches
+                </a>
+
+                <a href="mylist.html">
+                    My List
+                </a>
+
                 <a href="profile.html">
                     Profile
                 </a>
 
-                <a href="askcapi.html">Ask Capi</a>
+                <a href="askcapi.html" class="active">
                     Ask Capi
+                </a>
+
+                <a href="support.html">
+                    Support
                 </a>
 
             </div>
 
         </div>
-    </nav>
+    </header>
 
 
-    <main class="capi-page">
+    <!-- =====================================================
+         CAPI APP
+         ===================================================== -->
 
-        <!-- HERO -->
+    <main class="capi-app">
 
-        <section class="capi-hero">
+        <!-- CHAT -->
 
-            <div class="capi-eyebrow">
-                CapitNJ assistant
-            </div>
+        <div class="capi-chat" id="capiChat">
 
-            <h1>
-                Ask <em>Capi.</em>
-            </h1>
+            <div class="capi-chat-inner">
 
-            <p class="capi-hero-copy">
-                Your college questions, without the 47 open tabs.
-                Get help with admissions, applications, financial aid,
-                college lists, and everything in between.
-            </p>
+                <!-- WELCOME -->
 
-        </section>
+                <div class="capi-welcome" id="capiWelcome">
 
-
-        <!-- CHAT WORKSPACE -->
-
-        <section class="capi-workspace">
-
-            <div class="capi-divider"></div>
-
-
-            <div id="chatMessages">
-
-                <div class="message ai">
-
-                    <div class="bubble">
-
-                        <div class="capi-label">
-                            <span class="capi-label-line"></span>
-                            Capi
-                        </div>
-
-                        <div class="capi-welcome-text">
-
-                            <p>
-                                hey! i'm Capi 👋
-                            </p>
-
-                            <p>
-                                I can help with college admissions, GPA,
-                                SAT/ACT questions, college lists,
-                                applications, financial aid, FAFSA,
-                                scholarships, and more.
-                            </p>
-
-                            <p>
-                                ask me anything :)
-                            </p>
-
-                        </div>
-
+                    <div class="capi-mark">
+                        C
                     </div>
+
+                    <h1>
+                        Ask <em>Capi.</em>
+                    </h1>
+
+                    <p>
+                        Your college questions, without the 47 open tabs.
+                        Ask about admissions, GPA, financial aid,
+                        scholarships, college lists, and more.
+                    </p>
 
                 </div>
 
-            </div>
 
+                <!-- MESSAGES -->
 
-            <!-- SUGGESTIONS -->
-
-            <div class="capi-suggestions">
-
-                <button
-                    class="suggestion"
-                    onclick="askSuggestion('What colleges can I get into with my GPA?')">
-                    What colleges can I get into?
-                </button>
-
-                <button
-                    class="suggestion"
-                    onclick="askSuggestion('What is the difference between a reach, target, and safety school?')">
-                    Reach vs target vs safety
-                </button>
-
-                <button
-                    class="suggestion"
-                    onclick="askSuggestion('How should I build my college list?')">
-                    Help build my college list
-                </button>
+                <div id="chatMessages"></div>
 
             </div>
 
+        </div>
 
-            <!-- INPUT -->
 
-            <div class="capi-composer">
+        <!-- BOTTOM -->
 
-                <input
-                    type="text"
-                    id="questionInput"
-                    placeholder="Ask Capi anything..."
-                    autocomplete="off"
-                >
+        <div class="capi-bottom">
 
-                <button id="sendButton">
-                    Send
-                </button>
+            <div class="capi-composer-wrap">
+
+                <!-- SUGGESTIONS -->
+
+                <div class="capi-suggestions">
+
+                    <button
+                        class="suggestion"
+                        onclick="askSuggestion('What colleges can I get into with my GPA?')">
+                        What colleges can I get into?
+                    </button>
+
+                    <button
+                        class="suggestion"
+                        onclick="askSuggestion('What is the difference between a reach, target, and safety school?')">
+                        Reach vs target vs safety
+                    </button>
+
+                    <button
+                        class="suggestion"
+                        onclick="askSuggestion('How should I build my college list?')">
+                        Help build my college list
+                    </button>
+
+                </div>
+
+
+                <!-- INPUT -->
+
+                <div class="capi-composer">
+
+                    <input
+                        type="text"
+                        id="questionInput"
+                        placeholder="Ask Capi anything..."
+                        autocomplete="off"
+                    >
+
+                    <button id="sendButton">
+                        Send
+                    </button>
+
+                </div>
+
+                <p class="capi-note">
+                    Capi is still developing — responses may take a little time :)
+                </p>
 
             </div>
 
-
-            <p class="capi-note">
-                Capi is still developing more so it'll take a small time.
-                please be patient :)
-            </p>
-
-        </section>
+        </div>
 
     </main>
 
+
+    <!-- =====================================================
+         CAPI JS
+         ===================================================== -->
 
     <script type="module" src="askcapi.js"></script>
 
