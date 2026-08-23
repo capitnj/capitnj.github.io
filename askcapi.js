@@ -1,10 +1,4 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
-
-import {
-    initializeAppCheck,
-    ReCaptchaEnterpriseProvider
-} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app-check.js";
-
 import {
     getAI,
     getGenerativeModel,
@@ -23,32 +17,19 @@ const firebaseConfig = {
 };
 
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
 
-// Initialize Firebase App Check
-const appCheck = initializeAppCheck(app, {
-    provider: new ReCaptchaEnterpriseProvider(
-        "6Le3v5QtAAAAADmrLYAj45flAtG13rwxjrZUIe83"
-    ),
-    isTokenAutoRefreshEnabled: true
-});
-
-
-// Initialize Firebase AI
 const ai = getAI(app, {
     backend: new GoogleAIBackend()
 });
 
 
-// Gemini model
 const model = getGenerativeModel(ai, {
     model: "gemini-3.6-flash"
 });
 
 
-// Page elements
 const chatMessages = document.getElementById("chatMessages");
 const questionInput = document.getElementById("questionInput");
 const sendButton = document.getElementById("sendButton");
@@ -61,6 +42,7 @@ function addMessage(text, sender) {
 
     const bubble = document.createElement("div");
     bubble.className = "bubble";
+
     bubble.textContent = text;
 
     message.appendChild(bubble);
@@ -70,11 +52,31 @@ function addMessage(text, sender) {
 }
 
 
+function showLoading() {
+
+    sendButton.innerHTML = `
+        <span class="button-loading" aria-label="Capi is thinking">
+            <span></span>
+            <span></span>
+            <span></span>
+        </span>
+    `;
+
+}
+
+
+function resetSendButton() {
+
+    sendButton.innerHTML = "Send";
+
+}
+
+
 async function sendQuestion() {
 
     const question = questionInput.value.trim();
 
-    if (!question) return;
+    if (!question || sendButton.disabled) return;
 
 
     addMessage(question, "user");
@@ -82,7 +84,8 @@ async function sendQuestion() {
     questionInput.value = "";
 
     sendButton.disabled = true;
-    sendButton.textContent = "Thinking...";
+
+    showLoading();
 
 
     try {
@@ -124,21 +127,23 @@ ${question}
 
         addMessage(answer, "ai");
 
+
     } catch (error) {
 
-        console.error("CAPI ERROR:", error);
+        console.error("Capi error:", error);
 
-        // Show the actual error while we're debugging
         addMessage(
-            "Capi hit an error 😭\n\n" +
-            (error?.message || "Unknown error"),
+            "Oops 😭 Capi couldn't answer right now. Please try again in a moment.",
             "ai"
         );
+
     }
 
 
     sendButton.disabled = false;
-    sendButton.textContent = "Send";
+
+    resetSendButton();
+
 }
 
 
@@ -148,13 +153,19 @@ sendButton.addEventListener("click", sendQuestion);
 questionInput.addEventListener("keydown", function(event) {
 
     if (event.key === "Enter") {
+
+        event.preventDefault();
+
         sendQuestion();
+
     }
 
 });
 
 
 window.askSuggestion = function(question) {
+
+    if (sendButton.disabled) return;
 
     questionInput.value = question;
 
