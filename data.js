@@ -1,114 +1,233 @@
-/* =========================================================
-   CAPITNJ — LARGE WORLDWIDE + U.S. COLLEGE DATABASE
-   ========================================================= */
-
 window.COLLEGES = [];
 
-const SCORECARD_API_KEY = "GtNXgFPhac42LoNAwniX9lRIP757nArl7BV9Xkvg";
-
-/*
-   Worldwide university dataset
-   Hipo University Domains List
-*/
 const WORLD_URL =
-    "https://raw.githubusercontent.com/Hipo/university-domains-list/master/world_universities_and_domains.json";
-
-/*
-   College Scorecard API
-*/
-const SCORECARD_URL =
-    "https://api.data.gov/ed/collegescorecard/v1/schools";
+    "https://cdn.jsdelivr.net/gh/Hipo/university-domains-list/world_universities_and_domains.json";
 
 
 /* =========================================================
-   HELPERS
-   ========================================================= */
+   REGIONS
+========================================================= */
 
-function normalizeName(name) {
-    return String(name || "")
-        .toLowerCase()
-        .replace(/&/g, "and")
-        .replace(/[^\w\s]/g, "")
-        .replace(/\s+/g, " ")
-        .trim();
-}
+const REGIONS = {
+    Northeast: [
+        "Maine",
+        "New Hampshire",
+        "Vermont",
+        "Massachusetts",
+        "Rhode Island",
+        "Connecticut",
+        "New York",
+        "New Jersey",
+        "Pennsylvania"
+    ],
+
+    Midwest: [
+        "Ohio",
+        "Michigan",
+        "Indiana",
+        "Illinois",
+        "Wisconsin",
+        "Minnesota",
+        "Iowa",
+        "Missouri",
+        "North Dakota",
+        "South Dakota",
+        "Nebraska",
+        "Kansas"
+    ],
+
+    South: [
+        "Delaware",
+        "Maryland",
+        "District of Columbia",
+        "Virginia",
+        "West Virginia",
+        "North Carolina",
+        "South Carolina",
+        "Georgia",
+        "Florida",
+        "Kentucky",
+        "Tennessee",
+        "Mississippi",
+        "Alabama",
+        "Oklahoma",
+        "Texas",
+        "Arkansas",
+        "Louisiana"
+    ],
+
+    West: [
+        "Montana",
+        "Idaho",
+        "Wyoming",
+        "Colorado",
+        "New Mexico",
+        "Arizona",
+        "Utah",
+        "Nevada",
+        "California",
+        "Oregon",
+        "Washington",
+        "Alaska",
+        "Hawaii"
+    ]
+};
 
 
-function getRegion(state) {
+/* =========================================================
+   STATE DETECTION
+========================================================= */
 
-    const regions = {
+const SCHOOL_STATE_KEYWORDS = {
 
-        Northeast: [
-            "Maine",
-            "New Hampshire",
-            "Vermont",
-            "Massachusetts",
-            "Rhode Island",
-            "Connecticut",
-            "New York",
-            "New Jersey",
-            "Pennsylvania"
-        ],
+    "New Jersey": [
+        "rutgers",
+        "princeton",
+        "rowan",
+        "kean",
+        "montclair",
+        "stockton university",
+        "seton hall",
+        "drew university",
+        "william paterson",
+        "college of new jersey",
+        "rider university",
+        "ramapo",
+        "fairleigh dickinson",
+        "monmouth university",
+        "saint peter",
+        "new jersey institute"
+    ],
 
-        Midwest: [
-            "Ohio",
-            "Michigan",
-            "Indiana",
-            "Illinois",
-            "Wisconsin",
-            "Minnesota",
-            "Iowa",
-            "Missouri",
-            "North Dakota",
-            "South Dakota",
-            "Nebraska",
-            "Kansas"
-        ],
+    "New York": [
+        "new york university",
+        "cornell university",
+        "syracuse university",
+        "university at buffalo",
+        "stony brook university",
+        "columbia university",
+        "fordham university",
+        "pace university",
+        "hofstra university"
+    ],
 
-        South: [
-            "Delaware",
-            "Maryland",
-            "District of Columbia",
-            "Virginia",
-            "West Virginia",
-            "North Carolina",
-            "South Carolina",
-            "Georgia",
-            "Florida",
-            "Kentucky",
-            "Tennessee",
-            "Mississippi",
-            "Alabama",
-            "Oklahoma",
-            "Texas",
-            "Arkansas",
-            "Louisiana"
-        ],
+    "Pennsylvania": [
+        "university of pennsylvania",
+        "penn state",
+        "temple university",
+        "drexel university",
+        "carnegie mellon",
+        "lehigh university",
+        "villanova university"
+    ],
 
-        West: [
-            "Montana",
-            "Idaho",
-            "Wyoming",
-            "Colorado",
-            "New Mexico",
-            "Arizona",
-            "Utah",
-            "Nevada",
-            "California",
-            "Oregon",
-            "Washington",
-            "Alaska",
-            "Hawaii"
-        ]
+    "Massachusetts": [
+        "harvard university",
+        "massachusetts institute of technology",
+        "mit",
+        "boston university",
+        "northeastern university",
+        "tufts university",
+        "university of massachusetts"
+    ],
 
-    };
+    "California": [
+        "stanford",
+        "usc",
+        "university of southern california",
+        "california",
+        "cal poly",
+        "santa clara university",
+        "pepperdine",
+        "san diego state",
+        "ucla",
+        "uc berkeley"
+    ],
 
-    for (const region in regions) {
+    "Washington": [
+        "university of washington",
+        "washington state university",
+        "seattle university"
+    ],
 
-        if (regions[region].includes(state)) {
-            return region;
+    "Oregon": [
+        "university of oregon",
+        "oregon state university",
+        "portland state university"
+    ],
+
+    "Arizona": [
+        "university of arizona",
+        "arizona state university",
+        "northern arizona university"
+    ],
+
+    "Colorado": [
+        "university of colorado",
+        "colorado state university",
+        "university of denver"
+    ],
+
+    "Texas": [
+        "university of texas",
+        "texas a&m",
+        "texas tech",
+        "baylor university",
+        "rice university"
+    ],
+
+    "Florida": [
+        "university of florida",
+        "florida state university",
+        "university of miami",
+        "university of central florida",
+        "university of south florida"
+    ],
+
+    "Illinois": [
+        "university of illinois",
+        "northwestern university",
+        "university of chicago",
+        "depaul university"
+    ],
+
+    "Michigan": [
+        "university of michigan",
+        "michigan state university"
+    ],
+
+    "Ohio": [
+        "ohio state university",
+        "university of cincinnati",
+        "case western"
+    ]
+};
+
+
+function getSchoolState(school) {
+
+    const apiState =
+        (school["state-province"] || "").trim();
+
+    if (apiState) {
+        return apiState;
+    }
+
+    const name =
+        String(school.name || "").toLowerCase();
+
+    for (const state in SCHOOL_STATE_KEYWORDS) {
+
+        const keywords =
+            SCHOOL_STATE_KEYWORDS[state];
+
+        if (
+            keywords.some(keyword =>
+                name.includes(keyword)
+            )
+        ) {
+            return state;
         }
-
     }
 
     return "";
@@ -116,62 +235,13 @@ function getRegion(state) {
 
 
 /* =========================================================
-   DISTANCE TIER
-   ========================================================= */
-
-function getDistanceTier(country, state) {
-
-    if (country !== "United States") {
-        return "international";
-    }
-
-    if (state === "New Jersey") {
-        return "local";
-    }
-
-    const nearbyStates = [
-        "New York",
-        "Pennsylvania",
-        "Connecticut",
-        "Delaware"
-    ];
-
-    if (nearbyStates.includes(state)) {
-        return "regional";
-    }
-
-    return "far";
-}
-
-
-/* =========================================================
-   SCHOOL TYPE
-   ========================================================= */
-
-function getSchoolType(name) {
-
-    const lower = String(name || "").toLowerCase();
-
-    if (
-        lower.includes("college") ||
-        lower.includes("institute") ||
-        lower.includes("university") ||
-        lower.includes("school")
-    ) {
-        return "University";
-    }
-
-    return "College";
-}
-
-
-/* =========================================================
-   ESTIMATED GPA
-   ========================================================= */
+   GPA ESTIMATE
+========================================================= */
 
 function estimateRequiredGPA(name) {
 
-    const lower = String(name || "").toLowerCase();
+    const lower =
+        String(name || "").toLowerCase();
 
     const highlySelective = [
         "harvard",
@@ -199,13 +269,13 @@ function estimateRequiredGPA(name) {
         "tufts",
         "carnegie mellon",
         "university of michigan",
-        "usc",
         "university of southern california",
-        "ucla",
+        "usc",
+        "university of california",
         "uc berkeley",
+        "ucla",
         "rice university",
-        "georgetown",
-        "university of virginia"
+        "georgetown"
     ];
 
     const moderatelySelective = [
@@ -223,24 +293,24 @@ function estimateRequiredGPA(name) {
     ];
 
     if (
-        highlySelective.some(keyword =>
-            lower.includes(keyword)
+        highlySelective.some(x =>
+            lower.includes(x)
         )
     ) {
         return 3.85;
     }
 
     if (
-        selective.some(keyword =>
-            lower.includes(keyword)
+        selective.some(x =>
+            lower.includes(x)
         )
     ) {
         return 3.65;
     }
 
     if (
-        moderatelySelective.some(keyword =>
-            lower.includes(keyword)
+        moderatelySelective.some(x =>
+            lower.includes(x)
         )
     ) {
         return 3.20;
@@ -251,556 +321,192 @@ function estimateRequiredGPA(name) {
 
 
 /* =========================================================
-   WORLDWIDE DATASET
-   ========================================================= */
+   DISTANCE
+========================================================= */
 
-async function loadWorldwideSchools() {
+function getDistanceTier(country, state) {
 
-    console.log("🌎 Loading worldwide university database...");
+    if (country !== "United States") {
+        return "international";
+    }
+
+    if (state === "New Jersey") {
+        return "local";
+    }
+
+    if (
+        [
+            "New York",
+            "Pennsylvania",
+            "Connecticut",
+            "Delaware"
+        ].includes(state)
+    ) {
+        return "regional";
+    }
+
+    return "far";
+}
+
+
+/* =========================================================
+   LOAD DATABASE
+========================================================= */
+
+async function loadGlobalCollegeDatabase() {
+
+    console.log("CapItNJ: loading schools...");
 
     try {
 
-        const response = await fetch(WORLD_URL, {
-            cache: "no-store"
-        });
+        const response =
+            await fetch(WORLD_URL);
 
         if (!response.ok) {
             throw new Error(
-                "Worldwide dataset HTTP " + response.status
+                "Database request failed: " +
+                response.status
             );
         }
 
-        const schools = await response.json();
+        const allSchools =
+            await response.json();
 
         console.log(
-            "🌎 Worldwide raw schools:",
-            schools.length
+            "CapItNJ: raw schools received:",
+            allSchools.length
         );
 
-        return schools
-            .filter(school =>
-                school &&
-                school.name &&
-                school.country
-            )
-            .map((school, index) => {
 
-                const country =
-                    school.country || "";
+        window.COLLEGES =
+            allSchools
+                .filter(school =>
+                    school &&
+                    school.name &&
+                    school.country
+                )
+                .map((school, index) => {
 
-                const state =
-                    school["state-province"] || "";
+                    const country =
+                        school.country;
 
-                const isUS =
-                    country === "United States";
+                    const state =
+                        country === "United States"
+                            ? getSchoolState(school)
+                            : "";
 
-                return {
+                    const isUS =
+                        country === "United States";
 
-                    id:
-                        "world_" + index,
+                    return {
 
-                    name:
-                        school.name,
+                        id:
+                            "school_" + index,
 
-                    type:
-                        getSchoolType(school.name),
+                        name:
+                            school.name,
 
-                    setting:
-                        "Unknown",
-
-                    state:
-                        state,
-
-                    region:
-                        isUS
-                            ? getRegion(state)
-                            : "",
-
-                    country:
-                        country,
-
-                    webPage:
-                        school.web_pages &&
-                        school.web_pages.length
-                            ? school.web_pages[0]
-                            : "",
-
-                    estimatedMinGPA:
-                        estimateRequiredGPA(
+                        type:
                             school.name
-                        ),
+                                .toLowerCase()
+                                .includes("university")
+                                ? "University"
+                                : "College",
 
-                    netPrice:
-                        isUS
-                            ? 24000
-                            : 31000,
+                        setting:
+                            "Unknown",
 
-                    distanceTier:
-                        getDistanceTier(
+                        state:
+                            state,
+
+                        region:
+                            isUS
+                                ? (
+                                    Object.keys(REGIONS)
+                                        .find(region =>
+                                            REGIONS[region]
+                                                .includes(state)
+                                        ) || ""
+                                )
+                                : "",
+
+                        country:
                             country,
-                            state
-                        ),
 
-                    source:
-                        "Worldwide University Database"
+                        webPage:
+                            (
+                                school.web_pages &&
+                                school.web_pages[0]
+                            ) || "",
 
-                };
+                        estimatedMinGPA:
+                            estimateRequiredGPA(
+                                school.name
+                            ),
 
-            });
+                        netPrice:
+                            isUS
+                                ? 24000
+                                : 31000,
+
+                        distanceTier:
+                            getDistanceTier(
+                                country,
+                                state
+                            )
+
+                    };
+
+                });
+
+
+        /*
+         * IMPORTANT:
+         * Do NOT remove schools whose state
+         * could not be detected.
+         *
+         * That's what was killing your
+         * database count before.
+         */
+
+
+        console.log(
+            "CapItNJ: FINAL SCHOOL COUNT:",
+            window.COLLEGES.length
+        );
+
+
+        window.dispatchEvent(
+            new CustomEvent(
+                "database-ready"
+            )
+        );
+
 
     } catch (error) {
 
         console.error(
-            "❌ Worldwide database failed:",
+            "CapItNJ database failed:",
             error
         );
 
-        return [];
 
-    }
+        /*
+         * Keep the page from being permanently
+         * blank if the API is temporarily down.
+         */
 
-}
+        window.COLLEGES = [];
 
 
-/* =========================================================
-   COLLEGE SCORECARD
-   ========================================================= */
-
-async function loadScorecardPage(page) {
-
-    const params = new URLSearchParams({
-
-        api_key:
-            SCORECARD_API_KEY,
-
-        _page:
-            String(page),
-
-        _per_page:
-            "100",
-
-        _fields:
-            [
-                "id",
-                "school.name",
-                "school.city",
-                "school.state",
-                "school.school_url",
-                "school.ownership",
-                "school.degrees_awarded.predominant",
-                "latest.cost.net_price.overall",
-                "latest.admissions.admission_rate.overall",
-                "latest.admissions.sat_scores.average.overall"
-            ].join(",")
-
-    });
-
-    const url =
-        SCORECARD_URL +
-        "?" +
-        params.toString();
-
-    const response =
-        await fetch(url);
-
-    if (!response.ok) {
-
-        throw new Error(
-            "Scorecard HTTP " +
-            response.status
+        window.dispatchEvent(
+            new CustomEvent(
+                "database-ready"
+            )
         );
 
     }
-
-    return await response.json();
-
 }
 
 
-/* =========================================================
-   LOAD ALL SCORECARD SCHOOLS
-   ========================================================= */
-
-async function loadAllScorecardSchools() {
-
-    console.log(
-        "🇺🇸 Loading U.S. College Scorecard schools..."
-    );
-
-    const results = [];
-
-    /*
-       We intentionally load in batches.
-
-       This avoids one gigantic request and makes
-       failures much easier to recover from.
-    */
-
-    const MAX_PAGES = 100;
-
-    for (
-        let page = 0;
-        page < MAX_PAGES;
-        page++
-    ) {
-
-        try {
-
-            const data =
-                await loadScorecardPage(page);
-
-            const schools =
-                data.results || [];
-
-            if (!schools.length) {
-                break;
-            }
-
-            console.log(
-                `🇺🇸 Scorecard page ${page + 1}: ${schools.length} schools`
-            );
-
-            results.push(...schools);
-
-            /*
-               If fewer than 100 came back,
-               we've reached the end.
-            */
-
-            if (schools.length < 100) {
-                break;
-            }
-
-            /*
-               Small pause so we don't hammer
-               the federal API.
-            */
-
-            await new Promise(resolve =>
-                setTimeout(resolve, 100)
-            );
-
-        } catch (error) {
-
-            console.error(
-                `❌ Scorecard page ${page + 1} failed:`,
-                error
-            );
-
-            /*
-               Don't destroy the whole database
-               if one API page fails.
-            */
-
-            break;
-        }
-
-    }
-
-    console.log(
-        "🇺🇸 Total Scorecard schools loaded:",
-        results.length
-    );
-
-    return results;
-
-}
-
-
-/* =========================================================
-   CONVERT SCORECARD SCHOOL
-   ========================================================= */
-
-function convertScorecardSchool(school, index) {
-
-    const name =
-        school["school.name"] ||
-        "";
-
-    const state =
-        school["school.state"] ||
-        "";
-
-    const ownership =
-        school["school.ownership"];
-
-    let type = "Private";
-
-    /*
-       College Scorecard ownership:
-
-       1 = Public
-       2 = Private nonprofit
-       3 = Private for-profit
-    */
-
-    if (ownership === 1) {
-        type = "Public";
-    }
-
-    const netPrice =
-        school[
-            "latest.cost.net_price.overall"
-        ];
-
-    const admissionRate =
-        school[
-            "latest.admissions.admission_rate.overall"
-        ];
-
-    const satAverage =
-        school[
-            "latest.admissions.sat_scores.average.overall"
-        ];
-
-    return {
-
-        id:
-            "scorecard_" +
-            (
-                school.id ||
-                index
-            ),
-
-        name:
-
-            name,
-
-        type:
-            type,
-
-        setting:
-            "Unknown",
-
-        state:
-            state,
-
-        region:
-            getRegion(state),
-
-        country:
-            "United States",
-
-        webPage:
-            school["school.school_url"] ||
-            "",
-
-        estimatedMinGPA:
-            estimateRequiredGPA(name),
-
-        netPrice:
-            typeof netPrice === "number"
-                ? netPrice
-                : 24000,
-
-        admissionRate:
-            admissionRate,
-
-        satAverage:
-            satAverage,
-
-        distanceTier:
-            getDistanceTier(
-                "United States",
-                state
-            ),
-
-        source:
-            "College Scorecard"
-
-    };
-
-}
-
-
-/* =========================================================
-   MERGE + DEDUPLICATE
-   ========================================================= */
-
-function mergeSchools(worldSchools, scorecardSchools) {
-
-    const map = new Map();
-
-    /*
-       Put worldwide schools in first.
-    */
-
-    for (const school of worldSchools) {
-
-        const key =
-            normalizeName(
-                school.name
-            );
-
-        if (!key) continue;
-
-        map.set(key, school);
-    }
-
-    /*
-       Scorecard data gets priority for U.S.
-       schools because it contains actual
-       federal school information.
-    */
-
-    for (
-        const school of scorecardSchools
-    ) {
-
-        const key =
-            normalizeName(
-                school.name
-            );
-
-        if (!key) continue;
-
-        const existing =
-            map.get(key);
-
-        if (existing) {
-
-            map.set(key, {
-
-                ...existing,
-
-                ...school,
-
-                /*
-                   Preserve useful worldwide
-                   website if Scorecard doesn't
-                   have one.
-                */
-
-                webPage:
-                    school.webPage ||
-                    existing.webPage ||
-                    ""
-
-            });
-
-        } else {
-
-            map.set(
-                key,
-                school
-            );
-
-        }
-
-    }
-
-    return Array.from(
-        map.values()
-    );
-
-}
-
-
-/* =========================================================
-   MAIN DATABASE INITIALIZER
-   ========================================================= */
-
-async function initializeDatabase() {
-
-    console.log(
-        "🚀 CapItNJ database starting..."
-    );
-
-    /*
-       Start worldwide data immediately.
-    */
-
-    const worldSchools =
-        await loadWorldwideSchools();
-
-    /*
-       Make worldwide schools available
-       even if Scorecard later fails.
-    */
-
-    window.COLLEGES =
-        worldSchools;
-
-    console.log(
-        "🌎 Worldwide schools ready:",
-        window.COLLEGES.length
-    );
-
-    /*
-       Tell Explore page that data exists.
-    */
-
-    window.dispatchEvent(
-        new CustomEvent(
-            "database-ready"
-        )
-    );
-
-
-    /*
-       Now load U.S. Scorecard data.
-    */
-
-    const scorecardRaw =
-        await loadAllScorecardSchools();
-
-    const scorecardSchools =
-        scorecardRaw.map(
-            convertScorecardSchool
-        );
-
-
-    /*
-       Merge both datasets.
-    */
-
-    window.COLLEGES =
-        mergeSchools(
-            worldSchools,
-            scorecardSchools
-        );
-
-
-    console.log(
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    );
-
-    console.log(
-        "🌎 Worldwide schools:",
-        worldSchools.length
-    );
-
-    console.log(
-        "🇺🇸 Scorecard schools:",
-        scorecardSchools.length
-    );
-
-    console.log(
-        "🎓 FINAL CapItNJ schools:",
-        window.COLLEGES.length
-    );
-
-    console.log(
-        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    );
-
-
-    /*
-       Tell Explore page to render again
-       with the full combined database.
-    */
-
-    window.dispatchEvent(
-        new CustomEvent(
-            "database-ready"
-        )
-    );
-
-}
-
-
-/* =========================================================
-   START
-   ========================================================= */
-
-initializeDatabase();
+loadGlobalCollegeDatabase();
