@@ -530,12 +530,17 @@
   function collegeMatchesLocation(college, preferredLocation) {
     const preference = normalizeLocation(preferredLocation);
 
-    if (!preference ||
-        preference === "anywhere" ||
-        preference === "all" ||
-        preference === "no preference") {
-      return true;
-    }
+    if (!preference) {
+  return false;
+}
+
+if (
+  preference === "anywhere" ||
+  preference === "all" ||
+  preference === "no preference"
+) {
+  return true;
+}
 
     const state = normalizeState(
       college.state ||
