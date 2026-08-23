@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>GPA Calculator — CapItNJ</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .calculator-shell {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 72px 24px 96px;
+    }
+
+    .calculator-header {
+      margin-bottom: 32px;
+    }
+
+    .calculator-header h1 {
+      margin-bottom: 10px;
+    }
+
+    .calculator-header p {
+      color: var(--ink-soft);
+      font-size: 14px;
+      margin: 0;
+      max-width: 500px;
+    }
+
+    .calculator-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      padding: 26px;
+    }
+
+    .grade-row {
+      display: grid;
+      grid-template-columns: 1fr 140px 42px;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .grade-row input,
+    .grade-row select {
+      width: 100%;
+      padding: 11px 12px;
+
+      border: 1px solid var(--line);
+      border-radius: 2px;
+
+      background: var(--bg);
+      color: var(--ink);
+
+      outline: none;
+    }
+
+    .grade-row input:focus,
+    .grade-row select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-bg);
+    }
+
+    .remove-grade {
+      width: 42px;
+      height: 42px;
+
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink-soft);
+
+      border-radius: 2px;
+      font-size: 18px;
+    }
+
+    .remove-grade:hover {
+      color: #B3413A;
+      border-color: #B3413A;
+    }
+
+    .calculator-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .gpa-result {
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid var(--line);
+    }
+
+    .gpa-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-faint);
+      margin-bottom: 6px;
+    }
+
+    .gpa-number {
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 600;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .calculator-note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--ink-faint);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 560px) {
+      .calculator-shell {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .grade-row {
+        grid-template-columns: 1fr 100px 42px;
+      }
+
+      .calculator-card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- NAVIGATION -->
+  <nav class="nav">
+    <div class="nav-inner">
+
+      <a href="index.html" class="wordmark">
+        CapItNJ
+      </a>
+
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="explore.html">Explore</a>
+        <a href="ask-capi.html">Ask Capi</a>
+        <a href="login.html">Log in</a>
+      </div>
+
+    </div>
+  </nav>
+
+
+  <main>
+    <div class="calculator-shell">
+
+      <div class="calculator-header">
+        <p class="eyebrow">CapItNJ Tool</p>
+
+        <h1>GPA Calculator</h1>
+
+        <p>
+          Add your classes and grades to estimate your unweighted GPA.
+        </p>
+      </div>
+
+
+      <div class="calculator-card">
+
+        <div id="gradeRows"></div>
+
+
+        <div class="calculator-actions">
+
+          <button class="btn" id="addGrade">
+            + Add class
+          </button>
+
+          <button class="btn btn-outline" id="calculateGPA">
+            Calculate GPA
+          </button>
+
+        </div>
+
+
+        <div class="gpa-result">
+
+          <div class="gpa-label">
+            Estimated unweighted GPA
+          </div>
+
+          <div class="gpa-number" id="gpaResult">
+            —
+          </div>
+
+        </div>
+
+
+        <p class="calculator-note">
+          This is an estimate using a standard 4.0 unweighted scale.
+          Your school's GPA calculation may differ.
+        </p>
+
+      </div>
+
+    </div>
+  </main>
+
+
+  <script>
+
+    const gradeRows = document.getElementById("gradeRows");
+    const addGradeButton = document.getElementById("addGrade");
+    const calculateButton = document.getElementById("calculateGPA");
+    const gpaResult = document.getElementById("gpaResult");
+
+
+    const gradePoints = {
+      "A+": 4.0,
+      "A": 4.0,
+      "A-": 3.7,
+
+      "B+": 3.3,
+      "B": 3.0,
+      "B-": 2.7,
+
+      "C+": 2.3,
+      "C": 2.0,
+      "C-": 1.7,
+
+      "D+": 1.3,
+      "D": 1.0,
+      "D-": 0.7,
+
+      "F": 0.0
+    };
+
+
+    function addGradeRow() {
+
+      const row = document.createElement("div");
+
+      row.className = "grade-row";
+
+      row.innerHTML = `
+
+        <input
+          type="text"
+          placeholder="Class name"
+          aria-label="Class name"
+        >
+
+        <select aria-label="Grade">
+
+          <option value="">Grade</option>
+
+          <option value="A+">A+</option>
+          <option value="A">A</option>
+          <option value="A-">A-</option>
+
+          <option value="B+">B+</option>
+          <option value="B">B</option>
+          <option value="B-">B-</option>
+
+          <option value="C+">C+</option>
+          <option value="C">C</option>
+          <option value="C-">C-</option>
+
+          <option value="D+">D+</option>
+          <option value="D">D</option>
+          <option value="D-">D-</option>
+
+          <option value="F">F</option>
+
+        </select>
+
+        <button
+          type="button"
+          class="remove-grade"
+          aria-label="Remove class"
+        >
+          ×
+        </button>
+
+      `;
+
+
+      const removeButton = row.querySelector(".remove-grade");
+
+      removeButton.addEventListener("click", () => {
+
+        row.remove();
+
+        calculateGPA();
+
+      });
+
+
+      gradeRows.appendChild(row);
+
+    }
+
+
+    function calculateGPA() {
+
+      const rows = gradeRows.querySelectorAll(".grade-row");
+
+      let totalPoints = 0;
+      let totalClasses = 0;
+
+
+      rows.forEach(row => {
+
+        const grade = row.querySelector("select").value;
+
+        if (!grade) {
+          return;
+        }
+
+
+        totalPoints += gradePoints[grade];
+
+        totalClasses++;
+
+      });
+
+
+      if (totalClasses === 0) {
+
+        gpaResult.textContent = "—";
+
+        return;
+
+      }
+
+
+      const gpa = totalPoints / totalClasses;
+
+      gpaResult.textContent = gpa.toFixed(2);
+
+    }
+
+
+    addGradeButton.addEventListener("click", addGradeRow);
+
+    calculateButton.addEventListener("click", calculateGPA);
+
+
+    // Start with four classes
+    addGradeRow();
+    addGradeRow();
+    addGradeRow();
+    addGradeRow();
+
+  </script>
+
+</body>
+</html>
