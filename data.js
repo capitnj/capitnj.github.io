@@ -1,773 +1,1133 @@
 window.COLLEGES = [];
 
-const CURATED_INTERNATIONAL = [
-    "University of Toronto",
-    "McGill University",
-    "University of British Columbia",
-    "University of Oxford",
-    "University of Cambridge",
-    "Imperial College London",
-    "University of Melbourne",
-    "University of Sydney",
-    "National University of Singapore",
-    "University of Waterloo"
+/* =========================================================
+   CAPITNJ COLLEGE DATABASE
+   Curated schools with reliable location information.
+   ========================================================= */
+
+const COLLEGES = [
+
+    /* =========================
+       NEW JERSEY
+    ========================= */
+
+    {
+        id: "rutgers_nb",
+        name: "Rutgers University-New Brunswick",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 17500,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "rutgers_newark",
+        name: "Rutgers University-Newark",
+        type: "University",
+        setting: "Urban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 17000,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "rutgers_camden",
+        name: "Rutgers University-Camden",
+        type: "University",
+        setting: "Urban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 16500,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "princeton",
+        name: "Princeton University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 12000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "rowan",
+        name: "Rowan University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 18500,
+        estimatedMinGPA: 3.1
+    },
+
+    {
+        id: "kean",
+        name: "Kean University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 15500,
+        estimatedMinGPA: 2.8
+    },
+
+    {
+        id: "montclair",
+        name: "Montclair State University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 17000,
+        estimatedMinGPA: 2.9
+    },
+
+    {
+        id: "njit",
+        name: "New Jersey Institute of Technology",
+        type: "University",
+        setting: "Urban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 16000,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "stockton",
+        name: "Stockton University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 16500,
+        estimatedMinGPA: 2.9
+    },
+
+    {
+        id: "seton_hall",
+        name: "Seton Hall University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 31000,
+        estimatedMinGPA: 3.4
+    },
+
+    {
+        id: "drew",
+        name: "Drew University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 29000,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "william_paterson",
+        name: "William Paterson University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 15500,
+        estimatedMinGPA: 2.8
+    },
+
+    {
+        id: "tcnj",
+        name: "The College of New Jersey",
+        type: "College",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 22000,
+        estimatedMinGPA: 3.5
+    },
+
+    {
+        id: "rider",
+        name: "Rider University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 28000,
+        estimatedMinGPA: 3.1
+    },
+
+    {
+        id: "ramapo",
+        name: "Ramapo College of New Jersey",
+        type: "College",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 16000,
+        estimatedMinGPA: 3.0
+    },
+
+    {
+        id: "fdu",
+        name: "Fairleigh Dickinson University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 25000,
+        estimatedMinGPA: 2.9
+    },
+
+    {
+        id: "monmouth",
+        name: "Monmouth University",
+        type: "University",
+        setting: "Suburban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 29000,
+        estimatedMinGPA: 3.1
+    },
+
+    {
+        id: "saint_peters",
+        name: "Saint Peter's University",
+        type: "University",
+        setting: "Urban",
+        state: "New Jersey",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 15000,
+        estimatedMinGPA: 2.8
+    },
+
+
+    /* =========================
+       NEW YORK
+    ========================= */
+
+    {
+        id: "nyu",
+        name: "New York University",
+        type: "University",
+        setting: "Urban",
+        state: "New York",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 45000,
+        estimatedMinGPA: 3.65
+    },
+
+    {
+        id: "columbia",
+        name: "Columbia University",
+        type: "University",
+        setting: "Urban",
+        state: "New York",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 28000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "cornell",
+        name: "Cornell University",
+        type: "University",
+        setting: "Rural",
+        state: "New York",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 31000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "syracuse",
+        name: "Syracuse University",
+        type: "University",
+        setting: "Urban",
+        state: "New York",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 40000,
+        estimatedMinGPA: 3.4
+    },
+
+    {
+        id: "buffalo",
+        name: "University at Buffalo",
+        type: "University",
+        setting: "Suburban",
+        state: "New York",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 19000,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "stony_brook",
+        name: "Stony Brook University",
+        type: "University",
+        setting: "Suburban",
+        state: "New York",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 18000,
+        estimatedMinGPA: 3.3
+    },
+
+    {
+        id: "fordham",
+        name: "Fordham University",
+        type: "University",
+        setting: "Urban",
+        state: "New York",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 37000,
+        estimatedMinGPA: 3.5
+    },
+
+    {
+        id: "rochester",
+        name: "University of Rochester",
+        type: "University",
+        setting: "Suburban",
+        state: "New York",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 34000,
+        estimatedMinGPA: 3.6
+    },
+
+
+    /* =========================
+       PENNSYLVANIA
+    ========================= */
+
+    {
+        id: "upenn",
+        name: "University of Pennsylvania",
+        type: "University",
+        setting: "Urban",
+        state: "Pennsylvania",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 26000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "penn_state",
+        name: "Pennsylvania State University",
+        type: "University",
+        setting: "Suburban",
+        state: "Pennsylvania",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 25000,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "temple",
+        name: "Temple University",
+        type: "University",
+        setting: "Urban",
+        state: "Pennsylvania",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 23000,
+        estimatedMinGPA: 3.1
+    },
+
+    {
+        id: "drexel",
+        name: "Drexel University",
+        type: "University",
+        setting: "Urban",
+        state: "Pennsylvania",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 38000,
+        estimatedMinGPA: 3.4
+    },
+
+    {
+        id: "villanova",
+        name: "Villanova University",
+        type: "University",
+        setting: "Suburban",
+        state: "Pennsylvania",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 34000,
+        estimatedMinGPA: 3.6
+    },
+
+    {
+        id: "lehigh",
+        name: "Lehigh University",
+        type: "University",
+        setting: "Suburban",
+        state: "Pennsylvania",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 33000,
+        estimatedMinGPA: 3.6
+    },
+
+    {
+        id: "carnegie_mellon",
+        name: "Carnegie Mellon University",
+        type: "University",
+        setting: "Urban",
+        state: "Pennsylvania",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 37000,
+        estimatedMinGPA: 3.65
+    },
+
+
+    /* =========================
+       MASSACHUSETTS
+    ========================= */
+
+    {
+        id: "harvard",
+        name: "Harvard University",
+        type: "University",
+        setting: "Urban",
+        state: "Massachusetts",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 18000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "mit",
+        name: "Massachusetts Institute of Technology",
+        type: "University",
+        setting: "Urban",
+        state: "Massachusetts",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 20000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "boston_university",
+        name: "Boston University",
+        type: "University",
+        setting: "Urban",
+        state: "Massachusetts",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 35000,
+        estimatedMinGPA: 3.65
+    },
+
+    {
+        id: "northeastern",
+        name: "Northeastern University",
+        type: "University",
+        setting: "Urban",
+        state: "Massachusetts",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 36000,
+        estimatedMinGPA: 3.65
+    },
+
+    {
+        id: "tufts",
+        name: "Tufts University",
+        type: "University",
+        setting: "Suburban",
+        state: "Massachusetts",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 30000,
+        estimatedMinGPA: 3.65
+    },
+
+    {
+        id: "umass",
+        name: "University of Massachusetts Amherst",
+        type: "University",
+        setting: "Suburban",
+        state: "Massachusetts",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 22000,
+        estimatedMinGPA: 3.3
+    },
+
+
+    /* =========================
+       CONNECTICUT
+    ========================= */
+
+    {
+        id: "yale",
+        name: "Yale University",
+        type: "University",
+        setting: "Urban",
+        state: "Connecticut",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 18000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "uconn",
+        name: "University of Connecticut",
+        type: "University",
+        setting: "Suburban",
+        state: "Connecticut",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 23000,
+        estimatedMinGPA: 3.4
+    },
+
+    {
+        id: "wesleyan",
+        name: "Wesleyan University",
+        type: "University",
+        setting: "Suburban",
+        state: "Connecticut",
+        region: "Northeast",
+        country: "United States",
+        netPrice: 28000,
+        estimatedMinGPA: 3.7
+    },
+
+
+    /* =========================
+       MARYLAND / DC / VIRGINIA
+    ========================= */
+
+    {
+        id: "umd",
+        name: "University of Maryland, College Park",
+        type: "University",
+        setting: "Suburban",
+        state: "Maryland",
+        region: "South",
+        country: "United States",
+        netPrice: 20000,
+        estimatedMinGPA: 3.5
+    },
+
+    {
+        id: "georgetown",
+        name: "Georgetown University",
+        type: "University",
+        setting: "Urban",
+        state: "District of Columbia",
+        region: "South",
+        country: "United States",
+        netPrice: 32000,
+        estimatedMinGPA: 3.65
+    },
+
+    {
+        id: "virginia",
+        name: "University of Virginia",
+        type: "University",
+        setting: "Suburban",
+        state: "Virginia",
+        region: "South",
+        country: "United States",
+        netPrice: 20000,
+        estimatedMinGPA: 3.65
+    },
+
+    {
+        id: "vt",
+        name: "Virginia Tech",
+        type: "University",
+        setting: "Suburban",
+        state: "Virginia",
+        region: "South",
+        country: "United States",
+        netPrice: 21000,
+        estimatedMinGPA: 3.4
+    },
+
+
+    /* =========================
+       MIDWEST
+    ========================= */
+
+    {
+        id: "michigan",
+        name: "University of Michigan",
+        type: "University",
+        setting: "Urban",
+        state: "Michigan",
+        region: "Midwest",
+        country: "United States",
+        netPrice: 22000,
+        estimatedMinGPA: 3.65
+    },
+
+    {
+        id: "michigan_state",
+        name: "Michigan State University",
+        type: "University",
+        setting: "Suburban",
+        state: "Michigan",
+        region: "Midwest",
+        country: "United States",
+        netPrice: 19000,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "osu",
+        name: "Ohio State University",
+        type: "University",
+        setting: "Urban",
+        state: "Ohio",
+        region: "Midwest",
+        country: "United States",
+        netPrice: 21000,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "northwestern",
+        name: "Northwestern University",
+        type: "University",
+        setting: "Suburban",
+        state: "Illinois",
+        region: "Midwest",
+        country: "United States",
+        netPrice: 30000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "uchicago",
+        name: "University of Chicago",
+        type: "University",
+        setting: "Urban",
+        state: "Illinois",
+        region: "Midwest",
+        country: "United States",
+        netPrice: 32000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "uiuc",
+        name: "University of Illinois Urbana-Champaign",
+        type: "University",
+        setting: "Urban",
+        state: "Illinois",
+        region: "Midwest",
+        country: "United States",
+        netPrice: 21000,
+        estimatedMinGPA: 3.5
+    },
+
+    {
+        id: "indiana",
+        name: "Indiana University Bloomington",
+        type: "University",
+        setting: "Suburban",
+        state: "Indiana",
+        region: "Midwest",
+        country: "United States",
+        netPrice: 22000,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "wisconsin",
+        name: "University of Wisconsin-Madison",
+        type: "University",
+        setting: "Urban",
+        state: "Wisconsin",
+        region: "Midwest",
+        country: "United States",
+        netPrice: 20000,
+        estimatedMinGPA: 3.4
+    },
+
+
+    /* =========================
+       SOUTH
+    ========================= */
+
+    {
+        id: "duke",
+        name: "Duke University",
+        type: "University",
+        setting: "Suburban",
+        state: "North Carolina",
+        region: "South",
+        country: "United States",
+        netPrice: 27000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "unc",
+        name: "University of North Carolina at Chapel Hill",
+        type: "University",
+        setting: "Suburban",
+        state: "North Carolina",
+        region: "South",
+        country: "United States",
+        netPrice: 18000,
+        estimatedMinGPA: 3.6
+    },
+
+    {
+        id: "vanderbilt",
+        name: "Vanderbilt University",
+        type: "University",
+        setting: "Urban",
+        state: "Tennessee",
+        region: "South",
+        country: "United States",
+        netPrice: 28000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "emory",
+        name: "Emory University",
+        type: "University",
+        setting: "Suburban",
+        state: "Georgia",
+        region: "South",
+        country: "United States",
+        netPrice: 30000,
+        estimatedMinGPA: 3.7
+    },
+
+    {
+        id: "uf",
+        name: "University of Florida",
+        type: "University",
+        setting: "Urban",
+        state: "Florida",
+        region: "South",
+        country: "United States",
+        netPrice: 15000,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "fsu",
+        name: "Florida State University",
+        type: "University",
+        setting: "Urban",
+        state: "Florida",
+        region: "South",
+        country: "United States",
+        netPrice: 15000,
+        estimatedMinGPA: 3.2
+    },
+
+    {
+        id: "miami",
+        name: "University of Miami",
+        type: "University",
+        setting: "Suburban",
+        state: "Florida",
+        region: "South",
+        country: "United States",
+        netPrice: 34000,
+        estimatedMinGPA: 3.6
+    },
+
+    {
+        id: "ut_austin",
+        name: "University of Texas at Austin",
+        type: "University",
+        setting: "Urban",
+        state: "Texas",
+        region: "South",
+        country: "United States",
+        netPrice: 18000,
+        estimatedMinGPA: 3.6
+    },
+
+    {
+        id: "texas_am",
+        name: "Texas A&M University",
+        type: "University",
+        setting: "Suburban",
+        state: "Texas",
+        region: "South",
+        country: "United States",
+        netPrice: 19000,
+        estimatedMinGPA: 3.3
+    },
+
+    {
+        id: "rice",
+        name: "Rice University",
+        type: "University",
+        setting: "Urban",
+        state: "Texas",
+        region: "South",
+        country: "United States",
+        netPrice: 22000,
+        estimatedMinGPA: 3.85
+    },
+
+
+    /* =========================
+       WEST
+    ========================= */
+
+    {
+        id: "stanford",
+        name: "Stanford University",
+        type: "University",
+        setting: "Suburban",
+        state: "California",
+        region: "West",
+        country: "United States",
+        netPrice: 18000,
+        estimatedMinGPA: 3.85
+    },
+
+    {
+        id: "usc",
+        name: "University of Southern California",
+        type: "University",
+        setting: "Urban",
+        state: "California",
+        region: "West",
+        country: "United States",
+        netPrice: 38000,
+        estimatedMinGPA: 3.65
+    },
+
+    {
+        id: "ucla",
+        name: "University of California, Los Angeles",
+        type: "University",
+        setting: "Urban",
+        state: "California",
+        region: "West",
+        country: "United States",
+        netPrice: 16000,
+        estimatedMinGPA: 3.65
+    },
+
+    {
+        id: "berkeley",
+        name: "University of California, Berkeley",
+        type: "University",
+        setting: "Urban",
+        state: "California",
+        region: "West",
+        country: "United States",
+        netPrice: 17000,
+        estimatedMinGPA: 3.65
+    },
+
+    {
+        id: "ucsd",
+        name: "University of California, San Diego",
+        type: "University",
+        setting: "Urban",
+        state: "California",
+        region: "West",
+        country: "United States",
+        netPrice: 18000,
+        estimatedMinGPA: 3.6
+    },
+
+    {
+        id: "cal_poly",
+        name: "California Polytechnic State University",
+        type: "University",
+        setting: "Suburban",
+        state: "California",
+        region: "West",
+        country: "United States",
+        netPrice: 21000,
+        estimatedMinGPA: 3.5
+    },
+
+    {
+        id: "uw",
+        name: "University of Washington",
+        type: "University",
+        setting: "Urban",
+        state: "Washington",
+        region: "West",
+        country: "United States",
+        netPrice: 19000,
+        estimatedMinGPA: 3.4
+    },
+
+    {
+        id: "oregon",
+        name: "University of Oregon",
+        type: "University",
+        setting: "Urban",
+        state: "Oregon",
+        region: "West",
+        country: "United States",
+        netPrice: 26000,
+        estimatedMinGPA: 3.1
+    },
+
+    {
+        id: "asu",
+        name: "Arizona State University",
+        type: "University",
+        setting: "Urban",
+        state: "Arizona",
+        region: "West",
+        country: "United States",
+        netPrice: 25000,
+        estimatedMinGPA: 3.0
+    },
+
+    {
+        id: "arizona",
+        name: "University of Arizona",
+        type: "University",
+        setting: "Urban",
+        state: "Arizona",
+        region: "West",
+        country: "United States",
+        netPrice: 22000,
+        estimatedMinGPA: 3.1
+    },
+
+    {
+        id: "colorado",
+        name: "University of Colorado Boulder",
+        type: "University",
+        setting: "Suburban",
+        state: "Colorado",
+        region: "West",
+        country: "United States",
+        netPrice: 25000,
+        estimatedMinGPA: 3.3
+    },
+
+
+    /* =========================
+       INTERNATIONAL
+    ========================= */
+
+    {
+        id: "toronto",
+        name: "University of Toronto",
+        type: "University",
+        setting: "Urban",
+        state: "Ontario",
+        region: "",
+        country: "Canada",
+        netPrice: 31000,
+        estimatedMinGPA: 3.6
+    },
+
+    {
+        id: "mcgill",
+        name: "McGill University",
+        type: "University",
+        setting: "Urban",
+        state: "Quebec",
+        region: "",
+        country: "Canada",
+        netPrice: 28000,
+        estimatedMinGPA: 3.6
+    },
+
+    {
+        id: "ubc",
+        name: "University of British Columbia",
+        type: "University",
+        setting: "Urban",
+        state: "British Columbia",
+        region: "",
+        country: "Canada",
+        netPrice: 30000,
+        estimatedMinGPA: 3.6
+    },
+
+    {
+        id: "oxford",
+        name: "University of Oxford",
+        type: "University",
+        setting: "Urban",
+        state: "England",
+        region: "",
+        country: "United Kingdom",
+        netPrice: 31000,
+        estimatedMinGPA: 3.8
+    },
+
+    {
+        id: "cambridge",
+        name: "University of Cambridge",
+        type: "University",
+        setting: "Urban",
+        state: "England",
+        region: "",
+        country: "United Kingdom",
+        netPrice: 31000,
+        estimatedMinGPA: 3.8
+    },
+
+    {
+        id: "imperial",
+        name: "Imperial College London",
+        type: "University",
+        setting: "Urban",
+        state: "England",
+        region: "",
+        country: "United Kingdom",
+        netPrice: 33000,
+        estimatedMinGPA: 3.8
+    },
+
+    {
+        id: "melbourne",
+        name: "University of Melbourne",
+        type: "University",
+        setting: "Urban",
+        state: "Victoria",
+        region: "",
+        country: "Australia",
+        netPrice: 31000,
+        estimatedMinGPA: 3.5
+    },
+
+    {
+        id: "sydney",
+        name: "University of Sydney",
+        type: "University",
+        setting: "Urban",
+        state: "New South Wales",
+        region: "",
+        country: "Australia",
+        netPrice: 31000,
+        estimatedMinGPA: 3.5
+    },
+
+    {
+        id: "nus",
+        name: "National University of Singapore",
+        type: "University",
+        setting: "Urban",
+        state: "Singapore",
+        region: "",
+        country: "Singapore",
+        netPrice: 28000,
+        estimatedMinGPA: 3.7
+    },
+
+    {
+        id: "waterloo",
+        name: "University of Waterloo",
+        type: "University",
+        setting: "Urban",
+        state: "Ontario",
+        region: "",
+        country: "Canada",
+        netPrice: 29000,
+        estimatedMinGPA: 3.6
+    }
+
 ];
 
-/* =========================================================
-   NEW JERSEY SCHOOLS
-========================================================= */
-
-const NJ_EXACT_NAMES = [
-    "Rutgers University-New Brunswick",
-    "Rutgers University-Newark",
-    "Rutgers University-Camden",
-    "Princeton University",
-    "Rowan University",
-    "Kean University",
-    "Montclair State University",
-    "New Jersey Institute of Technology",
-    "Stockton University",
-    "Seton Hall University",
-    "Drew University",
-    "William Paterson University",
-    "The College of New Jersey",
-    "Rider University",
-    "Ramapo College of New Jersey",
-    "Fairleigh Dickinson University",
-    "Monmouth University",
-    "Saint Peters University"
-];
 
 /* =========================================================
-   NEARBY STATES
-========================================================= */
+   ADD DISTANCE TIERS
+   ========================================================= */
 
-const NEARBY_STATES = [
-    "New York",
-    "Pennsylvania",
-    "Connecticut",
-    "Delaware"
-];
+function assignDistanceTier(college) {
 
-/* =========================================================
-   REGIONS
-========================================================= */
-
-const REGIONS = {
-    Northeast: [
-        "Maine",
-        "New Hampshire",
-        "Vermont",
-        "Massachusetts",
-        "Rhode Island",
-        "Connecticut",
-        "New York",
-        "New Jersey",
-        "Pennsylvania"
-    ],
-
-    Midwest: [
-        "Ohio",
-        "Michigan",
-        "Indiana",
-        "Illinois",
-        "Wisconsin",
-        "Minnesota",
-        "Iowa",
-        "Missouri",
-        "North Dakota",
-        "South Dakota",
-        "Nebraska",
-        "Kansas"
-    ],
-
-    South: [
-        "Delaware",
-        "Maryland",
-        "District of Columbia",
-        "Virginia",
-        "West Virginia",
-        "North Carolina",
-        "South Carolina",
-        "Georgia",
-        "Florida",
-        "Kentucky",
-        "Tennessee",
-        "Mississippi",
-        "Alabama",
-        "Oklahoma",
-        "Texas",
-        "Arkansas",
-        "Louisiana"
-    ],
-
-    West: [
-        "Montana",
-        "Idaho",
-        "Wyoming",
-        "Colorado",
-        "New Mexico",
-        "Arizona",
-        "Utah",
-        "Nevada",
-        "California",
-        "Oregon",
-        "Washington",
-        "Alaska",
-        "Hawaii"
-    ]
-};
-
-/* =========================================================
-   STATE DETECTION
-========================================================= */
-
-const SCHOOL_STATE_KEYWORDS = {
-
-    "New Jersey": [
-        "rutgers",
-        "princeton",
-        "rowan",
-        "kean",
-        "montclair",
-        "stockton university",
-        "seton hall",
-        "drew university",
-        "william paterson",
-        "college of new jersey",
-        "rider university",
-        "ramapo",
-        "fairleigh dickinson",
-        "monmouth university",
-        "saint peter",
-        "new jersey institute"
-    ],
-
-    "New York": [
-        "new york university",
-        "cornell university",
-        "syracuse university",
-        "university at buffalo",
-        "stony brook university",
-        "columbia university",
-        "fordham university",
-        "pace university",
-        "hofstra university",
-        "barnard college"
-    ],
-
-    California: [
-        "california",
-        "stanford",
-        "usc",
-        "university of southern california",
-        "cal poly",
-        "santa clara university",
-        "pepperdine",
-        "san diego state",
-        "ucla",
-        "uc berkeley",
-        "university of california"
-    ],
-
-    Washington: [
-        "university of washington",
-        "washington state university",
-        "seattle university"
-    ],
-
-    Oregon: [
-        "university of oregon",
-        "oregon state university",
-        "portland state university"
-    ],
-
-    Arizona: [
-        "university of arizona",
-        "arizona state university",
-        "northern arizona university"
-    ],
-
-    Colorado: [
-        "university of colorado",
-        "colorado state university",
-        "university of denver"
-    ],
-
-    Texas: [
-        "university of texas",
-        "texas a&m",
-        "texas tech",
-        "baylor university",
-        "rice university"
-    ],
-
-    Florida: [
-        "university of florida",
-        "florida state university",
-        "university of miami",
-        "university of central florida",
-        "university of south florida"
-    ],
-
-    Pennsylvania: [
-        "university of pennsylvania",
-        "penn state",
-        "temple university",
-        "drexel university",
-        "carnegie mellon",
-        "lehigh university",
-        "villanova university"
-    ],
-
-    Massachusetts: [
-        "harvard university",
-        "massachusetts institute of technology",
-        "mit",
-        "boston university",
-        "northeastern university",
-        "tufts university",
-        "university of massachusetts"
-    ],
-
-    Illinois: [
-        "university of illinois",
-        "northwestern university",
-        "university of chicago",
-        "depaul university"
-    ],
-
-    Michigan: [
-        "university of michigan",
-        "michigan state university"
-    ],
-
-    Ohio: [
-        "ohio state university",
-        "university of cincinnati",
-        "case western"
-    ]
-};
-
-/* =========================================================
-   GET STATE
-========================================================= */
-
-function getSchoolState(school) {
-
-    const apiState = (
-        school["state-province"] || ""
-    ).trim();
-
-    if (apiState) {
-        return apiState;
-    }
-
-    const name = (
-        school.name || ""
-    ).toLowerCase();
-
-    if (
-        NJ_EXACT_NAMES.some(
-            n => n.toLowerCase() === name
-        )
-    ) {
-        return "New Jersey";
-    }
-
-    for (const stateKey in SCHOOL_STATE_KEYWORDS) {
-
-        const keywords =
-            SCHOOL_STATE_KEYWORDS[stateKey];
-
-        if (
-            keywords.some(keyword =>
-                name.includes(keyword)
-            )
-        ) {
-            return stateKey;
-        }
-    }
-
-    return "";
-}
-
-/* =========================================================
-   PUBLIC / PRIVATE
-========================================================= */
-
-function estimateSchoolType(school) {
-
-    const name = (
-        school.name || ""
-    ).toLowerCase();
-
-    /*
-       The university-domains API does not reliably
-       provide public/private status.
-
-       These known public systems are marked public.
-       Everything else defaults to private so the filter
-       remains usable instead of pretending we know data
-       we don't actually have.
-    */
-
-    const publicKeywords = [
-        "rutgers",
-        "rowan university",
-        "kean university",
-        "montclair state",
-        "new jersey institute of technology",
-        "njit",
-        "stockton university",
-        "william paterson",
-        "the college of new jersey",
-        "ramapo college",
-        "university of california",
-        "california state university",
-        "state university",
-        "university of texas",
-        "texas a&m",
-        "university of florida",
-        "florida state university",
-        "university of michigan",
-        "michigan state university",
-        "ohio state university",
-        "penn state",
-        "university of washington",
-        "arizona state university",
-        "university of arizona"
-    ];
-
-    return publicKeywords.some(
-        keyword => name.includes(keyword)
-    )
-        ? "Public"
-        : "Private";
-}
-
-/* =========================================================
-   SCHOOL TYPE
-========================================================= */
-
-function getInstitutionType(name) {
-
-    const lower = (
-        name || ""
-    ).toLowerCase();
-
-    if (lower.includes("university")) {
-        return "University";
-    }
-
-    return "College";
-}
-
-/* =========================================================
-   GPA ESTIMATION
-========================================================= */
-
-function estimateRequiredGPA(name) {
-
-    const lower = (
-        name || ""
-    ).toLowerCase();
-
-    const highlySelective = [
-        "harvard",
-        "stanford",
-        "princeton",
-        "yale",
-        "columbia",
-        "mit",
-        "massachusetts institute",
-        "california institute of technology",
-        "caltech",
-        "university of chicago",
-        "northwestern",
-        "duke university",
-        "brown university",
-        "dartmouth",
-        "cornell",
-        "university of pennsylvania"
-    ];
-
-    const selective = [
-        "new york university",
-        "northeastern",
-        "boston university",
-        "tufts",
-        "carnegie mellon",
-        "university of michigan",
-        "university of southern california",
-        "usc",
-        "university of california",
-        "uc berkeley",
-        "ucla",
-        "rice university",
-        "georgetown"
-    ];
-
-    const moderatelySelective = [
-        "rutgers",
-        "njit",
-        "new jersey institute",
-        "penn state",
-        "ohio state",
-        "university of washington",
-        "university of florida",
-        "florida state",
-        "university of texas",
-        "arizona state",
-        "university of colorado"
-    ];
-
-    if (
-        highlySelective.some(
-            keyword => lower.includes(keyword)
-        )
-    ) {
-        return 3.85;
-    }
-
-    if (
-        selective.some(
-            keyword => lower.includes(keyword)
-        )
-    ) {
-        return 3.65;
-    }
-
-    if (
-        moderatelySelective.some(
-            keyword => lower.includes(keyword)
-        )
-    ) {
-        return 3.2;
-    }
-
-    return 2.75;
-}
-
-/* =========================================================
-   DISTANCE TIER
-========================================================= */
-
-function getDistanceTier(state, country) {
-
-    if (country !== "United States") {
+    if (college.country !== "United States") {
         return "international";
     }
 
-    if (state === "New Jersey") {
+    if (college.state === "New Jersey") {
         return "local";
     }
 
-    if (NEARBY_STATES.includes(state)) {
+    const nearbyStates = [
+        "New York",
+        "Pennsylvania",
+        "Connecticut",
+        "Delaware",
+        "Maryland"
+    ];
+
+    if (nearbyStates.includes(college.state)) {
         return "regional";
     }
 
     return "far";
 }
 
+
 /* =========================================================
-   DATABASE LOADER
-========================================================= */
+   FINALIZE DATABASE
+   ========================================================= */
 
-async function loadGlobalCollegeDatabase() {
+window.COLLEGES = COLLEGES.map(college => ({
+    ...college,
+    distanceTier: assignDistanceTier(college)
+}));
 
-    try {
 
-        const response = await fetch(
-            "https://cdn.jsdelivr.net/gh/Hipo/university-domains-list/world_universities_and_domains.json"
-        );
+console.log(
+    "CapItNJ database loaded:",
+    window.COLLEGES.length,
+    "schools"
+);
 
-        if (!response.ok) {
-            throw new Error(
-                "Fetch failed: " + response.status
-            );
-        }
 
-        const allSchools =
-            await response.json();
+/* Tell explore.html that the database exists */
 
-        const usSchools =
-            allSchools.filter(
-                school =>
-                    school.country ===
-                    "United States"
-            );
-
-        const intlSchools =
-            allSchools.filter(
-                school =>
-                    CURATED_INTERNATIONAL.includes(
-                        school.name
-                    )
-            );
-
-        const combined =
-            usSchools.concat(intlSchools);
-
-        window.COLLEGES =
-            combined
-                .map(function(school, index) {
-
-                    const isUS =
-                        school.country ===
-                        "United States";
-
-                    const detectedState =
-                        isUS
-                            ? getSchoolState(school)
-                            : "";
-
-                    const isNJ =
-                        detectedState ===
-                        "New Jersey";
-
-                    const region =
-                        Object.keys(REGIONS)
-                            .find(regionName =>
-                                REGIONS[regionName]
-                                    .includes(
-                                        detectedState
-                                    )
-                            ) || "";
-
-                    const distanceTier =
-                        getDistanceTier(
-                            detectedState,
-                            school.country
-                        );
-
-                    return {
-
-                        id:
-                            "school_" + index,
-
-                        name:
-                            school.name,
-
-                        type:
-                            getInstitutionType(
-                                school.name
-                            ),
-
-                        ownership:
-                            estimateSchoolType(
-                                school
-                            ),
-
-                        setting:
-                            isNJ
-                                ? "Suburban"
-                                : "Urban",
-
-                        state:
-                            detectedState,
-
-                        region:
-                            region,
-
-                        distanceTier:
-                            distanceTier,
-
-                        country:
-                            school.country,
-
-                        webPage:
-                            (
-                                school.web_pages &&
-                                school.web_pages[0]
-                            ) || "",
-
-                        estimatedMinGPA:
-                            estimateRequiredGPA(
-                                school.name
-                            ),
-
-                        netPrice:
-                            isNJ
-                                ? 16500
-                                : isUS
-                                    ? 24000
-                                    : 31000
-                    };
-                })
-
-                /*
-                   Keep international schools.
-                   For U.S. schools, only keep schools
-                   where we know the state.
-                */
-                .filter(school => {
-
-                    if (
-                        school.country !==
-                        "United States"
-                    ) {
-                        return true;
-                    }
-
-                    return (
-                        school.state !== ""
-                    );
-                });
-
-        console.log(
-            "Database initialized:",
-            window.COLLEGES.length,
-            "schools"
-        );
-
-        window.dispatchEvent(
-            new CustomEvent(
-                "database-ready"
-            )
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Database loading failed:",
-            error
-        );
-
-        /*
-           Fallback database
-        */
-
-        window.COLLEGES = [
-
-            {
-                id: "rutgers_nb",
-                name:
-                    "Rutgers University-New Brunswick",
-                type: "University",
-                ownership: "Public",
-                setting: "Suburban",
-                state: "New Jersey",
-                region: "Northeast",
-                distanceTier: "local",
-                country: "United States",
-                netPrice: 17500,
-                estimatedMinGPA: 3.2
-            },
-
-            {
-                id: "princeton",
-                name:
-                    "Princeton University",
-                type: "University",
-                ownership: "Private",
-                setting: "Suburban",
-                state: "New Jersey",
-                region: "Northeast",
-                distanceTier: "local",
-                country: "United States",
-                netPrice: 12000,
-                estimatedMinGPA: 3.85
-            },
-
-            {
-                id: "njit",
-                name:
-                    "New Jersey Institute of Technology",
-                type: "University",
-                ownership: "Public",
-                setting: "Urban",
-                state: "New Jersey",
-                region: "Northeast",
-                distanceTier: "local",
-                country: "United States",
-                netPrice: 16000,
-                estimatedMinGPA: 3.2
-            },
-
-            {
-                id: "nyu",
-                name:
-                    "New York University",
-                type: "University",
-                ownership: "Private",
-                setting: "Urban",
-                state: "New York",
-                region: "Northeast",
-                distanceTier: "regional",
-                country: "United States",
-                netPrice: 30000,
-                estimatedMinGPA: 3.65
-            },
-
-            {
-                id: "penn_state",
-                name:
-                    "Penn State",
-                type: "University",
-                ownership: "Public",
-                setting: "Suburban",
-                state: "Pennsylvania",
-                region: "Northeast",
-                distanceTier: "regional",
-                country: "United States",
-                netPrice: 24000,
-                estimatedMinGPA: 3.2
-            },
-
-            {
-                id: "asu",
-                name:
-                    "Arizona State University",
-                type: "University",
-                ownership: "Public",
-                setting: "Urban",
-                state: "Arizona",
-                region: "West",
-                distanceTier: "far",
-                country: "United States",
-                netPrice: 25000,
-                estimatedMinGPA: 3.0
-            },
-
-            {
-                id: "oregon",
-                name:
-                    "University of Oregon",
-                type: "University",
-                ownership: "Public",
-                setting: "Urban",
-                state: "Oregon",
-                region: "West",
-                distanceTier: "far",
-                country: "United States",
-                netPrice: 26000,
-                estimatedMinGPA: 3.1
-            },
-
-            {
-                id: "toronto",
-                name:
-                    "University of Toronto",
-                type: "University",
-                ownership: "Public",
-                setting: "Urban",
-                state: "Ontario",
-                region: "",
-                distanceTier: "international",
-                country: "Canada",
-                netPrice: 31000,
-                estimatedMinGPA: 3.65
-            }
-
-        ];
-
-        window.dispatchEvent(
-            new CustomEvent(
-                "database-ready"
-            )
-        );
-    }
-}
-
-loadGlobalCollegeDatabase();
+window.dispatchEvent(
+    new CustomEvent("database-ready")
+);
