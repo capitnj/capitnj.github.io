@@ -12,9 +12,7 @@
   <link rel="stylesheet" href="style.css">
 
   <style>
-    /* =========================================================
-       PROFILE PAGE
-    ========================================================= */
+    
 
     .profile-page {
       padding-top: 46px;
@@ -47,9 +45,7 @@
       flex-shrink: 0;
     }
 
-    /* =========================================================
-       STATUS
-    ========================================================= */
+    
 
     .status-msg {
       min-height: 0;
@@ -82,9 +78,7 @@
       border: 1px solid #efd0cd;
     }
 
-    /* =========================================================
-       PROFILE VIEW CARDS
-    ========================================================= */
+    
 
     #view-mode {
       margin-top: 30px;
@@ -128,9 +122,7 @@
       word-break: break-word;
     }
 
-    /* =========================================================
-       EDIT MODE
-    ========================================================= */
+    
 
     #edit-mode {
       margin-top: 30px;
@@ -233,9 +225,7 @@
       min-width: 125px;
     }
 
-    /* =========================================================
-       ACCOUNT SETTINGS
-    ========================================================= */
+    
 
     .account-section {
       margin-top: 48px;
@@ -283,9 +273,7 @@
       line-height: 1.5;
     }
 
-    /* =========================================================
-       RED DANGER BUTTONS
-    ========================================================= */
+    
 
     .danger-button,
     .logout-button {
@@ -328,9 +316,7 @@
       color: #b3413a;
     }
 
-    /* =========================================================
-       LOGIN STATE
-    ========================================================= */
+    
 
     .profile-login-state {
       max-width: 620px;
@@ -345,9 +331,7 @@
       margin-bottom: 24px;
     }
 
-    /* =========================================================
-       LOADING
-    ========================================================= */
+    
 
     .profile-loading {
       padding: 55px 0;
@@ -374,9 +358,7 @@
       }
     }
 
-    /* =========================================================
-       MOBILE
-    ========================================================= */
+    
 
     @media (max-width: 700px) {
       .profile-page {
@@ -447,7 +429,7 @@
 
   <div class="wrap profile-page">
 
-    <!-- LOGIN STATE -->
+    
     <section id="not-logged-in" class="profile-login-state" style="display:none;">
 
       <p class="eyebrow">ACCOUNT</p>
@@ -465,13 +447,13 @@
     </section>
 
 
-    <!-- LOADING STATE -->
+    
     <section id="profile-loading" class="profile-loading">
       Loading your profile<span class="loading-dot"></span>
     </section>
 
 
-    <!-- LOGGED IN -->
+    
     <section id="logged-in" style="display:none;">
 
       <div class="profile-header">
@@ -505,7 +487,7 @@
       </div>
 
 
-      <!-- VIEW PROFILE -->
+      
       <section id="view-mode">
 
         <div class="profile-info-grid">
@@ -555,7 +537,7 @@
       </section>
 
 
-      <!-- EDIT PROFILE -->
+      
       <section id="edit-mode" style="display:none;">
 
         <form id="profile-form">
@@ -829,9 +811,7 @@
 </footer>
 
 
-<!-- =========================================================
-     FIREBASE
-========================================================= -->
+
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -841,9 +821,7 @@
 
 
 <script>
-/* =========================================================
-   PROFILE APP
-========================================================= */
+
 
 let currentUser = null;
 let currentProfile = null;
@@ -851,18 +829,14 @@ let isEditMode = false;
 let firebaseStarted = false;
 
 
-/* =========================================================
-   ELEMENTS
-========================================================= */
+
 
 const notLoggedIn = document.getElementById("not-logged-in");
 const loggedIn = document.getElementById("logged-in");
 const loadingState = document.getElementById("profile-loading");
 
 
-/* =========================================================
-   START FIREBASE SAFELY
-========================================================= */
+
 
 function startProfile() {
 
@@ -901,7 +875,7 @@ function startProfile() {
 }
 
 
-/* Firebase may already be ready OR may become ready afterward. */
+
 
 if (window.capitnjFirebase) {
   startProfile();
@@ -914,9 +888,7 @@ window.addEventListener(
 );
 
 
-/* =========================================================
-   LOADING
-========================================================= */
+
 
 function showLoading() {
 
@@ -927,9 +899,7 @@ function showLoading() {
 }
 
 
-/* =========================================================
-   LOGGED OUT
-========================================================= */
+
 
 function showLoggedOutState() {
 
@@ -942,9 +912,7 @@ function showLoggedOutState() {
 }
 
 
-/* =========================================================
-   LOAD PROFILE
-========================================================= */
+
 
 async function loadFirebaseProfile(user) {
 
@@ -1068,11 +1036,7 @@ async function loadFirebaseProfile(user) {
     );
 
 
-    /*
-      If Firestore is temporarily unavailable,
-      use the locally cached profile instead of
-      showing a completely broken page.
-    */
+    
 
     const cached = localStorage.getItem(
       "userProfile"
@@ -1124,9 +1088,7 @@ async function loadFirebaseProfile(user) {
 }
 
 
-/* =========================================================
-   DISPLAY PROFILE
-========================================================= */
+
 
 function loadProfile(profile) {
 
@@ -1214,9 +1176,7 @@ function loadProfile(profile) {
 }
 
 
-/* =========================================================
-   EDIT MODE
-========================================================= */
+
 
 function toggleEditMode() {
 
@@ -1244,9 +1204,7 @@ function toggleEditMode() {
 }
 
 
-/* =========================================================
-   CANCEL EDIT
-========================================================= */
+
 
 function cancelEditMode() {
 
@@ -1270,9 +1228,7 @@ function cancelEditMode() {
 }
 
 
-/* =========================================================
-   SAVE PROFILE
-========================================================= */
+
 
 document
   .getElementById("profile-form")
@@ -1486,9 +1442,7 @@ async function saveProfile(event) {
 }
 
 
-/* =========================================================
-   MESSAGES
-========================================================= */
+
 
 function showProfileMessage(
   message,
@@ -1527,9 +1481,7 @@ function clearProfileMessage() {
 }
 
 
-/* =========================================================
-   LOG OUT
-========================================================= */
+
 
 async function logout() {
 
@@ -1588,9 +1540,7 @@ async function logout() {
 }
 
 
-/* =========================================================
-   DELETE ACCOUNT
-========================================================= */
+
 
 async function deleteAccount() {
 
@@ -1621,9 +1571,7 @@ async function deleteAccount() {
       window.capitnjFirebase.db;
 
 
-    /*
-      Delete the main profile document.
-    */
+    
 
     await db
       .collection("users")
@@ -1631,16 +1579,12 @@ async function deleteAccount() {
       .delete();
 
 
-    /*
-      Delete Firebase Authentication account.
-    */
+    
 
     await currentUser.delete();
 
 
-    /*
-      Clear local account data.
-    */
+    
 
     localStorage.removeItem(
       "userLoggedIn"

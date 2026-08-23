@@ -4,9 +4,7 @@ const WORLD_URL =
     "https://cdn.jsdelivr.net/gh/Hipo/university-domains-list/world_universities_and_domains.json";
 
 
-/* =========================================================
-   REGIONS
-========================================================= */
+
 
 const REGIONS = {
     Northeast: [
@@ -74,9 +72,7 @@ const REGIONS = {
 };
 
 
-/* =========================================================
-   STATE DETECTION
-========================================================= */
+
 
 const SCHOOL_STATE_KEYWORDS = {
 
@@ -234,9 +230,7 @@ function getSchoolState(school) {
 }
 
 
-/* =========================================================
-   GPA ESTIMATE
-========================================================= */
+
 
 function estimateRequiredGPA(name) {
 
@@ -320,9 +314,7 @@ function estimateRequiredGPA(name) {
 }
 
 
-/* =========================================================
-   DISTANCE
-========================================================= */
+
 
 function getDistanceTier(country, state) {
 
@@ -349,9 +341,7 @@ function getDistanceTier(country, state) {
 }
 
 
-/* =========================================================
-   LOAD DATABASE
-========================================================= */
+
 
 async function loadGlobalCollegeDatabase() {
 
@@ -460,14 +450,7 @@ async function loadGlobalCollegeDatabase() {
                 });
 
 
-        /*
-         * IMPORTANT:
-         * Do NOT remove schools whose state
-         * could not be detected.
-         *
-         * That's what was killing your
-         * database count before.
-         */
+      
 
 
         console.log(
@@ -491,10 +474,7 @@ async function loadGlobalCollegeDatabase() {
         );
 
 
-        /*
-         * Keep the page from being permanently
-         * blank if the API is temporarily down.
-         */
+        
 
         window.COLLEGES = [];
 

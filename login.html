@@ -6,7 +6,7 @@
 
     <title>Log in — CapItNJ</title>
 
-    <!-- Fonts -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -14,7 +14,7 @@
         rel="stylesheet"
     >
 
-    <!-- Your CSS -->
+    
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -58,7 +58,7 @@
             </p>
 
 
-            <!-- LOGIN FORM -->
+            
 
             <form id="login-form">
 
@@ -111,7 +111,7 @@
             </form>
 
 
-            <!-- CREATE ACCOUNT LINK -->
+            
 
             <div class="auth-toggle">
                 Don't have an account?
@@ -131,9 +131,7 @@
 </main>
 
 
-<!-- =====================================================
-     CREATE ACCOUNT MODAL
-===================================================== -->
+
 
 <div
     id="signup-modal"
@@ -250,9 +248,7 @@
 </div>
 
 
-<!-- =====================================================
-     RESET PASSWORD MODAL
-===================================================== -->
+
 
 <div
     id="reset-modal"
@@ -348,9 +344,7 @@
 
 <script>
 
-/* =====================================================
-   HELPERS
-===================================================== */
+
 
 function showMessage(elementId, message, type) {
 
@@ -379,9 +373,7 @@ function clearMessage(elementId) {
 }
 
 
-/* =====================================================
-   LOGIN
-===================================================== */
+
 
 document
     .getElementById('login-form')
@@ -438,11 +430,7 @@ document
 
             } else {
 
-                /*
-                 * If the Firebase account exists but
-                 * doesn't have a Firestore profile yet,
-                 * create one.
-                 */
+                
 
                 profile = {
 
@@ -472,10 +460,7 @@ document
             }
 
 
-            /*
-             * Keep a local copy so profile.html
-             * can load immediately.
-             */
+            
 
             localStorage.setItem(
                 'userLoggedIn',
@@ -488,9 +473,7 @@ document
             );
 
 
-            /*
-             * Go directly to profile.
-             */
+            
 
             window.location.href = 'profile.html';
 
@@ -543,9 +526,7 @@ document
     });
 
 
-/* =====================================================
-   CREATE ACCOUNT
-===================================================== */
+
 
 document
     .getElementById('signup-form')
@@ -615,9 +596,7 @@ document
 
         try {
 
-            /*
-             * Create Firebase Authentication account.
-             */
+            
 
             const userCredential =
                 await window.capitnjFirebase
@@ -631,10 +610,7 @@ document
                 userCredential.user;
 
 
-            /*
-             * Create the profile that belongs
-             * to this Firebase user.
-             */
+            
 
             const profile = {
 
@@ -657,10 +633,7 @@ document
             };
 
 
-            /*
-             * Save profile to Firestore using
-             * the Firebase user's UID.
-             */
+            
 
             await window.capitnjFirebase.db
                 .collection('users')
@@ -668,9 +641,7 @@ document
                 .set(profile);
 
 
-            /*
-             * Save local copy too.
-             */
+            
 
             localStorage.setItem(
                 'userLoggedIn',
@@ -683,9 +654,7 @@ document
             );
 
 
-            /*
-             * Go directly to profile.
-             */
+            
 
             window.location.href = 'profile.html';
 
@@ -743,9 +712,7 @@ document
     });
 
 
-/* =====================================================
-   PASSWORD RESET
-===================================================== */
+
 
 document
     .getElementById('reset-form')
@@ -772,22 +739,13 @@ document
 
         try {
 
-            /*
-             * IMPORTANT:
-             *
-             * Do NOT check Firestore first.
-             *
-             * Firebase Authentication should handle
-             * the password reset directly.
-             */
+        
 
             await window.capitnjFirebase.auth
                 .sendPasswordResetEmail(email);
 
 
-            /*
-             * Success message.
-             */
+            
 
             const message =
                 document.getElementById(
@@ -854,9 +812,7 @@ document
     });
 
 
-/* =====================================================
-   OPEN / CLOSE SIGNUP MODAL
-===================================================== */
+
 
 document
     .getElementById('toggle-btn')
@@ -901,9 +857,7 @@ function closeSignupModal() {
 }
 
 
-/* =====================================================
-   OPEN / CLOSE RESET MODAL
-===================================================== */
+
 
 document
     .getElementById('open-reset-modal-btn')
@@ -951,9 +905,7 @@ function closeResetModal() {
 }
 
 
-/* =====================================================
-   CLOSE WHEN CLICKING OUTSIDE MODAL
-===================================================== */
+
 
 document
     .getElementById('signup-modal')
@@ -977,9 +929,7 @@ document
     });
 
 
-/* =====================================================
-   ESC KEY CLOSES MODALS
-===================================================== */
+
 
 document.addEventListener(
     'keydown',
@@ -994,9 +944,7 @@ document.addEventListener(
 );
 
 
-/* =====================================================
-   IF ALREADY LOGGED IN
-===================================================== */
+
 
 document.addEventListener(
     'DOMContentLoaded',

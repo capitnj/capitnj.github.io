@@ -12,9 +12,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-ai.js";
 
 
-// =====================================================
-// FIREBASE CONFIG
-// =====================================================
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
@@ -26,24 +24,16 @@ const firebaseConfig = {
 };
 
 
-// =====================================================
-// FIREBASE APP
-// =====================================================
+
 
 const app = initializeApp(firebaseConfig);
 
 
-// =====================================================
-// APP CHECK DEBUG MODE
-// =====================================================
 
-// This tells Firebase we're developing locally.
 self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
 
 
-// IMPORTANT:
-// Keep your actual reCAPTCHA v3 site key here.
-// If you haven't set one up yet, this will need to be added next.
+
 const appCheck = initializeAppCheck(app, {
     provider: new ReCaptchaV3Provider("YOUR_RECAPTCHA_V3_SITE_KEY"),
     isTokenAutoRefreshEnabled: true
@@ -52,9 +42,7 @@ const appCheck = initializeAppCheck(app, {
 console.log("🛡️ App Check initialized");
 
 
-// =====================================================
-// FIREBASE AI
-// =====================================================
+
 
 const ai = getAI(app, {
     backend: new GoogleAIBackend()
@@ -65,18 +53,14 @@ const model = getGenerativeModel(ai, {
 });
 
 
-// =====================================================
-// ELEMENTS
-// =====================================================
+
 
 const chatMessages = document.getElementById("chatMessages");
 const questionInput = document.getElementById("questionInput");
 const sendButton = document.getElementById("sendButton");
 
 
-// =====================================================
-// ADD MESSAGE
-// =====================================================
+
 
 function addMessage(text, sender) {
     const message = document.createElement("div");
@@ -93,9 +77,7 @@ function addMessage(text, sender) {
 }
 
 
-// =====================================================
-// BUTTONS
-// =====================================================
+
 
 function showLoading() {
     sendButton.disabled = true;
@@ -115,9 +97,7 @@ function resetButton() {
 }
 
 
-// =====================================================
-// SEND QUESTION
-// =====================================================
+
 
 async function sendQuestion() {
 
@@ -172,9 +152,7 @@ ${question}
 }
 
 
-// =====================================================
-// EVENTS
-// =====================================================
+
 
 sendButton.addEventListener("click", sendQuestion);
 

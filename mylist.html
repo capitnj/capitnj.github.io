@@ -188,20 +188,20 @@
       </p>
     </div>
 
-    <!-- NOT LOGGED IN -->
+    
     <div id="login-gate" class="empty-list" style="display:none;">
       <h2>Log in to see your list</h2>
       <p>Your saved colleges are connected to your account.</p>
       <a href="login.html" class="btn">Log in</a>
     </div>
 
-    <!-- LOADING -->
+    
     <div id="loading-state" class="empty-list">
       <h2>Loading your colleges</h2>
       <p>Getting your saved list...</p>
     </div>
 
-    <!-- ERROR -->
+    
     <div id="error-state" class="empty-list" style="display:none;">
       <h2>Couldn't load your list</h2>
       <p id="error-message">
@@ -210,7 +210,7 @@
       <button class="btn retry-btn" onclick="loadList()">Try again</button>
     </div>
 
-    <!-- EMPTY -->
+    
     <div id="empty-state" class="empty-list" style="display:none;">
       <h2>Your list is empty</h2>
       <p>Save colleges from Explore or Matches and they'll show up here.</p>
@@ -221,7 +221,7 @@
       </div>
     </div>
 
-    <!-- LIST -->
+    
     <div id="list-section" style="display:none;">
 
       <div class="list-stats">
@@ -268,7 +268,7 @@
 </footer>
 
 
-<!-- FIREBASE -->
+
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -289,9 +289,7 @@ const collegesContainer = document.getElementById("colleges-container");
 const errorMessage = document.getElementById("error-message");
 
 
-/* -------------------------
-   ESCAPE HTML
-------------------------- */
+
 
 function escapeHtml(value) {
   const div = document.createElement("div");
@@ -300,9 +298,6 @@ function escapeHtml(value) {
 }
 
 
-/* -------------------------
-   SHOW ONE SECTION
-------------------------- */
 
 function showState(state) {
   loginGate.style.display = "none";
@@ -319,9 +314,7 @@ function showState(state) {
 }
 
 
-/* -------------------------
-   START AFTER FIREBASE
-------------------------- */
+
 
 function startMyList() {
   if (appStarted) return;
@@ -349,18 +342,16 @@ function startMyList() {
 }
 
 
-/* Firebase might already be ready */
+
 if (window.capitnjFirebase) {
   startMyList();
 }
 
-/* Or wait for firebase-init.js */
+
 window.addEventListener("firebase-ready", startMyList, { once: true });
 
 
-/* -------------------------
-   LOAD SAVED COLLEGES
-------------------------- */
+
 
 async function loadList() {
   if (!currentUser || !window.capitnjFirebase) return;
@@ -368,12 +359,7 @@ async function loadList() {
   showState("loading");
 
   try {
-    /*
-      IMPORTANT:
-      Using Firestore directly here.
-      Your old code was passing fb.db INTO helpers that
-      already use db internally.
-    */
+   
 
     const db = window.capitnjFirebase.db;
 
@@ -393,7 +379,7 @@ async function loadList() {
     });
 
 
-    /* Sort newest first */
+   
     savedColleges.sort((a, b) => {
       let aTime = 0;
       let bTime = 0;
@@ -444,9 +430,7 @@ async function loadList() {
 }
 
 
-/* -------------------------
-   RENDER LIST
-------------------------- */
+
 
 function renderList() {
   if (savedColleges.length === 0) {
@@ -553,9 +537,7 @@ function renderList() {
 }
 
 
-/* -------------------------
-   REMOVE ONE COLLEGE
-------------------------- */
+
 
 async function removeCollege(collegeId) {
   if (!currentUser) return;
@@ -583,9 +565,7 @@ async function removeCollege(collegeId) {
 }
 
 
-/* -------------------------
-   CLEAR ENTIRE LIST
-------------------------- */
+
 
 document.getElementById("clear-list-btn").addEventListener("click", async () => {
 

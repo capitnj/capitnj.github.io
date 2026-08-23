@@ -312,11 +312,11 @@
 </footer>
 
 
-<!-- COLLEGE DATA -->
+
 <script src="data.js"></script>
 
 
-<!-- FIREBASE -->
+
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -342,9 +342,7 @@ const matchesContainer = document.getElementById("matches-container");
 const profileSummary = document.getElementById("profile-summary");
 
 
-/* ==========================================
-   SHOW / HIDE PAGE STATES
-========================================== */
+
 
 function hideAllStates() {
     loadingState.style.display = "none";
@@ -360,9 +358,7 @@ function showState(element) {
 }
 
 
-/* ==========================================
-   GET COLLEGE DATA
-========================================== */
+
 
 function getCollegeData() {
 
@@ -386,18 +382,7 @@ function getCollegeData() {
 }
 
 
-/* ==========================================
-   LOCATION SYSTEM
 
-   YOUR data.js ALREADY USES:
-
-   local
-   regional
-   far
-   international
-
-   This code now matches those values directly.
-========================================== */
 
 const LOCATION_LABELS = {
     local: "Near home",
@@ -526,11 +511,7 @@ function collegeMatchesLocation(college, preference) {
     }
 
 
-    /*
-       MOST IMPORTANT PART:
-
-       Your actual data.js uses distanceTier.
-    */
+   
 
     const tier = String(
         college.distanceTier ||
@@ -543,18 +524,14 @@ function collegeMatchesLocation(college, preference) {
 
     if (["local", "regional", "far", "international"].includes(wanted)) {
 
-        /*
-           First try the exact distanceTier.
-        */
+        
 
         if (tier) {
             return tier === wanted;
         }
 
 
-        /*
-           Fallback if a college somehow has no distanceTier.
-        */
+       
 
         const state = normalizeState(
             college.state ||
@@ -621,10 +598,7 @@ function collegeMatchesLocation(college, preference) {
     }
 
 
-    /*
-       If a user somehow has an actual state saved
-       instead of local/regional/far/etc.
-    */
+   
 
     const collegeState = normalizeState(
         college.state ||
@@ -636,9 +610,7 @@ function collegeMatchesLocation(college, preference) {
 }
 
 
-/* ==========================================
-   NUMBER HELPERS
-========================================== */
+
 
 function parseNumber(value) {
 
@@ -787,11 +759,7 @@ function getCollegeACT(college) {
 }
 
 
-/* ==========================================
-   BUDGET
 
-   Missing college cost DOES NOT remove it.
-========================================== */
 
 function matchesBudget(college, budget) {
 
@@ -814,9 +782,7 @@ function matchesBudget(college, budget) {
 }
 
 
-/* ==========================================
-   RANKING
-========================================== */
+
 
 function calculateRankingScore(college, profile) {
 
@@ -916,9 +882,7 @@ function calculateRankingScore(college, profile) {
 }
 
 
-/* ==========================================
-   BUILD MATCHES
-========================================== */
+
 
 function buildMatches(profile) {
 
@@ -936,10 +900,7 @@ function buildMatches(profile) {
         "";
 
 
-    /*
-       STEP 1:
-       Get ONLY the correct location tier.
-    */
+    
 
     const locationMatches = colleges.filter(function(college) {
         return collegeMatchesLocation(
@@ -949,10 +910,7 @@ function buildMatches(profile) {
     });
 
 
-    /*
-       STEP 2:
-       Filter those schools by budget.
-    */
+    
 
     const budgetMatches = locationMatches.filter(function(college) {
         return matchesBudget(
@@ -962,10 +920,7 @@ function buildMatches(profile) {
     });
 
 
-    /*
-       If the budget is too strict and removes everything,
-       still show the correct location schools.
-    */
+    
 
     const usableMatches =
         budgetMatches.length > 0
@@ -973,10 +928,7 @@ function buildMatches(profile) {
             : locationMatches;
 
 
-    /*
-       STEP 3:
-       Rank them.
-    */
+    
 
     return usableMatches
         .map(function(college) {
@@ -997,9 +949,7 @@ function buildMatches(profile) {
 }
 
 
-/* ==========================================
-   PROFILE SUMMARY
-========================================== */
+
 
 function renderProfileSummary(profile) {
 
@@ -1077,9 +1027,7 @@ function renderProfileSummary(profile) {
 }
 
 
-/* ==========================================
-   RENDER MATCHES
-========================================== */
+
 
 function renderMatches(matches, profile) {
 
@@ -1245,9 +1193,7 @@ function renderMatches(matches, profile) {
 }
 
 
-/* ==========================================
-   SAVED COLLEGES
-========================================== */
+
 
 function getCollegeId(college) {
 
@@ -1381,9 +1327,7 @@ async function saveCollege(collegeId) {
 }
 
 
-/* ==========================================
-   SECURITY HELPERS
-========================================== */
+
 
 function escapeHtml(value) {
 
@@ -1408,9 +1352,7 @@ function escapeJs(value) {
 }
 
 
-/* ==========================================
-   START
-========================================== */
+
 
 let authListenerStarted = false;
 
@@ -1488,11 +1430,7 @@ async function startMatches() {
                         : {};
 
 
-                /*
-                   Make sure all possible old profile
-                   field names still work.
-                */
-
+                
                 userProfile.preferredLocation =
                     userProfile.preferredLocation ||
                     userProfile.location ||
@@ -1553,9 +1491,7 @@ async function startMatches() {
 }
 
 
-/*
-   Wait briefly for Firebase if needed.
-*/
+
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -1596,7 +1532,7 @@ document.addEventListener(
 </script>
 
 
-<!-- GOATCOUNTER -->
+
 <script
     data-goatcounter="https://capitnj.goatcounter.com/count"
     async

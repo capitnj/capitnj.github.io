@@ -14,7 +14,7 @@ if (typeof firebase === "undefined") {
   );
 } else {
   try {
-    // Prevent duplicate Firebase initialization
+    
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
@@ -26,9 +26,7 @@ if (typeof firebase === "undefined") {
       auth: auth,
       db: db,
 
-      // =========================
-      // AUTH FUNCTIONS
-      // =========================
+      
       authFns: {
         signInWithEmail: (email, password) =>
           auth.signInWithEmailAndPassword(email, password),
@@ -63,9 +61,7 @@ if (typeof firebase === "undefined") {
           auth.onAuthStateChanged(callback)
       },
 
-      // =========================
-      // FIRESTORE FUNCTIONS
-      // =========================
+      
       firestoreFns: {
         collection: (...args) =>
           db.collection(...args),
@@ -93,7 +89,7 @@ if (typeof firebase === "undefined") {
         deleteDoc: (docRef) =>
           docRef.delete(),
 
-        // Creates a query from Firestore where constraints
+        
         query: (collectionRef, ...constraints) => {
           let q = collectionRef;
 
@@ -118,9 +114,7 @@ if (typeof firebase === "undefined") {
         })
       },
 
-      // =========================
-      // REQUIRE LOGIN
-      // =========================
+      
       requireAuth: (callback) => {
         auth.onAuthStateChanged((user) => {
           if (user) {
@@ -131,9 +125,7 @@ if (typeof firebase === "undefined") {
         });
       },
 
-      // =========================
-      // LOG OUT
-      // =========================
+      
       logOut: async () => {
         try {
           await auth.signOut();
@@ -147,7 +139,7 @@ if (typeof firebase === "undefined") {
       }
     };
 
-    // Tell all pages Firebase is ready
+  
     window.dispatchEvent(new Event("firebase-ready"));
 
     console.log("Firebase initialized successfully.");

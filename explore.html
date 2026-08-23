@@ -17,9 +17,7 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-        /* =====================================================
-           EXPLORE ACTIONS
-        ===================================================== */
+       
 
         .btn-details,
         .btn-save {
@@ -81,9 +79,7 @@
             flex-wrap: wrap;
         }
 
-        /* =====================================================
-           DETAILS MODAL
-        ===================================================== */
+        
 
         .details-modal {
             display: none;
@@ -260,7 +256,7 @@
         </p>
 
 
-        <!-- FILTERS -->
+       
 
         <div class="explore-controls">
 
@@ -328,7 +324,7 @@
 </main>
 
 
-<!-- DETAILS MODAL -->
+
 
 <div
     id="details-modal"
@@ -355,9 +351,7 @@
 </div>
 
 
-<!-- =====================================================
-     FIREBASE
-===================================================== -->
+
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -366,16 +360,12 @@
 <script src="firebase-init.js"></script>
 
 
-<!-- =====================================================
-     DATABASE
-===================================================== -->
+
 
 <script src="data.js"></script>
 
 
-<!-- =====================================================
-     EXPLORE LOGIC
-===================================================== -->
+
 
 <script>
 
@@ -405,9 +395,7 @@ const collegeByName = {};
 let currentUser = null;
 
 
-/* =====================================================
-   FIREBASE AUTH
-===================================================== */
+
 
 (async function initializeAuth() {
 
@@ -436,10 +424,7 @@ let currentUser = null;
 
                 currentUser = user;
 
-                /*
-                   If user signs in while already
-                   on Explore, refresh buttons.
-                */
+               
 
                 render();
 
@@ -458,9 +443,7 @@ let currentUser = null;
 })();
 
 
-/* =====================================================
-   RENDER
-===================================================== */
+
 
 function render() {
 
@@ -866,10 +849,7 @@ async function showDetails(key) {
     `;
 
 
-    /*
-       International schools don't have
-       College Scorecard data here.
-    */
+   
 
     if (
         college.country !==
@@ -1052,9 +1032,7 @@ async function showDetails(key) {
 }
 
 
-/* =====================================================
-   CLOSE MODAL
-===================================================== */
+
 
 function closeDetails() {
 
@@ -1120,9 +1098,7 @@ document.addEventListener(
 );
 
 
-/* =====================================================
-   SAVE COLLEGE
-===================================================== */
+
 
 async function saveCollege(
     key,
@@ -1284,9 +1260,7 @@ document
     );
 
 
-/* =====================================================
-   DATABASE READY
-===================================================== */
+
 
 window.addEventListener(
     "database-ready",
@@ -1294,10 +1268,8 @@ window.addEventListener(
 );
 
 
-/*
-   Handles the case where data.js
-   finished before this script ran.
-*/
+
+
 
 if (
     window.COLLEGES &&
@@ -1309,16 +1281,12 @@ if (
 </script>
 
 
-<!-- =====================================================
-     MATCHING
-===================================================== -->
+
 
 <script src="matching.js"></script>
 
 
-<!-- =====================================================
-     ANALYTICS
-===================================================== -->
+
 
 <script
     data-goatcounter="https://capitnj.goatcounter.com/count"

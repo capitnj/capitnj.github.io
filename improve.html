@@ -12,7 +12,7 @@
 
     <link rel="stylesheet" href="style.css">
 
-    <!-- Firebase -->
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
@@ -21,7 +21,7 @@
 
 <body>
 
-    <!-- NAV -->
+   
     <header class="nav">
         <div class="nav-inner">
             <a href="index.html" class="wordmark">CapItNJ</a>
@@ -44,7 +44,7 @@
     <main>
         <div class="wrap">
 
-            <!-- PAGE INTRO -->
+            
             <section style="padding: 52px 0 20px;">
                 <p class="eyebrow">STRENGTHEN YOUR APPLICATION</p>
 
@@ -67,7 +67,7 @@
             </section>
 
 
-            <!-- SCORE TRACKER -->
+            
             <section style="
                 padding: 48px 0 0;
                 margin-top: 28px;
@@ -98,7 +98,7 @@
 
                 <div class="improve-score-grid">
 
-                    <!-- SAT -->
+                    
                     <div>
                         <div style="
                             background: var(--surface);
@@ -159,7 +159,7 @@
                     </div>
 
 
-                    <!-- ACT -->
+                    
                     <div>
                         <div style="
                             background: var(--surface);
@@ -245,7 +245,7 @@
             </section>
 
 
-            <!-- REMINDERS -->
+            
             <section style="
                 padding: 48px 0 0;
                 border-top: 1px solid var(--line);
@@ -383,7 +383,7 @@
                 </div>
 
 
-                <!-- DROPDOWNS -->
+               
                 <div class="tips-accordion">
 
                     <button class="tip-item" type="button">
@@ -639,7 +639,7 @@
             loadTestScores();
             loadReminders();
 
-            // Accordion dropdowns
+            
             const tipButtons = document.querySelectorAll(".tip-item");
 
             tipButtons.forEach(function (button) {
@@ -649,7 +649,7 @@
                     const content = button.nextElementSibling;
                     const isOpen = button.classList.contains("open");
 
-                    // Close other tips
+                    
                     document.querySelectorAll(".tip-item").forEach(function (item) {
                         item.classList.remove("open");
                     });
@@ -658,7 +658,7 @@
                         item.classList.remove("open");
                     });
 
-                    // Open clicked tip unless it was already open
+                   
                     if (!isOpen) {
                         button.classList.add("open");
                         content.classList.add("open");
@@ -671,9 +671,7 @@
         });
 
 
-        // =========================
-        // DATE FORMAT
-        // =========================
+       
 
         function formatDate(dateString) {
 
@@ -695,9 +693,7 @@
         }
 
 
-        // =========================
-        // SAT
-        // =========================
+        
 
         function addSATScore() {
 
@@ -759,9 +755,7 @@
         }
 
 
-        // =========================
-        // ACT
-        // =========================
+      
 
         function addACTScore() {
 
@@ -837,9 +831,7 @@
         }
 
 
-        // =========================
-        // LOAD TEST SCORES
-        // =========================
+        
 
         function loadTestScores() {
 
@@ -855,7 +847,7 @@
             const actHistory = document.getElementById("act-history");
 
 
-            // SAT history
+           
             if (satScores.length === 0) {
 
                 satHistory.innerHTML = `
@@ -908,7 +900,7 @@
             }
 
 
-            // ACT history
+            
             if (actScores.length === 0) {
 
                 actHistory.innerHTML = `
@@ -963,10 +955,7 @@
         }
 
 
-        // =========================
-        // REMINDERS
-        // =========================
-
+        
         function addReminder() {
 
             const name = document.getElementById("school-name").value.trim();
@@ -1107,7 +1096,7 @@
         }
 
 
-        // Prevent typed school names from being interpreted as HTML
+        
         function escapeHTML(value) {
 
             const div = document.createElement("div");
