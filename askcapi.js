@@ -7,86 +7,55 @@ import {
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-ai.js";
 
 
-/* =========================================================
-   FIREBASE
-========================================================= */
-
 const firebaseConfig = {
-    apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
+    apiKey: "YOUR_FIREBASE_API_KEY",
     authDomain: "capitnj-73a53.firebaseapp.com",
     projectId: "capitnj-73a53",
     storageBucket: "capitnj-73a53.firebasestorage.app",
     messagingSenderId: "1019609008991",
-    appId: "1:1019609008991:web:5f19dca479b475d221c4ea",
-    measurementId: "G-TGSCVHMGQZ"
+    appId: "1:1019609008991:web:5f19dca479b475d221c4ea"
 };
 
 
 const app = initializeApp(firebaseConfig);
 
-
-/* =========================================================
-   CAPi AI
-========================================================= */
-
 const ai = getAI(app, {
     backend: new GoogleAIBackend()
 });
-
 
 const model = getGenerativeModel(ai, {
     model: "gemini-3.6-flash"
 });
 
 
-/* =========================================================
-   ELEMENTS
-========================================================= */
-
 const chatMessages = document.getElementById("chatMessages");
 const questionInput = document.getElementById("questionInput");
 const sendButton = document.getElementById("sendButton");
 
 
-if (!chatMessages || !questionInput || !sendButton) {
-    console.error("Capi: required chat elements were not found.");
-}
-
-
-/* =========================================================
-   ADD MESSAGE
-========================================================= */
-
 function addMessage(text, sender) {
 
     const message = document.createElement("div");
-
-    message.className = `message ${sender}`;
+    message.className = "message " + sender;
 
     const bubble = document.createElement("div");
-
     bubble.className = "bubble";
 
     bubble.textContent = text;
 
     message.appendChild(bubble);
-
     chatMessages.appendChild(message);
 
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 
-/* =========================================================
-   LOADING
-========================================================= */
-
 function showLoading() {
 
     sendButton.disabled = true;
 
     sendButton.innerHTML = `
-        <span class="button-loading" aria-label="Capi is thinking">
+        <span class="dot-loader">
             <span></span>
             <span></span>
             <span></span>
@@ -95,32 +64,22 @@ function showLoading() {
 }
 
 
-function resetSendButton() {
+function resetButton() {
 
     sendButton.disabled = false;
+    sendButton.textContent = "Send";
 
-    sendButton.innerHTML = "Send";
 }
 
-
-/* =========================================================
-   SEND QUESTION
-========================================================= */
 
 async function sendQuestion() {
 
     const question = questionInput.value.trim();
 
-    if (!question) {
+    if (!question || sendButton.disabled) {
         return;
     }
 
-    if (sendButton.disabled) {
-        return;
-    }
-
-
-    /* Show user's message */
 
     addMessage(question, "user");
 
@@ -131,146 +90,107 @@ async function sendQuestion() {
 
     try {
 
+        console.log("Capi: starting request...");
+        console.log("Question:", question);
+
+
         const prompt = `
-You are Capi, the friendly AI college assistant for CapItNJ.
+You are Capi, the friendly college assistant for CapItNJ.
 
-CapItNJ helps students explore colleges, compare schools,
-understand admissions, and build a college list.
-
-Your job is to give useful, accurate, student-friendly advice.
-
-You can help with:
-
+Help students with:
 - college admissions
-- GPA questions
+- GPA
 - SAT and ACT
 - reach, target, and safety schools
-- choosing colleges
-- college applications
+- college selection
+- applications
 - essays
-- scholarships
 - FAFSA
+- scholarships
 - financial aid
 - majors
 - college life
-- comparing schools
-- understanding admission requirements
-- building a balanced college list
 
-IMPORTANT RULES:
+Be friendly, clear, accurate, and concise.
 
-1. Be friendly and conversational.
-2. Keep answers reasonably concise.
-3. Explain complicated things simply.
-4. Never guarantee that a student will be admitted.
-5. Do not invent statistics.
-6. If you are unsure about a current statistic, say so.
-7. Ask for more information when it would make the answer substantially better.
-8. You are Capi, so speak naturally rather than sounding like a textbook.
+Do not guarantee admission.
 
-Student's question:
+Student question:
 
 ${question}
 `;
 
 
-        console.log("Capi: sending request...");
-
-
         const result = await model.generateContent(prompt);
 
 
-        console.log("Capi: response received", result);
+        console.log("Capi raw result:", result);
 
 
         const response = result.response;
 
 
         if (!response) {
-            throw new Error("No response returned from Gemini.");
+            throw new Error("Firebase returned no response object.");
         }
 
 
         const answer = response.text();
 
 
-        if (!answer || !answer.trim()) {
-            throw new Error("Gemini returned an empty response.");
+        console.log("Capi answer:", answer);
+
+
+        if (!answer) {
+            throw new Error("Firebase returned an empty answer.");
         }
 
 
-        addMessage(answer.trim(), "ai");
+        addMessage(answer, "ai");
 
 
     } catch (error) {
 
-        console.error("CAPi AI ERROR:", error);
+        console.error("=================================");
+        console.error("CAPI ERROR");
+        console.error("=================================");
+        console.error(error);
+        console.error("Message:", error?.message);
+        console.error("Code:", error?.code);
+        console.error("Name:", error?.name);
 
 
-        let errorMessage =
-            "Capi couldn't answer right now 😭 Try again in a second.";
-
-
-        if (error?.message) {
-
-            console.error(
-                "Detailed Capi error:",
-                error.message
-            );
-
-        }
-
-
-        addMessage(errorMessage, "ai");
+        addMessage(
+            "Capi hit an error 😭 Check the browser console for the exact error.",
+            "ai"
+        );
 
     } finally {
 
-        resetSendButton();
+        resetButton();
 
     }
 
 }
 
 
-/* =========================================================
-   SEND BUTTON
-========================================================= */
-
-sendButton.addEventListener(
-    "click",
-    sendQuestion
-);
+sendButton.addEventListener("click", sendQuestion);
 
 
-/* =========================================================
-   ENTER KEY
-========================================================= */
+questionInput.addEventListener("keydown", (event) => {
 
-questionInput.addEventListener(
-    "keydown",
-    function (event) {
+    if (event.key === "Enter") {
 
-        if (event.key === "Enter") {
+        event.preventDefault();
 
-            event.preventDefault();
-
-            sendQuestion();
-
-        }
+        sendQuestion();
 
     }
-);
+
+});
 
 
-/* =========================================================
-   SUGGESTION BUTTONS
-========================================================= */
-
-window.askSuggestion = function (question) {
-
-    if (!question) {
-        return;
-    }
+window.askSuggestion = function(question) {
 
     if (sendButton.disabled) {
         return;
@@ -283,8 +203,5 @@ window.askSuggestion = function (question) {
 };
 
 
-/* =========================================================
-   DEBUG
-========================================================= */
-
-console.log("Capi initialized successfully.");
+console.log("🔥 Capi initialized");
+console.log("Firebase AI model:", model);
