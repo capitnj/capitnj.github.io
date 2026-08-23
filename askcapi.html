@@ -1,387 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Ask Capi — CapItNJ</title>
+    <title>Ask Capi | CapitNJ</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 
-  <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f7f8fc;
+            color: #1f2937;
+        }
 
-  <style>
-    .capi-page {
-      max-width: 850px;
-      margin: 0 auto;
-      padding-bottom: 50px;
-    }
+        .ask-page {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 20px;
+        }
 
-    .capi-header {
-      text-align: center;
-      padding: 35px 0 25px;
-    }
+        .ask-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-    .capi-header h1 {
-      margin-bottom: 10px;
-    }
+        .ask-header h1 {
+            font-size: 42px;
+            margin-bottom: 8px;
+        }
 
-    .capi-subtitle {
-      color: var(--ink-soft);
-      font-size: 15px;
-      max-width: 600px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
+        .ask-header p {
+            color: #6b7280;
+            font-size: 17px;
+        }
 
-    .chat-box {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      overflow: hidden;
-      min-height: 500px;
-      display: flex;
-      flex-direction: column;
-    }
+        .chat-box {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
 
-    .chat-messages {
-      flex: 1;
-      padding: 20px;
-      min-height: 400px;
-      max-height: 550px;
-      overflow-y: auto;
-    }
+        #chatMessages {
+            height: 480px;
+            overflow-y: auto;
+            padding: 20px;
+        }
 
-    .message {
-      max-width: 80%;
-      padding: 13px 15px;
-      margin-bottom: 14px;
-      border-radius: 12px;
-      font-size: 14px;
-      line-height: 1.55;
-      white-space: pre-wrap;
-    }
+        .message {
+            margin-bottom: 18px;
+            display: flex;
+        }
 
-    .capi-message {
-      background: var(--accent-bg);
-      color: var(--ink);
-      border-bottom-left-radius: 3px;
-      margin-right: auto;
-    }
+        .message.user {
+            justify-content: flex-end;
+        }
 
-    .user-message {
-      background: var(--ink);
-      color: white;
-      border-bottom-right-radius: 3px;
-      margin-left: auto;
-    }
+        .message.ai {
+            justify-content: flex-start;
+        }
 
-    .typing-message {
-      color: var(--ink-soft);
-      font-style: italic;
-    }
+        .bubble {
+            max-width: 75%;
+            padding: 13px 17px;
+            border-radius: 16px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
 
-    .chat-input-area {
-      border-top: 1px solid var(--line);
-      padding: 14px;
-      display: flex;
-      gap: 10px;
-      background: var(--surface);
-    }
+        .user .bubble {
+            background: #2563eb;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
 
-    .chat-input {
-      flex: 1;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-family: Inter, sans-serif;
-      font-size: 14px;
-      outline: none;
-      background: white;
-    }
+        .ai .bubble {
+            background: #f1f3f7;
+            color: #1f2937;
+            border-bottom-left-radius: 4px;
+        }
 
-    .chat-input:focus {
-      border-color: var(--accent);
-    }
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            border-top: 1px solid #e5e7eb;
+        }
 
-    .send-btn {
-      border: none;
-      background: var(--accent);
-      color: white;
-      border-radius: 8px;
-      padding: 0 18px;
-      cursor: pointer;
-      font-family: Inter, sans-serif;
-      font-weight: 600;
-      transition: transform .15s ease, opacity .15s ease;
-    }
+        #questionInput {
+            flex: 1;
+            padding: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 16px;
+        }
 
-    .send-btn:hover {
-      transform: translateY(-1px);
-      opacity: .92;
-    }
+        #sendButton {
+            padding: 14px 22px;
+            border: none;
+            border-radius: 10px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
 
-    .send-btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-      transform: none;
-    }
+        #sendButton:hover {
+            background: #1d4ed8;
+        }
 
-    .suggestions {
-      margin-top: 18px;
-    }
+        #sendButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-    .suggestions-title {
-      font-size: 12px;
-      color: var(--ink-faint);
-      text-transform: uppercase;
-      letter-spacing: .06em;
-      margin-bottom: 10px;
-    }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: bold;
+        }
 
-    .suggestion-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+        .suggestions {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    .suggestion-btn {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      color: var(--ink-soft);
-      padding: 9px 12px;
-      border-radius: 999px;
-      cursor: pointer;
-      font-size: 13px;
-      font-family: Inter, sans-serif;
-    }
+        .suggestion {
+            display: inline-block;
+            margin: 5px;
+            padding: 9px 14px;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            cursor: pointer;
+        }
 
-    .suggestion-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-
-    .capi-note {
-      margin-top: 18px;
-      text-align: center;
-      font-size: 12px;
-      color: var(--ink-faint);
-    }
-
-    @media (max-width: 650px) {
-      .capi-page {
-        padding: 0 4px 35px;
-      }
-
-      .chat-messages {
-        min-height: 380px;
-      }
-
-      .message {
-        max-width: 88%;
-      }
-
-      .send-btn {
-        padding: 0 14px;
-      }
-    }
-  </style>
+        .suggestion:hover {
+            background: #f1f5f9;
+        }
+    </style>
 </head>
 
 <body>
 
-<header class="nav">
-  <div class="nav-inner">
+    <main class="ask-page">
 
-    <a href="index.html" class="wordmark">CapItNJ</a>
+        <a href="capitnj.html" class="back-link">← Back to CapitNJ</a>
 
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="improve.html">Improve</a>
-      <a href="explore.html">Explore</a>
-      <a href="matches.html">Matches</a>
-      <a href="mylist.html">My List</a>
-      <a href="profile.html">Profile</a>
-      <a href="capi.html" class="active">Ask Capi</a>
-      <a href="support.html">Support</a>
-    </div>
-
-  </div>
-</header>
-
-<main>
-  <div class="wrap capi-page">
-
-    <div class="capi-header">
-      <p class="eyebrow">AI COLLEGE ASSISTANT</p>
-      <h1>Ask Capi</h1>
-      <p class="capi-subtitle">
-        Ask questions about college applications, financial aid, admissions,
-        scholarships, choosing schools, and navigating your next steps.
-      </p>
-    </div>
-
-    <div class="chat-box">
-
-      <div class="chat-messages" id="chat-messages">
-
-        <div class="message capi-message">
-hey 👋 i'm Capi. ask me anything about college, applications, financial aid, scholarships, or choosing where to apply.
+        <div class="ask-header">
+            <h1>Ask Capi ✨</h1>
+            <p>Your AI college assistant. Ask me anything about college.</p>
         </div>
 
-      </div>
+        <div class="suggestions">
+            <button class="suggestion" onclick="askSuggestion('What colleges can I get into with my GPA?')">
+                What colleges can I get into?
+            </button>
 
-      <div class="chat-input-area">
+            <button class="suggestion" onclick="askSuggestion('What is the difference between a reach, target, and safety school?')">
+                Reach vs target vs safety?
+            </button>
 
-        <input
-          type="text"
-          id="chat-input"
-          class="chat-input"
-          placeholder="Ask Capi a question..."
-          autocomplete="off"
-        >
+            <button class="suggestion" onclick="askSuggestion('How should I build my college list?')">
+                Help build my college list
+            </button>
+        </div>
 
-        <button id="send-btn" class="send-btn">
-          Send
-        </button>
+        <div class="chat-box">
 
-      </div>
+            <div id="chatMessages">
 
-    </div>
+                <div class="message ai">
+                    <div class="bubble">
+Hey! I'm Capi ✨
 
-    <div class="suggestions">
+I can help with college admissions, GPA, SAT/ACT questions, college lists, applications, financial aid, and more.
 
-      <div class="suggestions-title">
-        Try asking
-      </div>
+What do you wanna know?
+                    </div>
+                </div>
 
-      <div class="suggestion-buttons">
+            </div>
 
-        <button class="suggestion-btn">
-          What scholarships should I look for?
-        </button>
+            <div class="chat-input-area">
+                <input
+                    type="text"
+                    id="questionInput"
+                    placeholder="Ask Capi anything..."
+                >
 
-        <button class="suggestion-btn">
-          How many colleges should I apply to?
-        </button>
+                <button id="sendButton">
+                    Send
+                </button>
+            </div>
 
-        <button class="suggestion-btn">
-          What does FAFSA do?
-        </button>
+        </div>
 
-        <button class="suggestion-btn">
-          How can I improve my application?
-        </button>
+    </main>
 
-      </div>
-
-    </div>
-
-    <p class="capi-note">
-      Ask Capi provides general guidance and should not replace official college or financial aid information.
-    </p>
-
-  </div>
-</main>
-
-<footer class="home-footer">
-  <div class="wrap">
-    <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
-  </div>
-</footer>
-
-<script>
-  const messages = document.getElementById("chat-messages");
-  const input = document.getElementById("chat-input");
-  const sendButton = document.getElementById("send-btn");
-
-  function addMessage(text, type) {
-    const message = document.createElement("div");
-    message.className = "message " + type;
-    message.textContent = text;
-    messages.appendChild(message);
-    messages.scrollTop = messages.scrollHeight;
-    return message;
-  }
-
-  async function sendMessage() {
-    const question = input.value.trim();
-
-    if (!question) return;
-
-    addMessage(question, "user-message");
-
-    input.value = "";
-    input.disabled = true;
-    sendButton.disabled = true;
-
-    const typing = addMessage("Capi is thinking...", "capi-message typing-message");
-
-    try {
-      /*
-        THIS CONNECTS TO YOUR FIREBASE AI FUNCTION.
-        We will add that in the next steps.
-      */
-
-      const response = await fetch("/api/ask-capi", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          question: question
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error("Request failed");
-      }
-
-      const data = await response.json();
-
-      typing.remove();
-
-      addMessage(
-        data.answer || "Sorry, I couldn't generate an answer. Try asking again.",
-        "capi-message"
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-      typing.remove();
-
-      addMessage(
-        "Ask Capi isn't connected yet — we're setting that up next 👀",
-        "capi-message"
-      );
-
-    } finally {
-
-      input.disabled = false;
-      sendButton.disabled = false;
-      input.focus();
-
-    }
-  }
-
-  sendButton.addEventListener("click", sendMessage);
-
-  input.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
-      sendMessage();
-    }
-  });
-
-  document.querySelectorAll(".suggestion-btn").forEach(function(button) {
-    button.addEventListener("click", function() {
-      input.value = button.textContent.trim();
-      sendMessage();
-    });
-  });
-</script>
+    <script type="module" src="askcapi.js"></script>
 
 </body>
 </html>
