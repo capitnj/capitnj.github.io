@@ -8,7 +8,7 @@ import {
 
 
 const firebaseConfig = {
-    apiKey: "YOUR_FIREBASE_API_KEY",
+    apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
     authDomain: "capitnj-73a53.firebaseapp.com",
     projectId: "capitnj-73a53",
     storageBucket: "capitnj-73a53.firebasestorage.app",
