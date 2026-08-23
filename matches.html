@@ -1,310 +1,318 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Your Matches — CapItNJ</title>
+    <title>Your Matches — CapItNJ</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap"
-    rel="stylesheet"
-  >
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
-  <style>
-    .matches-header {
-      margin-bottom: 34px;
-    }
+    <style>
+        .matches-header {
+            margin-bottom: 30px;
+        }
 
-    .matches-header h1 {
-      margin: 6px 0 10px;
-    }
+        .matches-header h1 {
+            margin: 6px 0 10px;
+        }
 
-    .matches-subtitle {
-      color: var(--ink-soft);
-      font-size: 15px;
-      line-height: 1.6;
-      max-width: 620px;
-      margin: 0;
-    }
+        .matches-subtitle {
+            color: var(--ink-soft);
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 650px;
+            margin: 0;
+        }
 
-    .profile-summary {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 30px;
-    }
+        .profile-summary {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
 
-    .profile-pill {
-      padding: 10px 13px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      border-radius: 7px;
-      font-size: 13px;
-      color: var(--ink-soft);
-    }
+        .profile-pill {
+            padding: 10px 13px;
+            border: 1px solid var(--line);
+            background: var(--surface);
+            border-radius: 7px;
+            font-size: 13px;
+            color: var(--ink-soft);
+        }
 
-    .profile-pill strong {
-      color: var(--ink);
-      font-weight: 600;
-    }
+        .profile-pill strong {
+            color: var(--ink);
+        }
 
-    .matches-toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--line);
-      margin-bottom: 2px;
-    }
+        .matches-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--line);
+        }
 
-    .matches-count {
-      color: var(--ink-soft);
-      font-size: 13px;
-      margin: 0;
-    }
+        .matches-count {
+            color: var(--ink-soft);
+            font-size: 13px;
+            margin: 0;
+        }
 
-    .location-label {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-      color: var(--accent);
-    }
+        .location-label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: .05em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
 
-    .college-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 24px;
-      padding: 22px 0;
-      border-bottom: 1px solid var(--line);
-      transition: background .18s ease, padding .18s ease;
-    }
+        .college-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+            padding: 22px 0;
+            border-bottom: 1px solid var(--line);
+            transition: background .18s ease, padding .18s ease;
+        }
 
-    .college-row:hover {
-      background: var(--surface);
-      padding-left: 14px;
-      padding-right: 14px;
-    }
+        .college-row:hover {
+            background: var(--surface);
+            padding-left: 14px;
+            padding-right: 14px;
+        }
 
-    .college-main {
-      min-width: 0;
-      flex: 1;
-    }
+        .college-main {
+            flex: 1;
+            min-width: 0;
+        }
 
-    .college-name {
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--ink);
-      margin-bottom: 5px;
-    }
+        .college-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 5px;
+        }
 
-    .college-meta {
-      font-size: 13px;
-      color: var(--ink-soft);
-      line-height: 1.55;
-    }
+        .college-meta {
+            color: var(--ink-soft);
+            font-size: 13px;
+            line-height: 1.5;
+        }
 
-    .college-details {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px 14px;
-      margin-top: 10px;
-      font-size: 12px;
-      color: var(--ink-faint);
-    }
+        .college-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 14px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: var(--ink-faint);
+        }
 
-    .college-actions {
-      display: flex;
-      flex-shrink: 0;
-      align-items: center;
-    }
+        .college-tag {
+            display: inline-block;
+            margin-top: 9px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: var(--accent-bg);
+            color: var(--accent);
+            font-size: 11px;
+        }
 
-    .save-btn {
-      min-width: 88px;
-      padding: 9px 14px;
-      border-radius: 5px;
-      border: 1px solid var(--accent);
-      background: var(--accent);
-      color: white;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 12px;
-      font-weight: 500;
-      transition: transform .15s ease, opacity .15s ease, background .15s ease;
-    }
+        .college-actions {
+            flex-shrink: 0;
+        }
 
-    .save-btn:hover:not(:disabled) {
-      transform: translateY(-1px);
-      opacity: .9;
-    }
+        .save-btn {
+            min-width: 88px;
+            padding: 9px 14px;
+            border-radius: 5px;
+            border: 1px solid var(--accent);
+            background: var(--accent);
+            color: white;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 500;
+        }
 
-    .save-btn:disabled {
-      cursor: default;
-      opacity: .65;
-    }
+        .save-btn:hover:not(:disabled) {
+            opacity: .9;
+        }
 
-    .save-btn.saved {
-      background: transparent;
-      color: var(--accent);
-    }
+        .save-btn.saved {
+            background: transparent;
+            color: var(--accent);
+        }
 
-    .empty-state,
-    .loading-state,
-    .error-state {
-      border: 1px dashed var(--line);
-      border-radius: 8px;
-      padding: 46px 24px;
-      text-align: center;
-      background: var(--surface);
-    }
+        .save-btn:disabled {
+            opacity: .7;
+            cursor: default;
+        }
 
-    .empty-state h2,
-    .error-state h2 {
-      font-family: var(--font-display);
-      font-size: 22px;
-      margin: 0 0 8px;
-    }
+        .empty-state,
+        .loading-state,
+        .error-state {
+            border: 1px dashed var(--line);
+            border-radius: 8px;
+            padding: 46px 24px;
+            text-align: center;
+            background: var(--surface);
+        }
 
-    .empty-state p,
-    .error-state p,
-    .loading-state p {
-      color: var(--ink-soft);
-      font-size: 14px;
-      line-height: 1.6;
-      margin: 0 auto 18px;
-      max-width: 500px;
-    }
+        .empty-state h2,
+        .error-state h2 {
+            font-family: var(--font-display);
+            font-size: 22px;
+            margin: 0 0 8px;
+        }
 
-    .loading-state {
-      color: var(--ink-soft);
-      font-size: 14px;
-    }
+        .empty-state p,
+        .error-state p,
+        .loading-state p {
+            color: var(--ink-soft);
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0 auto 18px;
+            max-width: 500px;
+        }
 
-    .try-again-btn {
-      margin-top: 8px;
-    }
+        @media (max-width: 650px) {
+            .college-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+            }
 
-    @media (max-width: 650px) {
-      .college-row {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 14px;
-      }
+            .college-actions,
+            .save-btn {
+                width: 100%;
+            }
 
-      .college-actions {
-        width: 100%;
-      }
-
-      .save-btn {
-        width: 100%;
-      }
-
-      .matches-toolbar {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 6px;
-      }
-    }
-  </style>
+            .matches-toolbar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
 <header class="nav">
-  <div class="nav-inner">
-    <a href="index.html" class="wordmark">CapItNJ</a>
+    <div class="nav-inner">
 
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="improve.html">Improve</a>
-      <a href="explore.html">Explore</a>
-      <a href="matches.html" class="active">Matches</a>
-      <a href="mylist.html">My List</a>
-      <a href="profile.html">Profile</a>
-      <a href="support.html">Support</a>
+        <a href="index.html" class="wordmark">CapItNJ</a>
+
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="improve.html">Improve</a>
+            <a href="explore.html">Explore</a>
+            <a href="matches.html" class="active">Matches</a>
+            <a href="mylist.html">My List</a>
+            <a href="profile.html">Profile</a>
+            <a href="support.html">Support</a>
+        </div>
+
     </div>
-  </div>
 </header>
 
+
 <main>
-  <div class="wrap">
+    <div class="wrap">
 
-    <section class="matches-header">
-      <p class="eyebrow">YOUR MATCHES</p>
+        <section class="matches-header">
+            <p class="eyebrow">YOUR MATCHES</p>
 
-      <h1>Ranked for you</h1>
+            <h1>Ranked for you</h1>
 
-      <p class="matches-subtitle">
-        Colleges selected using your academic profile, budget, and location preferences.
-      </p>
-    </section>
+            <p class="matches-subtitle">
+                Colleges selected using your academic profile, budget, and location preferences.
+            </p>
+        </section>
 
-    <div id="profile-summary" class="profile-summary"></div>
 
-    <div id="loading-state" class="loading-state">
-      <p>Loading your profile and finding colleges for you...</p>
+        <div id="profile-summary" class="profile-summary"></div>
+
+
+        <div id="loading-state" class="loading-state">
+            <p>Loading your profile and finding colleges for you...</p>
+        </div>
+
+
+        <div id="login-state" class="empty-state" style="display:none;">
+            <h2>Log in to see your matches</h2>
+
+            <p>
+                Your matches use the information saved in your CapItNJ profile.
+            </p>
+
+            <a href="login.html" class="btn">Log in</a>
+        </div>
+
+
+        <div id="error-state" class="error-state" style="display:none;">
+            <h2>Couldn't load your matches</h2>
+
+            <p id="error-message">
+                Something went wrong while loading your matches.
+            </p>
+
+            <button class="btn" onclick="startMatches()">
+                Try again
+            </button>
+        </div>
+
+
+        <div id="empty-state" class="empty-state" style="display:none;">
+            <h2>No colleges found yet</h2>
+
+            <p id="empty-message">
+                Try updating your profile preferences and then come back here.
+            </p>
+
+            <a href="profile.html" class="btn">
+                Update profile
+            </a>
+        </div>
+
+
+        <div id="matches-section" style="display:none;">
+
+            <div class="matches-toolbar">
+
+                <p id="matches-count" class="matches-count"></p>
+
+                <div id="location-label" class="location-label"></div>
+
+            </div>
+
+            <div id="matches-container"></div>
+
+        </div>
+
     </div>
-
-    <div id="login-state" class="empty-state" style="display:none;">
-      <h2>Log in to see your matches</h2>
-      <p>Your matches use the information saved in your CapItNJ profile.</p>
-      <a href="login.html" class="btn">Log in</a>
-    </div>
-
-    <div id="error-state" class="error-state" style="display:none;">
-      <h2>Couldn't load your matches</h2>
-      <p id="error-message">
-        Something went wrong while loading your profile or college data.
-      </p>
-
-      <button class="btn try-again-btn" onclick="startMatches()">
-        Try again
-      </button>
-    </div>
-
-    <div id="empty-state" class="empty-state" style="display:none;">
-      <h2>No colleges found yet</h2>
-      <p id="empty-message">
-        Try updating your profile preferences and then come back here.
-      </p>
-
-      <a href="profile.html" class="btn">
-        Update profile
-      </a>
-    </div>
-
-    <div id="matches-section" style="display:none;">
-
-      <div class="matches-toolbar">
-        <p id="matches-count" class="matches-count"></p>
-
-        <div id="location-label" class="location-label"></div>
-      </div>
-
-      <div id="matches-container"></div>
-
-    </div>
-
-  </div>
 </main>
 
+
 <footer class="home-footer">
-  <div class="wrap">
-    <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
-  </div>
+    <div class="wrap">
+        <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+    </div>
 </footer>
 
 
 <!-- COLLEGE DATA -->
 <script src="data.js"></script>
+
 
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -315,393 +323,501 @@
 
 
 <script>
-  let currentUser = null;
-  let userProfile = {};
-  let colleges = [];
-  let savedCollegeIds = new Set();
 
-  const loadingState = document.getElementById("loading-state");
-  const loginState = document.getElementById("login-state");
-  const errorState = document.getElementById("error-state");
-  const emptyState = document.getElementById("empty-state");
-  const matchesSection = document.getElementById("matches-section");
-
-  const matchesContainer = document.getElementById("matches-container");
-  const profileSummary = document.getElementById("profile-summary");
+let currentUser = null;
+let userProfile = {};
+let colleges = [];
+let savedCollegeIds = new Set();
 
 
-  /* =====================================================
-     STATE HELPERS
-  ===================================================== */
+const loadingState = document.getElementById("loading-state");
+const loginState = document.getElementById("login-state");
+const errorState = document.getElementById("error-state");
+const emptyState = document.getElementById("empty-state");
+const matchesSection = document.getElementById("matches-section");
 
-  function hideAllStates() {
+const matchesContainer = document.getElementById("matches-container");
+const profileSummary = document.getElementById("profile-summary");
+
+
+/* ==========================================
+   SHOW / HIDE PAGE STATES
+========================================== */
+
+function hideAllStates() {
     loadingState.style.display = "none";
     loginState.style.display = "none";
     errorState.style.display = "none";
     emptyState.style.display = "none";
     matchesSection.style.display = "none";
-  }
+}
 
-  function showState(element) {
+function showState(element) {
     hideAllStates();
     element.style.display = "block";
-  }
+}
 
 
-  /* =====================================================
-     COLLEGE DATA
-  ===================================================== */
+/* ==========================================
+   GET COLLEGE DATA
+========================================== */
 
-  function getCollegeData() {
-    if (typeof collegesData !== "undefined" && Array.isArray(collegesData)) {
-      return collegesData;
+function getCollegeData() {
+
+    if (Array.isArray(window.COLLEGES)) {
+        return window.COLLEGES;
     }
 
-    if (typeof window.collegesData !== "undefined" &&
-        Array.isArray(window.collegesData)) {
-      return window.collegesData;
-    }
-
-    if (typeof window.COLLEGES !== "undefined" &&
-        Array.isArray(window.COLLEGES)) {
-      return window.COLLEGES;
+    if (Array.isArray(window.collegesData)) {
+        return window.collegesData;
     }
 
     if (typeof COLLEGES !== "undefined" && Array.isArray(COLLEGES)) {
-      return COLLEGES;
+        return COLLEGES;
+    }
+
+    if (typeof collegesData !== "undefined" && Array.isArray(collegesData)) {
+        return collegesData;
     }
 
     return [];
-  }
+}
 
 
-  /* =====================================================
-     LOCATION
-     THIS IS A HARD FILTER.
-     WEST WILL NOT RETURN PENNSYLVANIA / MARYWOOD.
-  ===================================================== */
+/* ==========================================
+   LOCATION SYSTEM
 
-  const regions = {
-    northeast: [
-      "connecticut",
-      "maine",
-      "massachusetts",
-      "new hampshire",
-      "rhode island",
-      "vermont",
-      "new jersey",
-      "new york",
-      "pennsylvania"
-    ],
+   YOUR data.js ALREADY USES:
 
-    midwest: [
-      "illinois",
-      "indiana",
-      "iowa",
-      "kansas",
-      "michigan",
-      "minnesota",
-      "missouri",
-      "nebraska",
-      "north dakota",
-      "ohio",
-      "south dakota",
-      "wisconsin"
-    ],
+   local
+   regional
+   far
+   international
 
-    south: [
-      "alabama",
-      "arkansas",
-      "delaware",
-      "florida",
-      "georgia",
-      "kentucky",
-      "louisiana",
-      "maryland",
-      "mississippi",
-      "north carolina",
-      "oklahoma",
-      "south carolina",
-      "tennessee",
-      "texas",
-      "virginia",
-      "west virginia",
-      "district of columbia"
-    ],
+   This code now matches those values directly.
+========================================== */
 
-    west: [
-      "alaska",
-      "arizona",
-      "california",
-      "colorado",
-      "hawaii",
-      "idaho",
-      "montana",
-      "nevada",
-      "new mexico",
-      "oregon",
-      "utah",
-      "washington",
-      "wyoming"
-    ]
-  };
+const LOCATION_LABELS = {
+    local: "Near home",
+    regional: "Nearby states",
+    far: "Elsewhere in the US",
+    international: "Out of country",
+    anywhere: "Anywhere"
+};
 
 
-  const stateAliases = {
-    "ak": "alaska",
-    "az": "arizona",
-    "ca": "california",
-    "co": "colorado",
-    "hi": "hawaii",
-    "id": "idaho",
-    "mt": "montana",
-    "nv": "nevada",
-    "nm": "new mexico",
-    "or": "oregon",
-    "ut": "utah",
-    "wa": "washington",
-    "wy": "wyoming",
+function normalizePreference(value) {
 
-    "nj": "new jersey",
-    "ny": "new york",
-    "pa": "pennsylvania",
-    "ma": "massachusetts",
-    "ct": "connecticut",
-    "me": "maine",
-    "nh": "new hampshire",
-    "ri": "rhode island",
-    "vt": "vermont",
+    if (!value) return "anywhere";
 
-    "il": "illinois",
-    "in": "indiana",
-    "ia": "iowa",
-    "ks": "kansas",
-    "mi": "michigan",
-    "mn": "minnesota",
-    "mo": "missouri",
-    "ne": "nebraska",
-    "nd": "north dakota",
-    "oh": "ohio",
-    "sd": "south dakota",
-    "wi": "wisconsin",
+    const v = String(value)
+        .trim()
+        .toLowerCase();
 
-    "al": "alabama",
-    "ar": "arkansas",
-    "de": "delaware",
-    "fl": "florida",
-    "ga": "georgia",
-    "ky": "kentucky",
-    "la": "louisiana",
-    "md": "maryland",
-    "ms": "mississippi",
-    "nc": "north carolina",
-    "ok": "oklahoma",
-    "sc": "south carolina",
-    "tn": "tennessee",
-    "tx": "texas",
-    "va": "virginia",
-    "wv": "west virginia",
-    "dc": "district of columbia"
-  };
+    const aliases = {
+
+        "local": "local",
+        "near home": "local",
+        "near home (nj)": "local",
+        "new jersey": "local",
+        "nj": "local",
+
+        "regional": "regional",
+        "nearby": "regional",
+        "nearby state": "regional",
+        "nearby states": "regional",
+
+        "far": "far",
+        "elsewhere": "far",
+        "elsewhere in us": "far",
+        "elsewhere in the us": "far",
+        "elsewhere in the united states": "far",
+
+        "international": "international",
+        "out of country": "international",
+        "outside the us": "international",
+
+        "all": "anywhere",
+        "any": "anywhere",
+        "anywhere": "anywhere",
+        "no preference": "anywhere"
+    };
+
+    return aliases[v] || v;
+}
 
 
-  function normalizeState(value) {
+function normalizeState(value) {
+
     if (!value) return "";
 
     const state = String(value)
-      .toLowerCase()
-      .trim()
-      .replace(/\./g, "");
+        .trim()
+        .toLowerCase()
+        .replace(/\./g, "");
 
-    return stateAliases[state] || state;
-  }
+    const aliases = {
+        nj: "new jersey",
+        ny: "new york",
+        pa: "pennsylvania",
+        ct: "connecticut",
+        de: "delaware",
+        md: "maryland",
+        ma: "massachusetts",
+        ri: "rhode island",
+        nh: "new hampshire",
+        vt: "vermont",
+        me: "maine",
 
+        ca: "california",
+        tx: "texas",
+        fl: "florida",
+        il: "illinois",
+        oh: "ohio",
+        mi: "michigan",
+        va: "virginia",
+        nc: "north carolina",
+        ga: "georgia",
+        wa: "washington",
+        az: "arizona",
+        co: "colorado",
+        in: "indiana",
+        mo: "missouri",
+        tn: "tennessee",
+        wi: "wisconsin",
+        mn: "minnesota",
+        ia: "iowa",
+        ks: "kansas",
+        ne: "nebraska",
+        nd: "north dakota",
+        sd: "south dakota",
+        al: "alabama",
+        ar: "arkansas",
+        ky: "kentucky",
+        la: "louisiana",
+        ms: "mississippi",
+        ok: "oklahoma",
+        sc: "south carolina",
+        wv: "west virginia",
+        dc: "district of columbia",
+        ak: "alaska",
+        hi: "hawaii",
+        id: "idaho",
+        mt: "montana",
+        nv: "nevada",
+        nm: "new mexico",
+        or: "oregon",
+        ut: "utah",
+        wy: "wyoming"
+    };
 
-  function normalizeLocation(value) {
-    if (!value) return "";
-
-    return String(value)
-      .toLowerCase()
-      .trim()
-      .replace(/ region$/i, "");
-  }
-
-
-  function collegeMatchesLocation(college, preferredLocation) {
-    const preference = normalizeLocation(preferredLocation);
-
-    if (!preference) {
-  return false;
+    return aliases[state] || state;
 }
 
-if (
-  preference === "anywhere" ||
-  preference === "all" ||
-  preference === "no preference"
-) {
-  return true;
-}
 
-    const state = normalizeState(
-      college.state ||
-      college.location ||
-      college.State ||
-      ""
-    );
+function collegeMatchesLocation(college, preference) {
 
-    if (regions[preference]) {
-      return regions[preference].includes(state);
+    const wanted = normalizePreference(preference);
+
+    if (wanted === "anywhere") {
+        return true;
     }
 
+
     /*
-      If the user selected an actual state instead of a region,
-      match that exact state.
+       MOST IMPORTANT PART:
+
+       Your actual data.js uses distanceTier.
     */
-    const requestedState = normalizeState(preference);
 
-    return state === requestedState;
-  }
+    const tier = String(
+        college.distanceTier ||
+        college.distance_tier ||
+        ""
+    )
+    .trim()
+    .toLowerCase();
 
 
-  /* =====================================================
-     NUMBER HELPERS
-  ===================================================== */
+    if (["local", "regional", "far", "international"].includes(wanted)) {
 
-  function parseNumber(value) {
-    if (value === undefined || value === null || value === "") {
-      return null;
+        /*
+           First try the exact distanceTier.
+        */
+
+        if (tier) {
+            return tier === wanted;
+        }
+
+
+        /*
+           Fallback if a college somehow has no distanceTier.
+        */
+
+        const state = normalizeState(
+            college.state ||
+            college.location ||
+            ""
+        );
+
+        const country = String(
+            college.country || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+        if (wanted === "local") {
+            return state === "new jersey";
+        }
+
+
+        if (wanted === "regional") {
+
+            const nearbyStates = [
+                "new york",
+                "pennsylvania",
+                "connecticut",
+                "delaware",
+                "maryland"
+            ];
+
+            return nearbyStates.includes(state);
+        }
+
+
+        if (wanted === "far") {
+
+            const isUS =
+                !country ||
+                country === "us" ||
+                country === "usa" ||
+                country === "united states" ||
+                country === "united states of america";
+
+            return isUS &&
+                state !== "new jersey" &&
+                state !== "new york" &&
+                state !== "pennsylvania" &&
+                state !== "connecticut" &&
+                state !== "delaware" &&
+                state !== "maryland";
+        }
+
+
+        if (wanted === "international") {
+
+            const isUS =
+                !country ||
+                country === "us" ||
+                country === "usa" ||
+                country === "united states" ||
+                country === "united states of america";
+
+            return !isUS;
+        }
+    }
+
+
+    /*
+       If a user somehow has an actual state saved
+       instead of local/regional/far/etc.
+    */
+
+    const collegeState = normalizeState(
+        college.state ||
+        college.location ||
+        ""
+    );
+
+    return collegeState === normalizeState(wanted);
+}
+
+
+/* ==========================================
+   NUMBER HELPERS
+========================================== */
+
+function parseNumber(value) {
+
+    if (
+        value === undefined ||
+        value === null ||
+        value === ""
+    ) {
+        return null;
     }
 
     const cleaned = String(value)
-      .replace(/\$/g, "")
-      .replace(/,/g, "")
-      .replace(/%/g, "")
-      .trim();
+        .replace(/\$/g, "")
+        .replace(/,/g, "")
+        .replace(/%/g, "")
+        .trim();
 
     const number = Number(cleaned);
 
-    return Number.isFinite(number) ? number : null;
-  }
+    return Number.isFinite(number)
+        ? number
+        : null;
+}
 
 
-  function getAcceptanceRate(college) {
+function getCollegeCost(college) {
+
     const possibleValues = [
-      college.rate,
-      college.acceptanceRate,
-      college.acceptance_rate,
-      college.acceptance,
-      college.admissionRate
+        college.netPrice,
+        college.net_price,
+        college.cost,
+        college.tuition,
+        college.outOfStateTuition,
+        college.out_of_state_tuition,
+        college.totalCost,
+        college.total_cost,
+        college.price
     ];
 
     for (const value of possibleValues) {
-      const number = parseNumber(value);
 
-      if (number !== null) {
-        if (number > 0 && number <= 1) {
-          return number * 100;
+        const number = parseNumber(value);
+
+        if (number !== null && number > 0) {
+            return number;
         }
-
-        return number;
-      }
     }
 
     return null;
-  }
+}
 
 
-  function getCollegeCost(college) {
+function getAcceptanceRate(college) {
+
     const possibleValues = [
-      college.cost,
-      college.tuition,
-      college.outOfStateTuition,
-      college.out_of_state_tuition,
-      college.totalCost,
-      college.total_cost,
-      college.price
+        college.rate,
+        college.acceptanceRate,
+        college.acceptance_rate,
+        college.acceptance,
+        college.admissionRate
     ];
 
     for (const value of possibleValues) {
-      const number = parseNumber(value);
 
-      if (number !== null && number > 0) {
-        return number;
-      }
+        const number = parseNumber(value);
+
+        if (number !== null) {
+
+            if (number > 0 && number <= 1) {
+                return number * 100;
+            }
+
+            return number;
+        }
     }
 
     return null;
-  }
+}
 
 
-  function getCollegeGPA(college) {
+function getCollegeGPA(college) {
+
     const possibleValues = [
-      college.averageGPA,
-      college.avgGPA,
-      college.avg_gpa,
-      college.gpa,
-      college.average_gpa
+        college.averageGPA,
+        college.avgGPA,
+        college.avg_gpa,
+        college.gpa
     ];
 
     for (const value of possibleValues) {
-      const number = parseNumber(value);
 
-      if (number !== null) {
-        return number;
-      }
+        const number = parseNumber(value);
+
+        if (number !== null) {
+            return number;
+        }
     }
 
     return null;
-  }
+}
 
 
-  function getCollegeSAT(college) {
+function getCollegeSAT(college) {
+
     const possibleValues = [
-      college.averageSAT,
-      college.avgSAT,
-      college.avg_sat,
-      college.sat,
-      college.satAverage
+        college.averageSAT,
+        college.avgSAT,
+        college.avg_sat,
+        college.sat,
+        college.satAverage
     ];
 
     for (const value of possibleValues) {
-      const number = parseNumber(value);
 
-      if (number !== null) {
-        return number;
-      }
+        const number = parseNumber(value);
+
+        if (number !== null) {
+            return number;
+        }
     }
 
     return null;
-  }
+}
 
 
-  function getCollegeACT(college) {
+function getCollegeACT(college) {
+
     const possibleValues = [
-      college.averageACT,
-      college.avgACT,
-      college.avg_act,
-      college.act,
-      college.actAverage
+        college.averageACT,
+        college.avgACT,
+        college.avg_act,
+        college.act,
+        college.actAverage
     ];
 
     for (const value of possibleValues) {
-      const number = parseNumber(value);
 
-      if (number !== null) {
-        return number;
-      }
+        const number = parseNumber(value);
+
+        if (number !== null) {
+            return number;
+        }
     }
 
     return null;
-  }
+}
 
 
-  /* =====================================================
-     ACADEMIC RANKING
-     USED INTERNALLY ONLY.
-     NOTHING IS SHOWN AS A FAKE PERCENTAGE.
-  ===================================================== */
+/* ==========================================
+   BUDGET
 
-  function calculateRankingScore(college, profile) {
+   Missing college cost DOES NOT remove it.
+========================================== */
+
+function matchesBudget(college, budget) {
+
+    const userBudget = parseNumber(budget);
+
+    if (
+        userBudget === null ||
+        userBudget <= 0
+    ) {
+        return true;
+    }
+
+    const collegeCost = getCollegeCost(college);
+
+    if (collegeCost === null) {
+        return true;
+    }
+
+    return collegeCost <= userBudget * 1.15;
+}
+
+
+/* ==========================================
+   RANKING
+========================================== */
+
+function calculateRankingScore(college, profile) {
+
     let score = 0;
     let factors = 0;
 
@@ -715,553 +831,775 @@ if (
     const acceptanceRate = getAcceptanceRate(college);
 
 
-    /*
-      GPA
-      A college closer to the student's academic level ranks higher,
-      but a high GPA is NOT punished by making all easier schools disappear.
-    */
     if (userGPA !== null) {
-      factors++;
 
-      if (collegeGPA !== null) {
-        const difference = Math.abs(userGPA - collegeGPA);
+        factors++;
 
-        score += Math.max(0, 100 - difference * 100);
-      } else if (acceptanceRate !== null) {
-        /*
-          Fallback when college data does not contain average GPA.
-          Uses selectivity to help rank results.
-        */
-        const expectedSelectivity =
-          userGPA >= 3.9 ? 25 :
-          userGPA >= 3.7 ? 35 :
-          userGPA >= 3.5 ? 50 :
-          userGPA >= 3.2 ? 65 :
-          80;
+        if (collegeGPA !== null) {
 
-        const difference =
-          Math.abs(acceptanceRate - expectedSelectivity);
+            score += Math.max(
+                0,
+                100 - Math.abs(userGPA - collegeGPA) * 100
+            );
 
-        score += Math.max(0, 100 - difference);
-      } else {
-        score += 55;
-      }
+        } else if (acceptanceRate !== null) {
+
+            const expectedRate =
+                userGPA >= 3.9 ? 25 :
+                userGPA >= 3.7 ? 35 :
+                userGPA >= 3.5 ? 50 :
+                userGPA >= 3.2 ? 65 :
+                80;
+
+            score += Math.max(
+                0,
+                100 - Math.abs(acceptanceRate - expectedRate)
+            );
+
+        } else {
+
+            score += 55;
+        }
     }
 
 
-    /*
-      SAT
-    */
     if (userSAT !== null && userSAT > 0) {
-      factors++;
 
-      if (collegeSAT !== null) {
-        const difference = Math.abs(userSAT - collegeSAT);
+        factors++;
 
-        score += Math.max(0, 100 - difference / 6);
-      } else {
-        score += 55;
-      }
+        if (collegeSAT !== null) {
+
+            score += Math.max(
+                0,
+                100 - Math.abs(userSAT - collegeSAT) / 6
+            );
+
+        } else {
+
+            score += 55;
+        }
     }
 
 
-    /*
-      ACT
-    */
     if (userACT !== null && userACT > 0) {
-      factors++;
 
-      if (collegeACT !== null) {
-        const difference = Math.abs(userACT - collegeACT);
+        factors++;
 
-        score += Math.max(0, 100 - difference * 5);
-      } else {
-        score += 55;
-      }
+        if (collegeACT !== null) {
+
+            score += Math.max(
+                0,
+                100 - Math.abs(userACT - collegeACT) * 5
+            );
+
+        } else {
+
+            score += 55;
+        }
     }
 
 
-    /*
-      If the user has no test scores, GPA still works.
-      We do NOT return an empty page just because SAT/ACT are blank.
-    */
     if (factors === 0) {
-      score = acceptanceRate !== null
-        ? Math.max(0, 100 - Math.abs(acceptanceRate - 55))
-        : 50;
 
-      factors = 1;
-    }
+        score =
+            acceptanceRate !== null
+                ? Math.max(0, 100 - Math.abs(acceptanceRate - 55))
+                : 50;
 
-
-    /*
-      Slight preference for colleges where acceptance/selectivity
-      is reasonable for the profile.
-    */
-    if (acceptanceRate !== null && userGPA !== null) {
-      let selectivityBonus = 0;
-
-      if (userGPA >= 3.9 && acceptanceRate >= 10) {
-        selectivityBonus = 8;
-      } else if (userGPA >= 3.7 && acceptanceRate >= 15) {
-        selectivityBonus = 8;
-      } else if (userGPA >= 3.5 && acceptanceRate >= 25) {
-        selectivityBonus = 8;
-      } else if (userGPA >= 3.0 && acceptanceRate >= 40) {
-        selectivityBonus = 8;
-      }
-
-      score += selectivityBonus;
+        factors = 1;
     }
 
 
     return score / factors;
-  }
+}
 
 
-  /* =====================================================
-     BUDGET
-  ===================================================== */
+/* ==========================================
+   BUILD MATCHES
+========================================== */
 
-  function matchesBudget(college, budget) {
-    const userBudget = parseNumber(budget);
+function buildMatches(profile) {
 
-    /*
-      No budget entered = don't filter by cost.
-    */
-    if (userBudget === null || userBudget <= 0) {
-      return true;
-    }
+    const preference =
+        profile.preferredLocation ||
+        profile.location ||
+        profile.region ||
+        "anywhere";
 
-    const collegeCost = getCollegeCost(college);
-
-    /*
-      Missing cost data should NOT delete the college.
-    */
-    if (collegeCost === null) {
-      return true;
-    }
-
-    /*
-      Allows colleges reasonably near the selected budget.
-      This avoids accidentally deleting everything because
-      datasets may use tuition vs total annual cost.
-    */
-    return collegeCost <= userBudget * 1.15;
-  }
-
-
-  /* =====================================================
-     BUILD MATCHES
-  ===================================================== */
-
-  function buildMatches(profile) {
-    const preferredLocation =
-      profile.preferredLocation ||
-      profile.location ||
-      profile.region ||
-      "";
 
     const budget =
-      profile.budget ||
-      profile.maxBudget ||
-      "";
-
-    const locationFiltered = colleges.filter(college =>
-      collegeMatchesLocation(college, preferredLocation)
-    );
-
-
-    const budgetFiltered = locationFiltered.filter(college =>
-      matchesBudget(college, budget)
-    );
+        profile.budget ||
+        profile.maxBudget ||
+        profile.maxTuition ||
+        "";
 
 
     /*
-      If the budget filter would somehow remove every college,
-      keep the CORRECT LOCATION results rather than showing
-      random colleges from other regions.
+       STEP 1:
+       Get ONLY the correct location tier.
     */
-    const usableColleges =
-      budgetFiltered.length > 0
-        ? budgetFiltered
-        : locationFiltered;
+
+    const locationMatches = colleges.filter(function(college) {
+        return collegeMatchesLocation(
+            college,
+            preference
+        );
+    });
 
 
-    return usableColleges
-      .map(college => ({
-        ...college,
-        _rankingScore: calculateRankingScore(college, profile)
-      }))
-      .sort((a, b) => {
-        return b._rankingScore - a._rankingScore;
-      });
-  }
+    /*
+       STEP 2:
+       Filter those schools by budget.
+    */
+
+    const budgetMatches = locationMatches.filter(function(college) {
+        return matchesBudget(
+            college,
+            budget
+        );
+    });
 
 
-  /* =====================================================
-     PROFILE SUMMARY
-  ===================================================== */
+    /*
+       If the budget is too strict and removes everything,
+       still show the correct location schools.
+    */
 
-  function renderProfileSummary(profile) {
+    const usableMatches =
+        budgetMatches.length > 0
+            ? budgetMatches
+            : locationMatches;
+
+
+    /*
+       STEP 3:
+       Rank them.
+    */
+
+    return usableMatches
+        .map(function(college) {
+
+            return {
+                ...college,
+                _rankingScore:
+                    calculateRankingScore(
+                        college,
+                        profile
+                    )
+            };
+
+        })
+        .sort(function(a, b) {
+            return b._rankingScore - a._rankingScore;
+        });
+}
+
+
+/* ==========================================
+   PROFILE SUMMARY
+========================================== */
+
+function renderProfileSummary(profile) {
+
     const pills = [];
 
-    if (profile.gpa) {
-      pills.push(
-        `<div class="profile-pill"><strong>GPA:</strong> ${escapeHtml(profile.gpa)}</div>`
-      );
+
+    if (
+        profile.gpa !== "" &&
+        profile.gpa !== undefined &&
+        profile.gpa !== null
+    ) {
+
+        pills.push(
+            `<div class="profile-pill">
+                <strong>GPA:</strong>
+                ${escapeHtml(profile.gpa)}
+            </div>`
+        );
     }
+
 
     if (profile.sat) {
-      pills.push(
-        `<div class="profile-pill"><strong>SAT:</strong> ${escapeHtml(profile.sat)}</div>`
-      );
+
+        pills.push(
+            `<div class="profile-pill">
+                <strong>SAT:</strong>
+                ${escapeHtml(profile.sat)}
+            </div>`
+        );
     }
+
 
     if (profile.act) {
-      pills.push(
-        `<div class="profile-pill"><strong>ACT:</strong> ${escapeHtml(profile.act)}</div>`
-      );
+
+        pills.push(
+            `<div class="profile-pill">
+                <strong>ACT:</strong>
+                ${escapeHtml(profile.act)}
+            </div>`
+        );
     }
+
 
     if (profile.budget) {
-      pills.push(
-        `<div class="profile-pill"><strong>Budget:</strong> ${escapeHtml(profile.budget)}</div>`
-      );
+
+        pills.push(
+            `<div class="profile-pill">
+                <strong>Budget:</strong>
+                $${Number(profile.budget).toLocaleString()}
+            </div>`
+        );
     }
+
 
     if (profile.preferredLocation) {
-      pills.push(
-        `<div class="profile-pill"><strong>Location:</strong> ${escapeHtml(profile.preferredLocation)}</div>`
-      );
+
+        const location =
+            normalizePreference(
+                profile.preferredLocation
+            );
+
+        pills.push(
+            `<div class="profile-pill">
+                <strong>Location:</strong>
+                ${escapeHtml(
+                    LOCATION_LABELS[location] ||
+                    profile.preferredLocation
+                )}
+            </div>`
+        );
     }
+
 
     profileSummary.innerHTML = pills.join("");
-  }
+}
 
 
-  /* =====================================================
-     RENDER
-  ===================================================== */
+/* ==========================================
+   RENDER MATCHES
+========================================== */
 
-  function renderMatches(matches, profile) {
+function renderMatches(matches, profile) {
+
     if (matches.length === 0) {
-      document.getElementById("empty-message").textContent =
-        "No colleges in your college data matched your location preference. Try updating your profile or adding more colleges to data.js.";
 
-      showState(emptyState);
-      return;
+        document.getElementById(
+            "empty-message"
+        ).textContent =
+            "No colleges matched this location preference yet. Try choosing a different location preference.";
+
+        showState(emptyState);
+
+        return;
     }
 
+
     hideAllStates();
+
     matchesSection.style.display = "block";
 
-    document.getElementById("matches-count").textContent =
-      `${matches.length} college${matches.length === 1 ? "" : "s"} selected for your profile`;
 
-    const location =
-      profile.preferredLocation ||
-      profile.location ||
-      "Anywhere";
-
-    document.getElementById("location-label").textContent =
-      `Location preference: ${location}`;
+    document.getElementById(
+        "matches-count"
+    ).textContent =
+        `${matches.length} college${matches.length === 1 ? "" : "s"} selected for your profile`;
 
 
-    matchesContainer.innerHTML = matches.map(college => {
-      const collegeId = getCollegeId(college);
-      const isSaved = savedCollegeIds.has(collegeId);
+    const preference =
+        normalizePreference(
+            profile.preferredLocation ||
+            profile.location ||
+            profile.region ||
+            "anywhere"
+        );
 
-      const state =
-        college.state ||
-        college.location ||
-        "Location unavailable";
 
-      const rate = getAcceptanceRate(college);
-      const cost = getCollegeCost(college);
+    document.getElementById(
+        "location-label"
+    ).textContent =
+        `Location: ${
+            LOCATION_LABELS[preference] ||
+            profile.preferredLocation ||
+            "Anywhere"
+        }`;
 
-      const details = [];
 
-      if (rate !== null) {
-        details.push(`Acceptance rate: ${formatRate(rate)}`);
-      }
+    matchesContainer.innerHTML =
+        matches.map(function(college) {
 
-      if (cost !== null) {
-        details.push(`Estimated cost: ${formatMoney(cost)}`);
-      }
+            const id = getCollegeId(college);
 
-      return `
-        <div class="college-row">
+            const saved =
+                savedCollegeIds.has(id);
 
-          <div class="college-main">
 
-            <div class="college-name">
-              ${escapeHtml(college.name || college.school || "Unnamed College")}
-            </div>
+            const state =
+                college.state ||
+                college.location ||
+                "Location unavailable";
 
-            <div class="college-meta">
-              ${escapeHtml(state)}
-            </div>
 
-            ${
-              details.length
-                ? `<div class="college-details">
-                    ${details.map(detail => `<span>${escapeHtml(detail)}</span>`).join("")}
-                   </div>`
-                : ""
+            const country =
+                college.country ||
+                "";
+
+
+            const details = [];
+
+
+            const rate =
+                getAcceptanceRate(college);
+
+            const cost =
+                getCollegeCost(college);
+
+
+            if (rate !== null) {
+                details.push(
+                    `Acceptance rate: ${Math.round(rate)}%`
+                );
             }
 
-          </div>
 
-          <div class="college-actions">
-            <button
-              class="save-btn ${isSaved ? "saved" : ""}"
-              id="save-${collegeId}"
-              onclick="saveCollege('${escapeJs(collegeId)}')"
-              ${isSaved ? "disabled" : ""}
-            >
-              ${isSaved ? "Saved" : "Save"}
-            </button>
-          </div>
-
-        </div>
-      `;
-    }).join("");
-  }
+            if (cost !== null) {
+                details.push(
+                    `Estimated cost: $${Math.round(cost).toLocaleString()}`
+                );
+            }
 
 
-  /* =====================================================
-     SAVE TO MY LIST
-  ===================================================== */
+            const tier =
+                normalizePreference(
+                    college.distanceTier ||
+                    ""
+                );
 
-  function getCollegeId(college) {
-    if (college.id !== undefined && college.id !== null) {
-      return String(college.id);
+
+            return `
+                <div class="college-row">
+
+                    <div class="college-main">
+
+                        <div class="college-name">
+                            ${escapeHtml(
+                                college.name ||
+                                college.school ||
+                                "Unnamed College"
+                            )}
+                        </div>
+
+
+                        <div class="college-meta">
+                            ${escapeHtml(state)}
+                            ${country ? `, ${escapeHtml(country)}` : ""}
+                        </div>
+
+
+                        ${
+                            tier && LOCATION_LABELS[tier]
+                                ? `
+                                    <div class="college-tag">
+                                        ${escapeHtml(
+                                            LOCATION_LABELS[tier]
+                                        )}
+                                    </div>
+                                  `
+                                : ""
+                        }
+
+
+                        ${
+                            details.length
+                                ? `
+                                    <div class="college-details">
+                                        ${details.map(function(detail) {
+                                            return `<span>${escapeHtml(detail)}</span>`;
+                                        }).join("")}
+                                    </div>
+                                  `
+                                : ""
+                        }
+
+                    </div>
+
+
+                    <div class="college-actions">
+
+                        <button
+                            class="save-btn ${saved ? "saved" : ""}"
+                            id="save-${id}"
+                            onclick="saveCollege('${escapeJs(id)}')"
+                            ${saved ? "disabled" : ""}
+                        >
+                            ${saved ? "Saved" : "Save"}
+                        </button>
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+}
+
+
+/* ==========================================
+   SAVED COLLEGES
+========================================== */
+
+function getCollegeId(college) {
+
+    if (
+        college.id !== undefined &&
+        college.id !== null
+    ) {
+        return String(college.id);
     }
 
     return String(
-      college.name ||
-      college.school ||
-      "college"
+        college.name ||
+        college.school ||
+        "college"
     )
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-  }
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
 
 
-  async function loadSavedCollegeIds() {
+async function loadSavedCollegeIds() {
+
     savedCollegeIds = new Set();
 
-    if (!currentUser || !window.capitnjFirebase) return;
-
-    const db = window.capitnjFirebase.db;
-
-    const snapshot = await db
-      .collection("users")
-      .doc(currentUser.uid)
-      .collection("savedColleges")
-      .get();
-
-    snapshot.forEach(doc => {
-      savedCollegeIds.add(String(doc.id));
-
-      const data = doc.data();
-
-      if (data.id !== undefined && data.id !== null) {
-        savedCollegeIds.add(String(data.id));
-      }
-    });
-  }
-
-
-  async function saveCollege(collegeId) {
-    if (!currentUser) {
-      window.location.href = "login.html";
-      return;
+    if (
+        !currentUser ||
+        !window.capitnjFirebase ||
+        !window.capitnjFirebase.db
+    ) {
+        return;
     }
 
-    const college = colleges.find(c =>
-      getCollegeId(c) === String(collegeId)
-    );
+
+    const snapshot =
+        await window.capitnjFirebase.db
+            .collection("users")
+            .doc(currentUser.uid)
+            .collection("savedColleges")
+            .get();
+
+
+    snapshot.forEach(function(doc) {
+        savedCollegeIds.add(String(doc.id));
+    });
+}
+
+
+async function saveCollege(collegeId) {
+
+    if (!currentUser) {
+
+        window.location.href = "login.html";
+
+        return;
+    }
+
+
+    const college =
+        colleges.find(function(c) {
+            return getCollegeId(c) === String(collegeId);
+        });
+
 
     if (!college) {
-      console.error("College not found:", collegeId);
-      return;
+        return;
     }
 
-    const button = document.getElementById(`save-${collegeId}`);
+
+    const button =
+        document.getElementById(`save-${collegeId}`);
+
 
     try {
-      if (button) {
-        button.disabled = true;
-        button.textContent = "Saving...";
-      }
 
-      const db = window.capitnjFirebase.db;
-      const safeId = getCollegeId(college);
+        if (button) {
+            button.disabled = true;
+            button.textContent = "Saving...";
+        }
 
-      await db
-        .collection("users")
-        .doc(currentUser.uid)
-        .collection("savedColleges")
-        .doc(safeId)
-        .set({
-          ...college,
-          id: safeId,
-          name: college.name || college.school || "Unnamed College",
-          state: college.state || college.location || "",
-          timestamp: new Date().toISOString()
-        }, { merge: true });
 
-      savedCollegeIds.add(safeId);
+        const safeId =
+            getCollegeId(college);
 
-      if (button) {
-        button.textContent = "Saved";
-        button.classList.add("saved");
-      }
 
-    } catch (error) {
-      console.error("Error saving college:", error);
+        await window.capitnjFirebase.db
+            .collection("users")
+            .doc(currentUser.uid)
+            .collection("savedColleges")
+            .doc(safeId)
+            .set({
+                ...college,
+                id: safeId,
+                name:
+                    college.name ||
+                    college.school ||
+                    "Unnamed College",
+                timestamp:
+                    new Date().toISOString()
+            });
 
-      if (button) {
-        button.disabled = false;
-        button.textContent = "Save";
-      }
 
-      alert("Couldn't save this college. Please try again.");
+        savedCollegeIds.add(safeId);
+
+
+        if (button) {
+            button.textContent = "Saved";
+            button.classList.add("saved");
+        }
+
     }
-  }
+
+    catch (error) {
+
+        console.error(
+            "Error saving college:",
+            error
+        );
 
 
-  /* =====================================================
-     FORMATTING / SECURITY
-  ===================================================== */
-
-  function formatRate(rate) {
-    return `${Math.round(rate)}%`;
-  }
+        if (button) {
+            button.disabled = false;
+            button.textContent = "Save";
+        }
 
 
-  function formatMoney(amount) {
-    return `$${Math.round(amount).toLocaleString()}`;
-  }
+        alert(
+            "Couldn't save this college. Please try again."
+        );
+    }
+}
 
 
-  function escapeHtml(value) {
-    const div = document.createElement("div");
-    div.textContent = value === undefined || value === null ? "" : String(value);
+/* ==========================================
+   SECURITY HELPERS
+========================================== */
+
+function escapeHtml(value) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        value === undefined ||
+        value === null
+            ? ""
+            : String(value);
+
     return div.innerHTML;
-  }
+}
 
 
-  function escapeJs(value) {
+function escapeJs(value) {
+
     return String(value)
-      .replace(/\\/g, "\\\\")
-      .replace(/'/g, "\\'");
-  }
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'");
+}
 
 
-  /* =====================================================
-     FIREBASE + START
-  ===================================================== */
+/* ==========================================
+   START
+========================================== */
 
-  async function startMatches() {
-    if (!window.capitnjFirebase) {
-      return;
+let authListenerStarted = false;
+
+
+async function startMatches() {
+
+    if (authListenerStarted) {
+        return;
     }
+
+
+    if (
+        !window.capitnjFirebase ||
+        !window.capitnjFirebase.auth ||
+        !window.capitnjFirebase.db
+    ) {
+
+        showState(errorState);
+
+        document.getElementById(
+            "error-message"
+        ).textContent =
+            "Firebase could not load. Please refresh the page.";
+
+        return;
+    }
+
+
+    authListenerStarted = true;
 
     showState(loadingState);
 
-    const fb = window.capitnjFirebase;
 
-    fb.authFns.onAuthStateChanged(async (user) => {
-      currentUser = user;
+    window.capitnjFirebase.auth.onAuthStateChanged(
+        async function(user) {
 
-      if (!user) {
-        showState(loginState);
-        return;
-      }
+            currentUser = user;
 
-      try {
-        colleges = getCollegeData();
 
-        if (!Array.isArray(colleges) || colleges.length === 0) {
-          throw new Error(
-            "No colleges were found. Make sure data.js loads and contains collegesData or COLLEGES."
-          );
+            if (!user) {
+
+                showState(loginState);
+
+                return;
+            }
+
+
+            try {
+
+                colleges =
+                    getCollegeData();
+
+
+                if (
+                    !Array.isArray(colleges) ||
+                    colleges.length === 0
+                ) {
+
+                    throw new Error(
+                        "No colleges were found. Make sure data.js is loading correctly."
+                    );
+                }
+
+
+                const profileDoc =
+                    await window.capitnjFirebase.db
+                        .collection("users")
+                        .doc(user.uid)
+                        .get();
+
+
+                userProfile =
+                    profileDoc.exists
+                        ? profileDoc.data()
+                        : {};
+
+
+                /*
+                   Make sure all possible old profile
+                   field names still work.
+                */
+
+                userProfile.preferredLocation =
+                    userProfile.preferredLocation ||
+                    userProfile.location ||
+                    userProfile.region ||
+                    "anywhere";
+
+
+                userProfile.budget =
+                    userProfile.budget ||
+                    userProfile.maxBudget ||
+                    userProfile.maxTuition ||
+                    "";
+
+
+                renderProfileSummary(
+                    userProfile
+                );
+
+
+                await loadSavedCollegeIds();
+
+
+                const matches =
+                    buildMatches(
+                        userProfile
+                    );
+
+
+                renderMatches(
+                    matches,
+                    userProfile
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Matches error:",
+                    error
+                );
+
+
+                hideAllStates();
+
+                errorState.style.display = "block";
+
+
+                document.getElementById(
+                    "error-message"
+                ).textContent =
+                    error.message ||
+                    "Something went wrong while loading your matches.";
+            }
+
+        }
+    );
+}
+
+
+/*
+   Wait briefly for Firebase if needed.
+*/
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        if (
+            window.capitnjFirebase &&
+            window.capitnjFirebase.auth &&
+            window.capitnjFirebase.db
+        ) {
+
+            startMatches();
+
+            return;
         }
 
 
-        /*
-          LOAD PROFILE
-          Uses:
-          users/{uid}
-
-          Fields:
-          gpa
-          sat
-          act
-          budget
-          state
-          preferredLocation
-        */
-        const profileDoc = await fb.db
-          .collection("users")
-          .doc(user.uid)
-          .get();
-
-        userProfile = profileDoc.exists
-          ? profileDoc.data()
-          : {};
+        window.addEventListener(
+            "firebase-ready",
+            function() {
+                startMatches();
+            },
+            { once: true }
+        );
 
 
-        /*
-          Make sure preferredLocation still works if your
-          profile happens to use another field name.
-        */
-        if (!userProfile.preferredLocation) {
-          userProfile.preferredLocation =
-            userProfile.location ||
-            userProfile.region ||
-            "";
-        }
+        setTimeout(function() {
 
+            if (!authListenerStarted) {
+                startMatches();
+            }
 
-        renderProfileSummary(userProfile);
+        }, 1500);
 
-        await loadSavedCollegeIds();
+    }
+);
 
-        const matches = buildMatches(userProfile);
-
-        renderMatches(matches, userProfile);
-
-      } catch (error) {
-        console.error("Matches error:", error);
-
-        document.getElementById("error-message").textContent =
-          error.message ||
-          "Something went wrong while loading your matches.";
-
-        showState(errorState);
-      }
-    });
-  }
-
-
-  window.addEventListener("firebase-ready", () => {
-    startMatches();
-  }, { once: true });
-
-
-  if (window.capitnjFirebase) {
-    startMatches();
-  }
 </script>
 
 
-    <script data-goatcounter="https://capitnj.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
-        
+<!-- GOATCOUNTER -->
+<script
+    data-goatcounter="https://capitnj.goatcounter.com/count"
+    async
+    src="//gc.zgo.at/count.js">
+</script>
+
 </body>
 </html>
