@@ -1,11 +1,20 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
 
 import {
+    initializeAppCheck,
+    DebugProvider
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app-check.js";
+
+import {
     getAI,
     getGenerativeModel,
     GoogleAIBackend
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-ai.js";
 
+
+// =====================================================
+// FIREBASE CONFIG
+// =====================================================
 
 const firebaseConfig = {
     apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
@@ -17,7 +26,28 @@ const firebaseConfig = {
 };
 
 
+// =====================================================
+// FIREBASE APP
+// =====================================================
+
 const app = initializeApp(firebaseConfig);
+
+
+// =====================================================
+// APP CHECK - LOCAL DEVELOPMENT DEBUG MODE
+// =====================================================
+
+const appCheck = initializeAppCheck(app, {
+    provider: new DebugProvider(),
+    isTokenAutoRefreshEnabled: true
+});
+
+console.log("🛡️ App Check initialized");
+
+
+// =====================================================
+// FIREBASE AI
+// =====================================================
 
 const ai = getAI(app, {
     backend: new GoogleAIBackend()
@@ -28,10 +58,18 @@ const model = getGenerativeModel(ai, {
 });
 
 
+// =====================================================
+// ELEMENTS
+// =====================================================
+
 const chatMessages = document.getElementById("chatMessages");
 const questionInput = document.getElementById("questionInput");
 const sendButton = document.getElementById("sendButton");
 
+
+// =====================================================
+// ADD MESSAGE
+// =====================================================
 
 function addMessage(text, sender) {
 
@@ -49,6 +87,10 @@ function addMessage(text, sender) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+
+// =====================================================
+// LOADING BUTTON
+// =====================================================
 
 function showLoading() {
 
@@ -72,6 +114,10 @@ function resetButton() {
 }
 
 
+// =====================================================
+// SEND QUESTION
+// =====================================================
+
 async function sendQuestion() {
 
     const question = questionInput.value.trim();
@@ -79,7 +125,6 @@ async function sendQuestion() {
     if (!question || sendButton.disabled) {
         return;
     }
-
 
     addMessage(question, "user");
 
@@ -95,14 +140,16 @@ async function sendQuestion() {
 
 
         const prompt = `
-You are Capi, the friendly college assistant for CapItNJ.
+You are Capi, the friendly AI college assistant for CapItNJ.
+
+CapItNJ helps students discover and compare colleges.
 
 Help students with:
 - college admissions
 - GPA
 - SAT and ACT
 - reach, target, and safety schools
-- college selection
+- choosing colleges
 - applications
 - essays
 - FAFSA
@@ -111,24 +158,23 @@ Help students with:
 - majors
 - college life
 
-Be friendly, clear, accurate, and concise.
+Be friendly, helpful, accurate, and easy to understand.
 
-Do not guarantee admission.
+Keep answers concise unless the student asks for more detail.
+
+Do not guarantee admission to any college.
 
 Student question:
-
 ${question}
 `;
 
 
         const result = await model.generateContent(prompt);
 
-
         console.log("Capi raw result:", result);
 
 
         const response = result.response;
-
 
         if (!response) {
             throw new Error("Firebase returned no response object.");
@@ -136,7 +182,6 @@ ${question}
 
 
         const answer = response.text();
-
 
         console.log("Capi answer:", answer);
 
@@ -174,6 +219,10 @@ ${question}
 }
 
 
+// =====================================================
+// EVENTS
+// =====================================================
+
 sendButton.addEventListener("click", sendQuestion);
 
 
@@ -203,5 +252,10 @@ window.askSuggestion = function(question) {
 };
 
 
+// =====================================================
+// STARTUP LOGS
+// =====================================================
+
 console.log("🔥 Capi initialized");
-console.log("Firebase AI model:", model);
+console.log("🛡️ Firebase App Check:", appCheck);
+console.log("🤖 Firebase AI model:", model);
