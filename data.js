@@ -13,10 +13,9 @@ const CURATED_INTERNATIONAL = [
     "University of Waterloo"
 ];
 
-
-/* ================================
+/* =========================================================
    NEW JERSEY SCHOOLS
-================================ */
+========================================================= */
 
 const NJ_EXACT_NAMES = [
     "Rutgers University-New Brunswick",
@@ -39,10 +38,20 @@ const NJ_EXACT_NAMES = [
     "Saint Peters University"
 ];
 
+/* =========================================================
+   NEARBY STATES
+========================================================= */
 
-/* ================================
-   STATE REGIONS
-================================ */
+const NEARBY_STATES = [
+    "New York",
+    "Pennsylvania",
+    "Connecticut",
+    "Delaware"
+];
+
+/* =========================================================
+   REGIONS
+========================================================= */
 
 const REGIONS = {
     Northeast: [
@@ -109,14 +118,9 @@ const REGIONS = {
     ]
 };
 
-
-/* ================================
-   KNOWN STATE DETECTION
-
-   The API does NOT reliably give us
-   US state information, so we detect
-   obvious states from school names.
-================================ */
+/* =========================================================
+   STATE DETECTION
+========================================================= */
 
 const SCHOOL_STATE_KEYWORDS = {
 
@@ -139,6 +143,19 @@ const SCHOOL_STATE_KEYWORDS = {
         "new jersey institute"
     ],
 
+    "New York": [
+        "new york university",
+        "cornell university",
+        "syracuse university",
+        "university at buffalo",
+        "stony brook university",
+        "columbia university",
+        "fordham university",
+        "pace university",
+        "hofstra university",
+        "barnard college"
+    ],
+
     California: [
         "california",
         "stanford",
@@ -147,7 +164,10 @@ const SCHOOL_STATE_KEYWORDS = {
         "cal poly",
         "santa clara university",
         "pepperdine",
-        "san diego state"
+        "san diego state",
+        "ucla",
+        "uc berkeley",
+        "university of california"
     ],
 
     Washington: [
@@ -190,15 +210,6 @@ const SCHOOL_STATE_KEYWORDS = {
         "university of south florida"
     ],
 
-    NewYork: [
-        "new york university",
-        "cornell university",
-        "syracuse university",
-        "university at buffalo",
-        "stony brook university",
-        "columbia university"
-    ],
-
     Pennsylvania: [
         "university of pennsylvania",
         "penn state",
@@ -238,61 +249,129 @@ const SCHOOL_STATE_KEYWORDS = {
     ]
 };
 
-
-/* ================================
-   GET SCHOOL STATE
-================================ */
+/* =========================================================
+   GET STATE
+========================================================= */
 
 function getSchoolState(school) {
 
-    const apiState = (school["state-province"] || "").trim();
+    const apiState = (
+        school["state-province"] || ""
+    ).trim();
 
     if (apiState) {
         return apiState;
     }
 
-    const name = school.name.toLowerCase();
+    const name = (
+        school.name || ""
+    ).toLowerCase();
 
-    if (NJ_EXACT_NAMES.some(n =>
-        n.toLowerCase() === name
-    )) {
+    if (
+        NJ_EXACT_NAMES.some(
+            n => n.toLowerCase() === name
+        )
+    ) {
         return "New Jersey";
     }
 
     for (const stateKey in SCHOOL_STATE_KEYWORDS) {
 
-        const keywords = SCHOOL_STATE_KEYWORDS[stateKey];
+        const keywords =
+            SCHOOL_STATE_KEYWORDS[stateKey];
 
         if (
             keywords.some(keyword =>
                 name.includes(keyword)
             )
         ) {
-
-            return stateKey === "NewYork"
-                ? "New York"
-                : stateKey;
+            return stateKey;
         }
     }
 
     return "";
 }
 
+/* =========================================================
+   PUBLIC / PRIVATE
+========================================================= */
 
-/* ================================
+function estimateSchoolType(school) {
+
+    const name = (
+        school.name || ""
+    ).toLowerCase();
+
+    /*
+       The university-domains API does not reliably
+       provide public/private status.
+
+       These known public systems are marked public.
+       Everything else defaults to private so the filter
+       remains usable instead of pretending we know data
+       we don't actually have.
+    */
+
+    const publicKeywords = [
+        "rutgers",
+        "rowan university",
+        "kean university",
+        "montclair state",
+        "new jersey institute of technology",
+        "njit",
+        "stockton university",
+        "william paterson",
+        "the college of new jersey",
+        "ramapo college",
+        "university of california",
+        "california state university",
+        "state university",
+        "university of texas",
+        "texas a&m",
+        "university of florida",
+        "florida state university",
+        "university of michigan",
+        "michigan state university",
+        "ohio state university",
+        "penn state",
+        "university of washington",
+        "arizona state university",
+        "university of arizona"
+    ];
+
+    return publicKeywords.some(
+        keyword => name.includes(keyword)
+    )
+        ? "Public"
+        : "Private";
+}
+
+/* =========================================================
+   SCHOOL TYPE
+========================================================= */
+
+function getInstitutionType(name) {
+
+    const lower = (
+        name || ""
+    ).toLowerCase();
+
+    if (lower.includes("university")) {
+        return "University";
+    }
+
+    return "College";
+}
+
+/* =========================================================
    GPA ESTIMATION
-
-   IMPORTANT:
-   This is only used to stop Matches
-   from treating every school equally.
-
-   Schools without real admissions
-   data are given a neutral GPA range.
-================================ */
+========================================================= */
 
 function estimateRequiredGPA(name) {
 
-    const lower = name.toLowerCase();
+    const lower = (
+        name || ""
+    ).toLowerCase();
 
     const highlySelective = [
         "harvard",
@@ -344,24 +423,24 @@ function estimateRequiredGPA(name) {
     ];
 
     if (
-        highlySelective.some(keyword =>
-            lower.includes(keyword)
+        highlySelective.some(
+            keyword => lower.includes(keyword)
         )
     ) {
         return 3.85;
     }
 
     if (
-        selective.some(keyword =>
-            lower.includes(keyword)
+        selective.some(
+            keyword => lower.includes(keyword)
         )
     ) {
         return 3.65;
     }
 
     if (
-        moderatelySelective.some(keyword =>
-            lower.includes(keyword)
+        moderatelySelective.some(
+            keyword => lower.includes(keyword)
         )
     ) {
         return 3.2;
@@ -370,10 +449,30 @@ function estimateRequiredGPA(name) {
     return 2.75;
 }
 
+/* =========================================================
+   DISTANCE TIER
+========================================================= */
 
-/* ================================
+function getDistanceTier(state, country) {
+
+    if (country !== "United States") {
+        return "international";
+    }
+
+    if (state === "New Jersey") {
+        return "local";
+    }
+
+    if (NEARBY_STATES.includes(state)) {
+        return "regional";
+    }
+
+    return "far";
+}
+
+/* =========================================================
    DATABASE LOADER
-================================ */
+========================================================= */
 
 async function loadGlobalCollegeDatabase() {
 
@@ -389,25 +488,26 @@ async function loadGlobalCollegeDatabase() {
             );
         }
 
-        const allSchools = await response.json();
+        const allSchools =
+            await response.json();
 
+        const usSchools =
+            allSchools.filter(
+                school =>
+                    school.country ===
+                    "United States"
+            );
 
-        const usSchools = allSchools.filter(
-            school => school.country === "United States"
-        );
-
-
-        const intlSchools = allSchools.filter(
-            school =>
-                CURATED_INTERNATIONAL.includes(
-                    school.name
-                )
-        );
-
+        const intlSchools =
+            allSchools.filter(
+                school =>
+                    CURATED_INTERNATIONAL.includes(
+                        school.name
+                    )
+            );
 
         const combined =
             usSchools.concat(intlSchools);
-
 
         window.COLLEGES =
             combined
@@ -417,25 +517,29 @@ async function loadGlobalCollegeDatabase() {
                         school.country ===
                         "United States";
 
-
                     const detectedState =
                         isUS
                             ? getSchoolState(school)
                             : "";
 
-
                     const isNJ =
                         detectedState ===
                         "New Jersey";
-
 
                     const region =
                         Object.keys(REGIONS)
                             .find(regionName =>
                                 REGIONS[regionName]
-                                    .includes(detectedState)
+                                    .includes(
+                                        detectedState
+                                    )
                             ) || "";
 
+                    const distanceTier =
+                        getDistanceTier(
+                            detectedState,
+                            school.country
+                        );
 
                     return {
 
@@ -446,11 +550,14 @@ async function loadGlobalCollegeDatabase() {
                             school.name,
 
                         type:
-                            school.name
-                                .toLowerCase()
-                                .includes("university")
-                                ? "University"
-                                : "College",
+                            getInstitutionType(
+                                school.name
+                            ),
+
+                        ownership:
+                            estimateSchoolType(
+                                school
+                            ),
 
                         setting:
                             isNJ
@@ -462,6 +569,9 @@ async function loadGlobalCollegeDatabase() {
 
                         region:
                             region,
+
+                        distanceTier:
+                            distanceTier,
 
                         country:
                             school.country,
@@ -483,14 +593,14 @@ async function loadGlobalCollegeDatabase() {
                                 : isUS
                                     ? 24000
                                     : 31000
-
                     };
-
                 })
 
-                /* REMOVE US SCHOOLS
-                   WHOSE LOCATION WE
-                   CANNOT ACTUALLY VERIFY */
+                /*
+                   Keep international schools.
+                   For U.S. schools, only keep schools
+                   where we know the state.
+                */
                 .filter(school => {
 
                     if (
@@ -500,10 +610,10 @@ async function loadGlobalCollegeDatabase() {
                         return true;
                     }
 
-                    return school.state !== "";
-
+                    return (
+                        school.state !== ""
+                    );
                 });
-
 
         console.log(
             "Database initialized:",
@@ -511,22 +621,22 @@ async function loadGlobalCollegeDatabase() {
             "schools"
         );
 
-
         window.dispatchEvent(
             new CustomEvent(
                 "database-ready"
             )
         );
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Database loading failed:",
             error
         );
 
+        /*
+           Fallback database
+        */
 
         window.COLLEGES = [
 
@@ -535,9 +645,11 @@ async function loadGlobalCollegeDatabase() {
                 name:
                     "Rutgers University-New Brunswick",
                 type: "University",
+                ownership: "Public",
                 setting: "Suburban",
                 state: "New Jersey",
                 region: "Northeast",
+                distanceTier: "local",
                 country: "United States",
                 netPrice: 17500,
                 estimatedMinGPA: 3.2
@@ -548,9 +660,11 @@ async function loadGlobalCollegeDatabase() {
                 name:
                     "Princeton University",
                 type: "University",
+                ownership: "Private",
                 setting: "Suburban",
                 state: "New Jersey",
                 region: "Northeast",
+                distanceTier: "local",
                 country: "United States",
                 netPrice: 12000,
                 estimatedMinGPA: 3.85
@@ -561,11 +675,43 @@ async function loadGlobalCollegeDatabase() {
                 name:
                     "New Jersey Institute of Technology",
                 type: "University",
+                ownership: "Public",
                 setting: "Urban",
                 state: "New Jersey",
                 region: "Northeast",
+                distanceTier: "local",
                 country: "United States",
                 netPrice: 16000,
+                estimatedMinGPA: 3.2
+            },
+
+            {
+                id: "nyu",
+                name:
+                    "New York University",
+                type: "University",
+                ownership: "Private",
+                setting: "Urban",
+                state: "New York",
+                region: "Northeast",
+                distanceTier: "regional",
+                country: "United States",
+                netPrice: 30000,
+                estimatedMinGPA: 3.65
+            },
+
+            {
+                id: "penn_state",
+                name:
+                    "Penn State",
+                type: "University",
+                ownership: "Public",
+                setting: "Suburban",
+                state: "Pennsylvania",
+                region: "Northeast",
+                distanceTier: "regional",
+                country: "United States",
+                netPrice: 24000,
                 estimatedMinGPA: 3.2
             },
 
@@ -574,9 +720,11 @@ async function loadGlobalCollegeDatabase() {
                 name:
                     "Arizona State University",
                 type: "University",
+                ownership: "Public",
                 setting: "Urban",
                 state: "Arizona",
                 region: "West",
+                distanceTier: "far",
                 country: "United States",
                 netPrice: 25000,
                 estimatedMinGPA: 3.0
@@ -587,16 +735,32 @@ async function loadGlobalCollegeDatabase() {
                 name:
                     "University of Oregon",
                 type: "University",
+                ownership: "Public",
                 setting: "Urban",
                 state: "Oregon",
                 region: "West",
+                distanceTier: "far",
                 country: "United States",
                 netPrice: 26000,
                 estimatedMinGPA: 3.1
+            },
+
+            {
+                id: "toronto",
+                name:
+                    "University of Toronto",
+                type: "University",
+                ownership: "Public",
+                setting: "Urban",
+                state: "Ontario",
+                region: "",
+                distanceTier: "international",
+                country: "Canada",
+                netPrice: 31000,
+                estimatedMinGPA: 3.65
             }
 
         ];
-
 
         window.dispatchEvent(
             new CustomEvent(
@@ -605,6 +769,5 @@ async function loadGlobalCollegeDatabase() {
         );
     }
 }
-
 
 loadGlobalCollegeDatabase();
