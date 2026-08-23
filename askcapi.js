@@ -1,10 +1,15 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+
 import {
     getAI,
     getGenerativeModel,
     GoogleAIBackend
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-ai.js";
 
+
+/* =========================================================
+   FIREBASE
+========================================================= */
 
 const firebaseConfig = {
     apiKey: "AIzaSyDn2FGBysOj_WdFRiieyfQIKh_s6s961oI",
@@ -20,6 +25,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 
+/* =========================================================
+   CAPi AI
+========================================================= */
+
 const ai = getAI(app, {
     backend: new GoogleAIBackend()
 });
@@ -30,29 +39,51 @@ const model = getGenerativeModel(ai, {
 });
 
 
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
 const chatMessages = document.getElementById("chatMessages");
 const questionInput = document.getElementById("questionInput");
 const sendButton = document.getElementById("sendButton");
 
 
+if (!chatMessages || !questionInput || !sendButton) {
+    console.error("Capi: required chat elements were not found.");
+}
+
+
+/* =========================================================
+   ADD MESSAGE
+========================================================= */
+
 function addMessage(text, sender) {
 
     const message = document.createElement("div");
-    message.className = "message " + sender;
+
+    message.className = `message ${sender}`;
 
     const bubble = document.createElement("div");
+
     bubble.className = "bubble";
 
     bubble.textContent = text;
 
     message.appendChild(bubble);
+
     chatMessages.appendChild(message);
 
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 
+/* =========================================================
+   LOADING
+========================================================= */
+
 function showLoading() {
+
+    sendButton.disabled = true;
 
     sendButton.innerHTML = `
         <span class="button-loading" aria-label="Capi is thinking">
@@ -61,29 +92,39 @@ function showLoading() {
             <span></span>
         </span>
     `;
-
 }
 
 
 function resetSendButton() {
 
-    sendButton.innerHTML = "Send";
+    sendButton.disabled = false;
 
+    sendButton.innerHTML = "Send";
 }
 
+
+/* =========================================================
+   SEND QUESTION
+========================================================= */
 
 async function sendQuestion() {
 
     const question = questionInput.value.trim();
 
-    if (!question || sendButton.disabled) return;
+    if (!question) {
+        return;
+    }
 
+    if (sendButton.disabled) {
+        return;
+    }
+
+
+    /* Show user's message */
 
     addMessage(question, "user");
 
     questionInput.value = "";
-
-    sendButton.disabled = true;
 
     showLoading();
 
@@ -91,84 +132,159 @@ async function sendQuestion() {
     try {
 
         const prompt = `
-You are Capi, the friendly AI college assistant for CapitNJ.
+You are Capi, the friendly AI college assistant for CapItNJ.
 
-CapitNJ is a website that helps students find and match with colleges.
+CapItNJ helps students explore colleges, compare schools,
+understand admissions, and build a college list.
 
-Help students with:
+Your job is to give useful, accurate, student-friendly advice.
+
+You can help with:
+
 - college admissions
 - GPA questions
-- SAT and ACT questions
-- choosing colleges
+- SAT and ACT
 - reach, target, and safety schools
-- applications
+- choosing colleges
+- college applications
 - essays
-- financial aid
-- FAFSA
 - scholarships
+- FAFSA
+- financial aid
+- majors
 - college life
+- comparing schools
+- understanding admission requirements
+- building a balanced college list
 
-Be friendly, helpful, and easy to understand.
+IMPORTANT RULES:
 
-Keep answers relatively concise unless the user asks for more detail.
+1. Be friendly and conversational.
+2. Keep answers reasonably concise.
+3. Explain complicated things simply.
+4. Never guarantee that a student will be admitted.
+5. Do not invent statistics.
+6. If you are unsure about a current statistic, say so.
+7. Ask for more information when it would make the answer substantially better.
+8. You are Capi, so speak naturally rather than sounding like a textbook.
 
-Do not pretend you know a student's exact admission chances unless they provide enough information.
+Student's question:
 
-User question:
 ${question}
-        `;
+`;
+
+
+        console.log("Capi: sending request...");
 
 
         const result = await model.generateContent(prompt);
 
+
+        console.log("Capi: response received", result);
+
+
         const response = result.response;
+
+
+        if (!response) {
+            throw new Error("No response returned from Gemini.");
+        }
+
 
         const answer = response.text();
 
-        addMessage(answer, "ai");
+
+        if (!answer || !answer.trim()) {
+            throw new Error("Gemini returned an empty response.");
+        }
+
+
+        addMessage(answer.trim(), "ai");
 
 
     } catch (error) {
 
-        console.error("Capi error:", error);
+        console.error("CAPi AI ERROR:", error);
 
-        addMessage(
-            "Oops 😭 Capi couldn't answer right now. Please try again in a moment.",
-            "ai"
-        );
+
+        let errorMessage =
+            "Capi couldn't answer right now 😭 Try again in a second.";
+
+
+        if (error?.message) {
+
+            console.error(
+                "Detailed Capi error:",
+                error.message
+            );
+
+        }
+
+
+        addMessage(errorMessage, "ai");
+
+    } finally {
+
+        resetSendButton();
 
     }
-
-
-    sendButton.disabled = false;
-
-    resetSendButton();
 
 }
 
 
-sendButton.addEventListener("click", sendQuestion);
+/* =========================================================
+   SEND BUTTON
+========================================================= */
+
+sendButton.addEventListener(
+    "click",
+    sendQuestion
+);
 
 
-questionInput.addEventListener("keydown", function(event) {
+/* =========================================================
+   ENTER KEY
+========================================================= */
 
-    if (event.key === "Enter") {
+questionInput.addEventListener(
+    "keydown",
+    function (event) {
 
-        event.preventDefault();
+        if (event.key === "Enter") {
 
-        sendQuestion();
+            event.preventDefault();
+
+            sendQuestion();
+
+        }
 
     }
+);
 
-});
 
+/* =========================================================
+   SUGGESTION BUTTONS
+========================================================= */
 
-window.askSuggestion = function(question) {
+window.askSuggestion = function (question) {
 
-    if (sendButton.disabled) return;
+    if (!question) {
+        return;
+    }
+
+    if (sendButton.disabled) {
+        return;
+    }
 
     questionInput.value = question;
 
     sendQuestion();
 
 };
+
+
+/* =========================================================
+   DEBUG
+========================================================= */
+
+console.log("Capi initialized successfully.");
