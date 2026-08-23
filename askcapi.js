@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/fireba
 
 import {
     initializeAppCheck,
-    DebugProvider
+    ReCaptchaV3Provider
 } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app-check.js";
 
 import {
@@ -34,11 +34,18 @@ const app = initializeApp(firebaseConfig);
 
 
 // =====================================================
-// APP CHECK - LOCAL DEVELOPMENT DEBUG MODE
+// APP CHECK DEBUG MODE
 // =====================================================
 
+// This tells Firebase we're developing locally.
+self.FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+
+
+// IMPORTANT:
+// Keep your actual reCAPTCHA v3 site key here.
+// If you haven't set one up yet, this will need to be added next.
 const appCheck = initializeAppCheck(app, {
-    provider: new DebugProvider(),
+    provider: new ReCaptchaV3Provider("YOUR_RECAPTCHA_V3_SITE_KEY"),
     isTokenAutoRefreshEnabled: true
 });
 
@@ -72,13 +79,11 @@ const sendButton = document.getElementById("sendButton");
 // =====================================================
 
 function addMessage(text, sender) {
-
     const message = document.createElement("div");
     message.className = "message " + sender;
 
     const bubble = document.createElement("div");
     bubble.className = "bubble";
-
     bubble.textContent = text;
 
     message.appendChild(bubble);
@@ -89,11 +94,10 @@ function addMessage(text, sender) {
 
 
 // =====================================================
-// LOADING BUTTON
+// BUTTONS
 // =====================================================
 
 function showLoading() {
-
     sendButton.disabled = true;
 
     sendButton.innerHTML = `
@@ -105,12 +109,9 @@ function showLoading() {
     `;
 }
 
-
 function resetButton() {
-
     sendButton.disabled = false;
     sendButton.textContent = "Send";
-
 }
 
 
@@ -122,100 +123,52 @@ async function sendQuestion() {
 
     const question = questionInput.value.trim();
 
-    if (!question || sendButton.disabled) {
-        return;
-    }
+    if (!question || sendButton.disabled) return;
 
     addMessage(question, "user");
-
     questionInput.value = "";
-
     showLoading();
 
-
     try {
-
         console.log("Capi: starting request...");
-        console.log("Question:", question);
-
 
         const prompt = `
 You are Capi, the friendly AI college assistant for CapItNJ.
 
-CapItNJ helps students discover and compare colleges.
+Help students with college admissions, GPA, SAT and ACT,
+college lists, reach/target/safety schools, applications,
+essays, FAFSA, financial aid, scholarships, majors,
+and college life.
 
-Help students with:
-- college admissions
-- GPA
-- SAT and ACT
-- reach, target, and safety schools
-- choosing colleges
-- applications
-- essays
-- FAFSA
-- scholarships
-- financial aid
-- majors
-- college life
-
-Be friendly, helpful, accurate, and easy to understand.
-
-Keep answers concise unless the student asks for more detail.
-
-Do not guarantee admission to any college.
+Be friendly, accurate, helpful, and easy to understand.
+Keep answers concise unless asked for more detail.
+Never guarantee admission.
 
 Student question:
 ${question}
 `;
 
-
         const result = await model.generateContent(prompt);
-
-        console.log("Capi raw result:", result);
-
-
-        const response = result.response;
-
-        if (!response) {
-            throw new Error("Firebase returned no response object.");
-        }
-
-
-        const answer = response.text();
-
-        console.log("Capi answer:", answer);
-
+        const answer = result.response.text();
 
         if (!answer) {
             throw new Error("Firebase returned an empty answer.");
         }
 
-
         addMessage(answer, "ai");
-
 
     } catch (error) {
 
-        console.error("=================================");
-        console.error("CAPI ERROR");
-        console.error("=================================");
-        console.error(error);
-        console.error("Message:", error?.message);
-        console.error("Code:", error?.code);
-        console.error("Name:", error?.name);
-
+        console.error("CAPI ERROR:", error);
 
         addMessage(
-            "Capi hit an error 😭 Check the browser console for the exact error.",
+            "Capi hit an error 😭 Check the console.",
             "ai"
         );
 
     } finally {
-
         resetButton();
-
     }
-
 }
 
 
@@ -225,37 +178,21 @@ ${question}
 
 sendButton.addEventListener("click", sendQuestion);
 
-
 questionInput.addEventListener("keydown", (event) => {
-
     if (event.key === "Enter") {
-
         event.preventDefault();
-
         sendQuestion();
-
     }
-
 });
 
-
 window.askSuggestion = function(question) {
-
-    if (sendButton.disabled) {
-        return;
-    }
+    if (sendButton.disabled) return;
 
     questionInput.value = question;
-
     sendQuestion();
-
 };
 
 
-// =====================================================
-// STARTUP LOGS
-// =====================================================
-
 console.log("🔥 Capi initialized");
-console.log("🛡️ Firebase App Check:", appCheck);
+console.log("🛡️ App Check:", appCheck);
 console.log("🤖 Firebase AI model:", model);
