@@ -17,7 +17,6 @@
     <link rel="stylesheet" href="style.css">
 
     <style>
-       
 
         .btn-details,
         .btn-save {
@@ -78,8 +77,6 @@
             align-items: center;
             flex-wrap: wrap;
         }
-
-        
 
         .details-modal {
             display: none;
@@ -163,6 +160,7 @@
         }
 
         @media (max-width: 640px) {
+
             .explore-row-actions {
                 width: 100%;
             }
@@ -175,7 +173,9 @@
             .details-modal-inner {
                 padding: 26px 22px;
             }
+
         }
+
     </style>
 </head>
 
@@ -192,38 +192,14 @@
         <div class="nav-links">
 
             <a href="index.html">Home</a>
-
-            <a href="improve.html">
-                Improve
-            </a>
-
-            <a href="explore.html" class="active">
-                Explore
-            </a>
-
-            <a href="gpa-calculator.html">
-                GPA Calculator
-            </a>
-
-            <a href="matches.html">
-                Matches
-            </a>
-
-            <a href="mylist.html">
-                My List
-            </a>
-
-            <a href="profile.html">
-                Profile
-            </a>
-
-            <a href="askcapi.html">
-                Ask Capi
-            </a>
-
-            <a href="support.html">
-                Support
-            </a>
+            <a href="improve.html">Improve</a>
+            <a href="explore.html" class="active">Explore</a>
+            <a href="gpa-calculator.html">GPA Calculator</a>
+            <a href="matches.html">Matches</a>
+            <a href="mylist.html">My List</a>
+            <a href="profile.html">Profile</a>
+            <a href="askcapi.html">Ask Capi</a>
+            <a href="support.html">Support</a>
 
         </div>
 
@@ -256,8 +232,6 @@
         </p>
 
 
-       
-
         <div class="explore-controls">
 
             <input
@@ -269,42 +243,20 @@
 
             <select id="filter-region">
 
-                <option value="all">
-                    All regions
-                </option>
-
-                <option value="local">
-                    Near home (NJ)
-                </option>
-
-                <option value="regional">
-                    Nearby states
-                </option>
-
-                <option value="far">
-                    Elsewhere in the US
-                </option>
-
-                <option value="international">
-                    Out of country
-                </option>
+                <option value="all">All regions</option>
+                <option value="local">Near home (NJ)</option>
+                <option value="regional">Nearby states</option>
+                <option value="far">Elsewhere in the US</option>
+                <option value="international">Out of country</option>
 
             </select>
 
 
             <select id="filter-type">
 
-                <option value="all">
-                    Public + Private
-                </option>
-
-                <option value="public">
-                    Public only
-                </option>
-
-                <option value="private">
-                    Private only
-                </option>
+                <option value="all">Public + Private</option>
+                <option value="public">Public only</option>
+                <option value="private">Private only</option>
 
             </select>
 
@@ -324,8 +276,6 @@
 </main>
 
 
-
-
 <div
     id="details-modal"
     class="details-modal"
@@ -335,6 +285,7 @@
     <div class="details-modal-inner">
 
         <button
+            type="button"
             id="details-close"
             class="details-close"
             aria-label="Close"
@@ -351,20 +302,12 @@
 </div>
 
 
-
-
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script src="firebase-init.js"></script>
-
-
-
-
 <script src="data.js"></script>
-
-
 
 
 <script>
@@ -375,17 +318,10 @@ const SCORECARD_API_KEY =
 
 const REGION_LABEL = {
 
-    local:
-        "Near home",
-
-    regional:
-        "Nearby state",
-
-    far:
-        "Elsewhere in US",
-
-    international:
-        "Out of country"
+    local: "Near home",
+    regional: "Nearby state",
+    far: "Elsewhere in US",
+    international: "Out of country"
 
 };
 
@@ -395,55 +331,45 @@ const collegeByName = {};
 let currentUser = null;
 
 
+/* =====================================================
+   AUTH
+===================================================== */
 
+function initializeAuth() {
 
-(async function initializeAuth() {
+    if (!window.capitnjFirebase) {
 
-    try {
-
-        if (!window.capitnjFirebase?.ready) {
-
-            await new Promise(resolve => {
-
-                window.addEventListener(
-                    "firebase-ready",
-                    resolve,
-                    { once: true }
-                );
-
-            });
-
-        }
-
-        const fb =
-            await window.capitnjFirebase.ready;
-
-        fb.authFns.onAuthStateChanged(
-            fb.auth,
-            user => {
-
-                currentUser = user;
-
-               
-
-                render();
-
-            }
+        window.addEventListener(
+            "firebase-ready",
+            initializeAuth,
+            { once: true }
         );
 
-    } catch (error) {
-
-        console.error(
-            "Firebase auth initialization failed:",
-            error
-        );
-
+        return;
     }
 
-})();
+    const fb = window.capitnjFirebase;
+
+    fb.auth.onAuthStateChanged(user => {
+
+        currentUser = user;
+
+        console.log(
+            "Explore auth:",
+            user ? user.uid : "not signed in"
+        );
+
+    });
+
+}
 
 
+initializeAuth();
 
+
+/* =====================================================
+   RENDER
+===================================================== */
 
 function render() {
 
@@ -455,13 +381,6 @@ function render() {
 
     const typeSelect =
         document.getElementById("filter-type");
-
-
-    if (!searchInput ||
-        !regionSelect ||
-        !typeSelect) {
-        return;
-    }
 
 
     const q =
@@ -484,15 +403,15 @@ function render() {
         dataPool.filter(college => {
 
             const name =
-                (college.name || "")
+                String(college.name || "")
                     .toLowerCase();
 
             const state =
-                (college.state || "")
+                String(college.state || "")
                     .toLowerCase();
 
             const country =
-                (college.country || "")
+                String(college.country || "")
                     .toLowerCase();
 
 
@@ -508,16 +427,15 @@ function render() {
                 college.distanceTier === region;
 
 
+            const ownership =
+                String(
+                    college.ownership || ""
+                ).toLowerCase();
+
+
             const matchesType =
                 type === "all" ||
-                (
-                    type === "public" &&
-                    college.ownership === "Public"
-                ) ||
-                (
-                    type === "private" &&
-                    college.ownership === "Private"
-                );
+                ownership === type;
 
 
             return (
@@ -537,9 +455,7 @@ function render() {
 
     count.textContent =
         `${filtered.length} school${
-            filtered.length === 1
-                ? ""
-                : "s"
+            filtered.length === 1 ? "" : "s"
         }`;
 
 
@@ -562,6 +478,7 @@ function render() {
         `;
 
         return;
+
     }
 
 
@@ -586,35 +503,29 @@ function render() {
                     <div>
 
                         <div class="explore-row-name">
-                            ${escapeHTML(
-                                college.name
-                            )}
+                            ${escapeHTML(college.name)}
                         </div>
 
                         <div class="explore-row-meta">
-                            ${escapeHTML(
-                                college.ownership
-                            )}
+                            ${escapeHTML(college.ownership || "Unknown")}
                             ·
-                            ${escapeHTML(
-                                college.type
-                            )}
+                            ${escapeHTML(college.type || "College")}
                             ·
-                            ${escapeHTML(
-                                college.setting
-                            )}
+                            ${escapeHTML(college.setting || "Unknown")}
                             ·
                             ${escapeHTML(
                                 college.state ||
                                 college.country
                             )}
                             ${college.state ? "," : ""}
-                            ${college.state
-                                ? " " +
-                                  escapeHTML(
-                                      college.country
-                                  )
-                                : ""}
+                            ${
+                                college.state
+                                    ? " " +
+                                      escapeHTML(
+                                          college.country
+                                      )
+                                    : ""
+                            }
                         </div>
 
                     </div>
@@ -633,21 +544,21 @@ function render() {
 
 
                         <button
-    type="button"
-    class="btn-details"
-    data-key="${key}"
->
-    Details
-</button>
+                            type="button"
+                            class="btn-details"
+                            data-key="${key}"
+                        >
+                            Details
+                        </button>
 
 
                         <button
-    type="button"
-    class="btn-save"
-    data-key="${key}"
->
-    Save
-</button>
+                            type="button"
+                            class="btn-save"
+                            data-key="${key}"
+                        >
+                            Save
+                        </button>
 
                     </div>
 
@@ -667,35 +578,43 @@ function render() {
 
 
     list
-        .querySelectorAll(
-            ".btn-details"
-        )
+        .querySelectorAll(".btn-details")
         .forEach(button => {
 
             button.addEventListener(
                 "click",
-                () =>
+                event => {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
                     showDetails(
                         button.dataset.key
-                    )
+                    );
+
+                }
             );
 
         });
 
 
     list
-        .querySelectorAll(
-            ".btn-save"
-        )
+        .querySelectorAll(".btn-save")
         .forEach(button => {
 
             button.addEventListener(
                 "click",
-                () =>
+                event => {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
                     saveCollege(
                         button.dataset.key,
                         button
-                    )
+                    );
+
+                }
             );
 
         });
@@ -742,7 +661,6 @@ async function showDetails(key) {
             "details-modal"
         );
 
-
     const content =
         document.getElementById(
             "details-content"
@@ -760,33 +678,21 @@ async function showDetails(key) {
     content.innerHTML = `
 
         <h2>
-            ${escapeHTML(
-                college.name
-            )}
+            ${escapeHTML(college.name)}
         </h2>
 
         <p>
-            ${escapeHTML(
-                college.ownership
-            )}
+            ${escapeHTML(college.ownership || "Unknown")}
             ·
-            ${escapeHTML(
-                college.type
-            )}
+            ${escapeHTML(college.type || "College")}
         </p>
 
         <p>
             ${escapeHTML(
                 college.state ||
+                college.country ||
                 "Location unavailable"
             )}
-            ${college.state ? "," : ""}
-            ${college.state
-                ? " " +
-                  escapeHTML(
-                      college.country
-                  )
-                : ""}
         </p>
 
         <div class="details-divider"></div>
@@ -795,9 +701,13 @@ async function showDetails(key) {
             <strong>
                 Estimated minimum GPA:
             </strong>
-            ${college.estimatedMinGPA
-                ? college.estimatedMinGPA.toFixed(2)
-                : "N/A"}
+            ${
+                college.estimatedMinGPA != null
+                    ? Number(
+                        college.estimatedMinGPA
+                      ).toFixed(2)
+                    : "N/A"
+            }
         </p>
 
         <p>
@@ -805,7 +715,7 @@ async function showDetails(key) {
                 Estimated net price:
             </strong>
             ${
-                college.netPrice
+                college.netPrice != null
                     ? "$" +
                       Math.round(
                           college.netPrice
@@ -851,19 +761,14 @@ async function showDetails(key) {
     `;
 
 
-   
-
     if (
         college.country !==
         "United States"
     ) {
 
-        const scorecard =
-            document.getElementById(
-                "scorecard-details"
-            );
-
-        scorecard.innerHTML = `
+        document.getElementById(
+            "scorecard-details"
+        ).innerHTML = `
             <p>
                 Federal tuition, admission,
                 and SAT data is currently
@@ -872,6 +777,7 @@ async function showDetails(key) {
         `;
 
         return;
+
     }
 
 
@@ -918,9 +824,8 @@ async function showDetails(key) {
         const result =
             candidates.find(
                 school =>
-                    (
-                        school["school.name"] ||
-                        ""
+                    String(
+                        school["school.name"] || ""
                     ).toLowerCase() ===
                     college.name.toLowerCase()
             ) ||
@@ -943,6 +848,7 @@ async function showDetails(key) {
             `;
 
             return;
+
         }
 
 
@@ -951,12 +857,10 @@ async function showDetails(key) {
                 "latest.cost.net_price.overall.overall"
             ];
 
-
         const admitRate =
             result[
                 "latest.admissions.admission_rate.overall"
             ];
-
 
         const satAvg =
             result[
@@ -1015,14 +919,9 @@ async function showDetails(key) {
             error
         );
 
-
-        const scorecard =
-            document.getElementById(
-                "scorecard-details"
-            );
-
-
-        scorecard.innerHTML = `
+        document.getElementById(
+            "scorecard-details"
+        ).innerHTML = `
             <p>
                 Federal data couldn't be
                 loaded right now.
@@ -1034,7 +933,9 @@ async function showDetails(key) {
 }
 
 
-
+/* =====================================================
+   CLOSE DETAILS
+===================================================== */
 
 function closeDetails() {
 
@@ -1043,11 +944,7 @@ function closeDetails() {
             "details-modal"
         );
 
-
-    modal.classList.remove(
-        "open"
-    );
-
+    modal.classList.remove("open");
 
     modal.setAttribute(
         "aria-hidden",
@@ -1058,9 +955,7 @@ function closeDetails() {
 
 
 document
-    .getElementById(
-        "details-close"
-    )
+    .getElementById("details-close")
     .addEventListener(
         "click",
         closeDetails
@@ -1068,9 +963,7 @@ document
 
 
 document
-    .getElementById(
-        "details-modal"
-    )
+    .getElementById("details-modal")
     .addEventListener(
         "click",
         event => {
@@ -1090,9 +983,7 @@ document.addEventListener(
     "keydown",
     event => {
 
-        if (
-            event.key === "Escape"
-        ) {
+        if (event.key === "Escape") {
             closeDetails();
         }
 
@@ -1100,40 +991,50 @@ document.addEventListener(
 );
 
 
+/* =====================================================
+   SAVE COLLEGE
+===================================================== */
 
-
-async function saveCollege(
-    key,
-    button
-) {
+async function saveCollege(key, button) {
 
     const name =
         decodeURIComponent(key);
-
 
     const college =
         collegeByName[name];
 
 
     if (!college) {
+
+        alert("College not found.");
         return;
+
     }
 
 
-    if (!currentUser) {
+    if (!window.capitnjFirebase) {
 
-        const goLogin =
-            confirm(
-                `Sign in to save ${college.name} to My List. Go to the login page now?`
-            );
-
-
-        if (goLogin) {
-            window.location.href =
-                "login.html";
-        }
+        alert(
+            "Saving isn't ready yet. Please refresh and try again."
+        );
 
         return;
+
+    }
+
+
+    const user =
+        window.capitnjFirebase.auth.currentUser;
+
+
+    if (!user) {
+
+        alert(
+            "Please log in first to save colleges to My List."
+        );
+
+        return;
+
     }
 
 
@@ -1146,54 +1047,49 @@ async function saveCollege(
 
 
         const fb =
-            await window
-                .capitnjFirebase
-                .ready;
+            window.capitnjFirebase;
 
 
-        const {
-            collection,
-            addDoc
-        } =
-            fb.firestoreFns;
-
-
-        await addDoc(
-            collection(
+        const savedCollegesRef =
+            fb.firestoreFns.collection(
                 fb.db,
                 "users",
-                currentUser.uid,
+                user.uid,
                 "savedColleges"
-            ),
+            );
+
+
+        const existing =
+            await savedCollegesRef.get();
+
+
+        const alreadySaved =
+            existing.docs.some(doc =>
+                doc.data().name === college.name
+            );
+
+
+        if (alreadySaved) {
+
+            button.textContent =
+                "Already Saved ✓";
+
+            return;
+
+        }
+
+
+        await fb.firestoreFns.addDoc(
+            savedCollegesRef,
             {
-                name:
-                    college.name,
-
-                state:
-                    college.state ||
-                    "",
-
-                country:
-                    college.country ||
-                    "",
-
-                type:
-                    college.type ||
-                    "",
-
-                ownership:
-                    college.ownership ||
-                    "",
-
-                rate:
-                    "N/A",
-
-                priority:
-                    "Considering",
-
-                notes:
-                    "",
-
+                name: college.name,
+                state: college.state || "",
+                country: college.country || "",
+                type: college.type || "",
+                ownership: college.ownership || "",
+                rate: "N/A",
+                priority: "Considering",
+                notes: "",
                 createdAt:
                     new Date()
             }
@@ -1202,7 +1098,6 @@ async function saveCollege(
 
         button.textContent =
             "Saved ✓";
-
 
         button.style.background =
             "#18794e";
@@ -1218,7 +1113,6 @@ async function saveCollege(
             error
         );
 
-
         button.disabled = false;
 
         button.textContent =
@@ -1226,7 +1120,7 @@ async function saveCollege(
 
 
         alert(
-            "Couldn't save this college — try again."
+            "Couldn't save this college. Please try again."
         );
 
     }
@@ -1262,15 +1156,10 @@ document
     );
 
 
-
-
 window.addEventListener(
     "database-ready",
     render
 );
-
-
-
 
 
 if (
@@ -1281,13 +1170,6 @@ if (
 }
 
 </script>
-
-
-
-
-
-
-
 
 
 <script
