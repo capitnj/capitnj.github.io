@@ -139,14 +139,52 @@ ${question}
 
     } catch (error) {
 
-        console.error("CAPI ERROR:", error);
+    console.error("CAPI ERROR:", error);
+
+    const message = error?.message || "";
+
+    if (
+        message.includes("429") ||
+        message.includes("quota") ||
+        message.includes("Quota exceeded")
+    ) {
 
         addMessage(
-            "Capi hit an error 😭 Check the console.",
+            "Capi is taking a quick breather 💤 We've reached today's AI usage limit. Please check back later.",
             "ai"
         );
 
-    } finally {
+        const fallback = document.createElement("div");
+        fallback.className = "capi-fallback";
+
+        fallback.innerHTML = `
+            <p>
+                Need help right now? You can continue researching your question with Google Gemini.
+            </p>
+
+            <a
+                href="https://gemini.google.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn"
+            >
+                Continue with Gemini →
+            </a>
+        `;
+
+        chatMessages.appendChild(fallback);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    } else {
+
+        addMessage(
+            "Capi ran into a little issue, Please try again in a moment.",
+            "ai"
+        );
+
+    }
+
+} finally {
         resetButton();
     }
 }
@@ -171,6 +209,6 @@ window.askSuggestion = function(question) {
 };
 
 
-console.log("🔥 Capi initialized");
-console.log("🛡️ App Check:", appCheck);
-console.log("🤖 Firebase AI model:", model);
+console.log(" Capi initialized");
+console.log(" App Check:", appCheck);
+console.log(" Firebase AI model:", model);
