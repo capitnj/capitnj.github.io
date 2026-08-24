@@ -506,17 +506,19 @@ function render() {
                             ${escapeHTML(college.name)}
                         </div>
 
-                        <div class="explore-row-meta">
-                            ${escapeHTML(college.ownership || "Unknown")}
-                            ·
-                            ${escapeHTML(college.type || "College")}
-                            ·
-                            ${escapeHTML(college.setting || "Unknown")}
-                            ·
-                            ${escapeHTML(
-                                college.state ||
-                                college.country
-                            )}
+                       <div class="explore-row-meta">
+    ${escapeHTML(
+        college.ownership
+    )}
+    ·
+    ${escapeHTML(
+        college.type
+    )}
+    ·
+    ${escapeHTML(
+        college.state ||
+        college.country
+    )}
                             ${college.state ? "," : ""}
                             ${
                                 college.state
