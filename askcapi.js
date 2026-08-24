@@ -150,7 +150,7 @@ ${question}
     ) {
 
         addMessage(
-            "Capi is taking a quick breather 💤 We've reached today's AI usage limit. Please check back later.",
+            "We're sorry. Capi is taking a quick breather 💤 We've reached today's AI usage limit. Please check back later.",
             "ai"
         );
 
