@@ -4,8 +4,6 @@ const WORLD_URL =
     "https://cdn.jsdelivr.net/gh/Hipo/university-domains-list/world_universities_and_domains.json";
 
 
-
-
 const REGIONS = {
     Northeast: [
         "Maine",
@@ -70,8 +68,6 @@ const REGIONS = {
         "Hawaii"
     ]
 };
-
-
 
 
 const SCHOOL_STATE_KEYWORDS = {
@@ -230,6 +226,104 @@ function getSchoolState(school) {
 }
 
 
+function getSchoolOwnership(school) {
+
+    const name =
+        String(school.name || "").toLowerCase();
+
+    const domain =
+        String(
+            (
+                school.domains &&
+                school.domains[0]
+            ) || ""
+        ).toLowerCase();
+
+
+    const publicKeywords = [
+        "state university",
+        "state college",
+        "university of ",
+        "university at ",
+        "university in ",
+        "polytechnic institute",
+        "polytechnic university"
+    ];
+
+
+    const knownPrivateKeywords = [
+        "harvard",
+        "princeton",
+        "yale",
+        "stanford",
+        "columbia",
+        "cornell",
+        "brown",
+        "dartmouth",
+        "duke",
+        "northwestern",
+        "new york university",
+        "nyu",
+        "boston university",
+        "northeastern",
+        "tufts",
+        "carnegie mellon",
+        "university of pennsylvania",
+        "upenn",
+        "university of southern california",
+        "usc",
+        "rice university",
+        "georgetown",
+        "villanova",
+        "drexel",
+        "temple university",
+        "fordham",
+        "pace university",
+        "hofstra",
+        "seton hall",
+        "rider university",
+        "drew university",
+        "fairleigh dickinson",
+        "monmouth university",
+        "saint peter",
+        "pepperdine",
+        "baylor university",
+        "university of chicago",
+        "case western"
+    ];
+
+
+    if (
+        knownPrivateKeywords.some(keyword =>
+            name.includes(keyword)
+        )
+    ) {
+        return "Private";
+    }
+
+
+    if (
+        publicKeywords.some(keyword =>
+            name.includes(keyword)
+        )
+    ) {
+        return "Public";
+    }
+
+
+    if (
+        domain.endsWith(".edu") &&
+        (
+            name.includes("university") ||
+            name.includes("college")
+        )
+    ) {
+        return "Private";
+    }
+
+
+    return "Private";
+}
 
 
 function estimateRequiredGPA(name) {
@@ -314,8 +408,6 @@ function estimateRequiredGPA(name) {
 }
 
 
-
-
 function getDistanceTier(country, state) {
 
     if (country !== "United States") {
@@ -339,8 +431,6 @@ function getDistanceTier(country, state) {
 
     return "far";
 }
-
-
 
 
 async function loadGlobalCollegeDatabase() {
@@ -403,6 +493,11 @@ async function loadGlobalCollegeDatabase() {
                                 ? "University"
                                 : "College",
 
+                        ownership:
+                            getSchoolOwnership(
+                                school
+                            ),
+
                         setting:
                             "Unknown",
 
@@ -450,9 +545,6 @@ async function loadGlobalCollegeDatabase() {
                 });
 
 
-      
-
-
         console.log(
             "CapItNJ: FINAL SCHOOL COUNT:",
             window.COLLEGES.length
@@ -474,8 +566,6 @@ async function loadGlobalCollegeDatabase() {
         );
 
 
-        
-
         window.COLLEGES = [];
 
 
@@ -486,6 +576,7 @@ async function loadGlobalCollegeDatabase() {
         );
 
     }
+
 }
 
 
