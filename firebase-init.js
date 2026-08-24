@@ -14,7 +14,7 @@ if (typeof firebase === "undefined") {
   );
 } else {
   try {
-    
+
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
     }
@@ -23,10 +23,11 @@ if (typeof firebase === "undefined") {
     const db = firebase.firestore();
 
     window.capitnjFirebase = {
+      ready: Promise.resolve(),
+
       auth: auth,
       db: db,
 
-      
       authFns: {
         signInWithEmail: (email, password) =>
           auth.signInWithEmailAndPassword(email, password),
@@ -57,11 +58,10 @@ if (typeof firebase === "undefined") {
         reauthenticateWithCredential: (user, credential) =>
           user.reauthenticateWithCredential(credential),
 
-        onAuthStateChanged: (callback) =>
-          auth.onAuthStateChanged(callback)
+        onAuthStateChanged: (authInstance, callback) =>
+          authInstance.onAuthStateChanged(callback)
       },
 
-      
       firestoreFns: {
         collection: (...args) =>
           db.collection(...args),
@@ -89,7 +89,6 @@ if (typeof firebase === "undefined") {
         deleteDoc: (docRef) =>
           docRef.delete(),
 
-        
         query: (collectionRef, ...constraints) => {
           let q = collectionRef;
 
@@ -114,7 +113,6 @@ if (typeof firebase === "undefined") {
         })
       },
 
-      
       requireAuth: (callback) => {
         auth.onAuthStateChanged((user) => {
           if (user) {
@@ -125,7 +123,6 @@ if (typeof firebase === "undefined") {
         });
       },
 
-      
       logOut: async () => {
         try {
           await auth.signOut();
@@ -139,7 +136,6 @@ if (typeof firebase === "undefined") {
       }
     };
 
-  
     window.dispatchEvent(new Event("firebase-ready"));
 
     console.log("Firebase initialized successfully.");
