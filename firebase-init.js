@@ -9,10 +9,13 @@ const firebaseConfig = {
 };
 
 if (typeof firebase === "undefined") {
+
   console.error(
-    "Firebase failed to load. Make sure firebase-app-compat.js, firebase-auth-compat.js, and firebase-firestore-compat.js load before firebase-init.js."
+    "Firebase failed to load. Make sure Firebase scripts load before firebase-init.js."
   );
+
 } else {
+
   try {
 
     if (!firebase.apps.length) {
@@ -23,12 +26,14 @@ if (typeof firebase === "undefined") {
     const db = firebase.firestore();
 
     window.capitnjFirebase = {
+
       ready: Promise.resolve(),
 
       auth: auth,
       db: db,
 
       authFns: {
+
         signInWithEmail: (email, password) =>
           auth.signInWithEmailAndPassword(email, password),
 
@@ -53,21 +58,54 @@ if (typeof firebase === "undefined") {
         deleteUser: (user) =>
           user.delete(),
 
-        EmailAuthProvider: firebase.auth.EmailAuthProvider,
+        EmailAuthProvider:
+          firebase.auth.EmailAuthProvider,
 
         reauthenticateWithCredential: (user, credential) =>
           user.reauthenticateWithCredential(credential),
 
         onAuthStateChanged: (authInstance, callback) =>
           authInstance.onAuthStateChanged(callback)
+
       },
 
-      firestoreFns: {
-        collection: (...args) =>
-          db.collection(...args),
 
-        doc: (...args) =>
-          db.doc(...args),
+      firestoreFns: {
+
+        collection: (dbInstance, ...pathParts) => {
+
+          let ref = dbInstance;
+
+          for (const part of pathParts) {
+            ref = ref.collection(part);
+          }
+
+          return ref;
+
+        },
+
+        doc: (dbInstance, ...pathParts) => {
+
+          if (pathParts.length < 2) {
+            throw new Error("Invalid document path.");
+          }
+
+          let ref = dbInstance;
+
+          for (let i = 0; i < pathParts.length - 1; i++) {
+            ref = ref.collection(pathParts[i]);
+
+            if (i + 1 < pathParts.length - 1) {
+              i++;
+              ref = ref.doc(pathParts[i]);
+            }
+          }
+
+          return ref.doc(
+            pathParts[pathParts.length - 1]
+          );
+
+        },
 
         addDoc: (collectionRef, data) =>
           collectionRef.add(data),
@@ -90,19 +128,25 @@ if (typeof firebase === "undefined") {
           docRef.delete(),
 
         query: (collectionRef, ...constraints) => {
+
           let q = collectionRef;
 
           constraints.forEach((constraint) => {
+
             if (constraint.type === "where") {
+
               q = q.where(
                 constraint.field,
                 constraint.operator,
                 constraint.value
               );
+
             }
+
           });
 
           return q;
+
         },
 
         where: (field, operator, value) => ({
@@ -111,36 +155,64 @@ if (typeof firebase === "undefined") {
           operator: operator,
           value: value
         })
+
       },
 
+
       requireAuth: (callback) => {
+
         auth.onAuthStateChanged((user) => {
+
           if (user) {
             callback(user);
           } else {
             window.location.replace("login.html");
           }
+
         });
+
       },
 
+
       logOut: async () => {
+
         try {
+
           await auth.signOut();
 
           sessionStorage.clear();
 
           window.location.replace("login.html");
+
         } catch (error) {
-          console.error("Logout error:", error);
+
+          console.error(
+            "Logout error:",
+            error
+          );
+
         }
+
       }
+
     };
 
-    window.dispatchEvent(new Event("firebase-ready"));
 
-    console.log("Firebase initialized successfully.");
+    window.dispatchEvent(
+      new Event("firebase-ready")
+    );
+
+    console.log(
+      "Firebase initialized successfully."
+    );
 
   } catch (error) {
-    console.error("Firebase initialization error:", error);
+
+    console.error(
+      "Firebase initialization error:",
+      error
+    );
+
   }
+
 }
