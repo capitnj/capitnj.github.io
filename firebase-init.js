@@ -25,12 +25,19 @@ if (typeof firebase === "undefined") {
     const auth = firebase.auth();
     const db = firebase.firestore();
 
-    window.capitnjFirebase = {
 
-      ready: Promise.resolve(),
+    window.capitnjFirebase = {
 
       auth: auth,
       db: db,
+
+      // IMPORTANT: this makes .ready work in your other files
+      ready: Promise.resolve({
+        auth: auth,
+        db: db,
+        authFns: null,
+        firestoreFns: null
+      }),
 
       authFns: {
 
@@ -64,46 +71,31 @@ if (typeof firebase === "undefined") {
         reauthenticateWithCredential: (user, credential) =>
           user.reauthenticateWithCredential(credential),
 
-        onAuthStateChanged: (authInstance, callback) =>
-          authInstance.onAuthStateChanged(callback)
+        onAuthStateChanged: (callback) =>
+          auth.onAuthStateChanged(callback)
 
       },
 
 
       firestoreFns: {
 
-        collection: (dbInstance, ...pathParts) => {
+        // Works with ANY number of path pieces:
+        // collection(db, "users", uid, "savedColleges")
+        collection: (firestore, ...pathParts) => {
 
-          let ref = dbInstance;
+          const path =
+            pathParts.filter(Boolean).join("/");
 
-          for (const part of pathParts) {
-            ref = ref.collection(part);
-          }
-
-          return ref;
+          return firestore.collection(path);
 
         },
 
-        doc: (dbInstance, ...pathParts) => {
+        doc: (firestore, ...pathParts) => {
 
-          if (pathParts.length < 2) {
-            throw new Error("Invalid document path.");
-          }
+          const path =
+            pathParts.filter(Boolean).join("/");
 
-          let ref = dbInstance;
-
-          for (let i = 0; i < pathParts.length - 1; i++) {
-            ref = ref.collection(pathParts[i]);
-
-            if (i + 1 < pathParts.length - 1) {
-              i++;
-              ref = ref.doc(pathParts[i]);
-            }
-          }
-
-          return ref.doc(
-            pathParts[pathParts.length - 1]
-          );
+          return firestore.doc(path);
 
         },
 
@@ -127,11 +119,12 @@ if (typeof firebase === "undefined") {
         deleteDoc: (docRef) =>
           docRef.delete(),
 
+
         query: (collectionRef, ...constraints) => {
 
           let q = collectionRef;
 
-          constraints.forEach((constraint) => {
+          constraints.forEach(constraint => {
 
             if (constraint.type === "where") {
 
@@ -149,6 +142,7 @@ if (typeof firebase === "undefined") {
 
         },
 
+
         where: (field, operator, value) => ({
           type: "where",
           field: field,
@@ -161,7 +155,7 @@ if (typeof firebase === "undefined") {
 
       requireAuth: (callback) => {
 
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(user => {
 
           if (user) {
             callback(user);
@@ -198,9 +192,15 @@ if (typeof firebase === "undefined") {
     };
 
 
+    // Now fix the ready promise so it contains the actual functions
+    window.capitnjFirebase.ready =
+      Promise.resolve(window.capitnjFirebase);
+
+
     window.dispatchEvent(
       new Event("firebase-ready")
     );
+
 
     console.log(
       "Firebase initialized successfully."
