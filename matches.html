@@ -349,7 +349,7 @@ const LOCATION_LABELS = {
 };
 
 
-const REGIONS = {
+const MATCH_REGIONS = {
 
     northeast: [
         "connecticut",
@@ -741,13 +741,12 @@ function collegeMatchesLocation(
     }
 
 
-    if (REGIONS[wanted]) {
+   if (MATCH_REGIONS[wanted]) {
 
-        return REGIONS[wanted].includes(
-            collegeState
-        );
-    }
-
+    return MATCH_REGIONS[wanted].includes(
+        collegeState
+    );
+}
 
     return false;
 }
