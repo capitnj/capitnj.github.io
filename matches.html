@@ -312,10 +312,7 @@
 </footer>
 
 
-
 <script src="data.js"></script>
-
-
 
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -330,6 +327,7 @@ let currentUser = null;
 let userProfile = {};
 let colleges = [];
 let savedCollegeIds = new Set();
+let authListenerStarted = false;
 
 
 const loadingState = document.getElementById("loading-state");
@@ -342,7 +340,62 @@ const matchesContainer = document.getElementById("matches-container");
 const profileSummary = document.getElementById("profile-summary");
 
 
+/* =====================================================
+   WAIT FOR DATA.JS
+   IMPORTANT: DO NOT MATCH UNTIL ALL COLLEGES LOAD
+===================================================== */
 
+function waitForCollegeDatabase() {
+
+    return new Promise(function(resolve, reject) {
+
+        if (
+            Array.isArray(window.COLLEGES) &&
+            window.COLLEGES.length > 0
+        ) {
+            resolve(window.COLLEGES);
+            return;
+        }
+
+        const timeout = setTimeout(function() {
+            reject(
+                new Error(
+                    "The college database took too long to load. Please refresh and try again."
+                )
+            );
+        }, 20000);
+
+
+        window.addEventListener(
+            "database-ready",
+            function() {
+
+                clearTimeout(timeout);
+
+                if (
+                    Array.isArray(window.COLLEGES) &&
+                    window.COLLEGES.length > 0
+                ) {
+                    resolve(window.COLLEGES);
+                } else {
+                    reject(
+                        new Error(
+                            "The college database could not be loaded."
+                        )
+                    );
+                }
+
+            },
+            { once: true }
+        );
+
+    });
+}
+
+
+/* =====================================================
+   PAGE STATES
+===================================================== */
 
 function hideAllStates() {
     loadingState.style.display = "none";
@@ -352,37 +405,33 @@ function hideAllStates() {
     matchesSection.style.display = "none";
 }
 
+
 function showState(element) {
     hideAllStates();
     element.style.display = "block";
 }
 
 
-
+/* =====================================================
+   COLLEGE DATA
+===================================================== */
 
 function getCollegeData() {
 
-    if (Array.isArray(window.COLLEGES)) {
+    if (
+        Array.isArray(window.COLLEGES) &&
+        window.COLLEGES.length > 0
+    ) {
         return window.COLLEGES;
-    }
-
-    if (Array.isArray(window.collegesData)) {
-        return window.collegesData;
-    }
-
-    if (typeof COLLEGES !== "undefined" && Array.isArray(COLLEGES)) {
-        return COLLEGES;
-    }
-
-    if (typeof collegesData !== "undefined" && Array.isArray(collegesData)) {
-        return collegesData;
     }
 
     return [];
 }
 
 
-
+/* =====================================================
+   LOCATION
+===================================================== */
 
 const LOCATION_LABELS = {
     local: "Near home",
@@ -511,8 +560,6 @@ function collegeMatchesLocation(college, preference) {
     }
 
 
-   
-
     const tier = String(
         college.distanceTier ||
         college.distance_tier ||
@@ -522,16 +569,15 @@ function collegeMatchesLocation(college, preference) {
     .toLowerCase();
 
 
-    if (["local", "regional", "far", "international"].includes(wanted)) {
-
-        
+    if (
+        ["local", "regional", "far", "international"]
+            .includes(wanted)
+    ) {
 
         if (tier) {
             return tier === wanted;
         }
 
-
-       
 
         const state = normalizeState(
             college.state ||
@@ -568,7 +614,6 @@ function collegeMatchesLocation(college, preference) {
         if (wanted === "far") {
 
             const isUS =
-                !country ||
                 country === "us" ||
                 country === "usa" ||
                 country === "united states" ||
@@ -587,7 +632,6 @@ function collegeMatchesLocation(college, preference) {
         if (wanted === "international") {
 
             const isUS =
-                !country ||
                 country === "us" ||
                 country === "usa" ||
                 country === "united states" ||
@@ -597,8 +641,6 @@ function collegeMatchesLocation(college, preference) {
         }
     }
 
-
-   
 
     const collegeState = normalizeState(
         college.state ||
@@ -610,7 +652,9 @@ function collegeMatchesLocation(college, preference) {
 }
 
 
-
+/* =====================================================
+   NUMBER HELPERS
+===================================================== */
 
 function parseNumber(value) {
 
@@ -697,7 +741,8 @@ function getCollegeGPA(college) {
         college.averageGPA,
         college.avgGPA,
         college.avg_gpa,
-        college.gpa
+        college.gpa,
+        college.estimatedMinGPA
     ];
 
     for (const value of possibleValues) {
@@ -759,7 +804,9 @@ function getCollegeACT(college) {
 }
 
 
-
+/* =====================================================
+   BUDGET
+===================================================== */
 
 function matchesBudget(college, budget) {
 
@@ -782,7 +829,9 @@ function matchesBudget(college, budget) {
 }
 
 
-
+/* =====================================================
+   RANKING
+===================================================== */
 
 function calculateRankingScore(college, profile) {
 
@@ -821,7 +870,9 @@ function calculateRankingScore(college, profile) {
 
             score += Math.max(
                 0,
-                100 - Math.abs(acceptanceRate - expectedRate)
+                100 - Math.abs(
+                    acceptanceRate - expectedRate
+                )
             );
 
         } else {
@@ -839,7 +890,9 @@ function calculateRankingScore(college, profile) {
 
             score += Math.max(
                 0,
-                100 - Math.abs(userSAT - collegeSAT) / 6
+                100 - Math.abs(
+                    userSAT - collegeSAT
+                ) / 6
             );
 
         } else {
@@ -857,7 +910,9 @@ function calculateRankingScore(college, profile) {
 
             score += Math.max(
                 0,
-                100 - Math.abs(userACT - collegeACT) * 5
+                100 - Math.abs(
+                    userACT - collegeACT
+                ) * 5
             );
 
         } else {
@@ -871,7 +926,12 @@ function calculateRankingScore(college, profile) {
 
         score =
             acceptanceRate !== null
-                ? Math.max(0, 100 - Math.abs(acceptanceRate - 55))
+                ? Math.max(
+                    0,
+                    100 - Math.abs(
+                        acceptanceRate - 55
+                    )
+                )
                 : 50;
 
         factors = 1;
@@ -882,7 +942,9 @@ function calculateRankingScore(college, profile) {
 }
 
 
-
+/* =====================================================
+   BUILD MATCHES
+===================================================== */
 
 function buildMatches(profile) {
 
@@ -900,27 +962,23 @@ function buildMatches(profile) {
         "";
 
 
-    
-
-    const locationMatches = colleges.filter(function(college) {
-        return collegeMatchesLocation(
-            college,
-            preference
-        );
-    });
-
-
-    
-
-    const budgetMatches = locationMatches.filter(function(college) {
-        return matchesBudget(
-            college,
-            budget
-        );
-    });
+    const locationMatches =
+        colleges.filter(function(college) {
+            return collegeMatchesLocation(
+                college,
+                preference
+            );
+        });
 
 
-    
+    const budgetMatches =
+        locationMatches.filter(function(college) {
+            return matchesBudget(
+                college,
+                budget
+            );
+        });
+
 
     const usableMatches =
         budgetMatches.length > 0
@@ -928,13 +986,12 @@ function buildMatches(profile) {
             : locationMatches;
 
 
-    
-
     return usableMatches
         .map(function(college) {
 
             return {
                 ...college,
+
                 _rankingScore:
                     calculateRankingScore(
                         college,
@@ -949,7 +1006,9 @@ function buildMatches(profile) {
 }
 
 
-
+/* =====================================================
+   PROFILE SUMMARY
+===================================================== */
 
 function renderProfileSummary(profile) {
 
@@ -995,10 +1054,17 @@ function renderProfileSummary(profile) {
 
     if (profile.budget) {
 
+        const budget =
+            parseNumber(profile.budget);
+
         pills.push(
             `<div class="profile-pill">
                 <strong>Budget:</strong>
-                $${Number(profile.budget).toLocaleString()}
+                ${
+                    budget !== null
+                        ? "$" + budget.toLocaleString()
+                        : escapeHtml(profile.budget)
+                }
             </div>`
         );
     }
@@ -1023,11 +1089,14 @@ function renderProfileSummary(profile) {
     }
 
 
-    profileSummary.innerHTML = pills.join("");
+    profileSummary.innerHTML =
+        pills.join("");
 }
 
 
-
+/* =====================================================
+   RENDER MATCHES
+===================================================== */
 
 function renderMatches(matches, profile) {
 
@@ -1052,7 +1121,11 @@ function renderMatches(matches, profile) {
     document.getElementById(
         "matches-count"
     ).textContent =
-        `${matches.length} college${matches.length === 1 ? "" : "s"} selected for your profile`;
+        `${matches.length} college${
+            matches.length === 1
+                ? ""
+                : "s"
+        } selected for your profile`;
 
 
     const preference =
@@ -1077,7 +1150,8 @@ function renderMatches(matches, profile) {
     matchesContainer.innerHTML =
         matches.map(function(college) {
 
-            const id = getCollegeId(college);
+            const id =
+                getCollegeId(college);
 
             const saved =
                 savedCollegeIds.has(id);
@@ -1105,15 +1179,22 @@ function renderMatches(matches, profile) {
 
 
             if (rate !== null) {
+
                 details.push(
-                    `Acceptance rate: ${Math.round(rate)}%`
+                    `Acceptance rate: ${
+                        Math.round(rate)
+                    }%`
                 );
             }
 
 
             if (cost !== null) {
+
                 details.push(
-                    `Estimated cost: $${Math.round(cost).toLocaleString()}`
+                    `Estimated cost: $${
+                        Math.round(cost)
+                            .toLocaleString()
+                    }`
                 );
             }
 
@@ -1141,12 +1222,19 @@ function renderMatches(matches, profile) {
 
                         <div class="college-meta">
                             ${escapeHtml(state)}
-                            ${country ? `, ${escapeHtml(country)}` : ""}
+                            ${
+                                country
+                                    ? `, ${
+                                        escapeHtml(country)
+                                    }`
+                                    : ""
+                            }
                         </div>
 
 
                         ${
-                            tier && LOCATION_LABELS[tier]
+                            tier &&
+                            LOCATION_LABELS[tier]
                                 ? `
                                     <div class="college-tag">
                                         ${escapeHtml(
@@ -1162,9 +1250,15 @@ function renderMatches(matches, profile) {
                             details.length
                                 ? `
                                     <div class="college-details">
-                                        ${details.map(function(detail) {
-                                            return `<span>${escapeHtml(detail)}</span>`;
-                                        }).join("")}
+                                        ${
+                                            details.map(
+                                                function(detail) {
+                                                    return `<span>${
+                                                        escapeHtml(detail)
+                                                    }</span>`;
+                                                }
+                                            ).join("")
+                                        }
                                     </div>
                                   `
                                 : ""
@@ -1176,12 +1270,24 @@ function renderMatches(matches, profile) {
                     <div class="college-actions">
 
                         <button
-                            class="save-btn ${saved ? "saved" : ""}"
+                            class="save-btn ${
+                                saved
+                                    ? "saved"
+                                    : ""
+                            }"
                             id="save-${id}"
                             onclick="saveCollege('${escapeJs(id)}')"
-                            ${saved ? "disabled" : ""}
+                            ${
+                                saved
+                                    ? "disabled"
+                                    : ""
+                            }
                         >
-                            ${saved ? "Saved" : "Save"}
+                            ${
+                                saved
+                                    ? "Saved"
+                                    : "Save"
+                            }
                         </button>
 
                     </div>
@@ -1193,7 +1299,9 @@ function renderMatches(matches, profile) {
 }
 
 
-
+/* =====================================================
+   COLLEGE ID
+===================================================== */
 
 function getCollegeId(college) {
 
@@ -1214,6 +1322,10 @@ function getCollegeId(college) {
     .replace(/^-|-$/g, "");
 }
 
+
+/* =====================================================
+   SAVED COLLEGES
+===================================================== */
 
 async function loadSavedCollegeIds() {
 
@@ -1237,7 +1349,15 @@ async function loadSavedCollegeIds() {
 
 
     snapshot.forEach(function(doc) {
-        savedCollegeIds.add(String(doc.id));
+
+        const data = doc.data();
+
+        if (data.id) {
+            savedCollegeIds.add(
+                String(data.id)
+            );
+        }
+
     });
 }
 
@@ -1245,16 +1365,15 @@ async function loadSavedCollegeIds() {
 async function saveCollege(collegeId) {
 
     if (!currentUser) {
-
         window.location.href = "login.html";
-
         return;
     }
 
 
     const college =
         colleges.find(function(c) {
-            return getCollegeId(c) === String(collegeId);
+            return getCollegeId(c) ===
+                String(collegeId);
         });
 
 
@@ -1264,7 +1383,9 @@ async function saveCollege(collegeId) {
 
 
     const button =
-        document.getElementById(`save-${collegeId}`);
+        document.getElementById(
+            `save-${collegeId}`
+        );
 
 
     try {
@@ -1286,11 +1407,14 @@ async function saveCollege(collegeId) {
             .doc(safeId)
             .set({
                 ...college,
+
                 id: safeId,
+
                 name:
                     college.name ||
                     college.school ||
                     "Unnamed College",
+
                 timestamp:
                     new Date().toISOString()
             });
@@ -1304,9 +1428,7 @@ async function saveCollege(collegeId) {
             button.classList.add("saved");
         }
 
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
             "Error saving college:",
@@ -1327,7 +1449,9 @@ async function saveCollege(collegeId) {
 }
 
 
-
+/* =====================================================
+   ESCAPING
+===================================================== */
 
 function escapeHtml(value) {
 
@@ -1352,10 +1476,9 @@ function escapeJs(value) {
 }
 
 
-
-
-let authListenerStarted = false;
-
+/* =====================================================
+   START MATCHES
+===================================================== */
 
 async function startMatches() {
 
@@ -1402,19 +1525,20 @@ async function startMatches() {
 
             try {
 
+                /*
+                 * THIS IS THE IMPORTANT FIX.
+                 * Wait until data.js has completely loaded
+                 * the 10,000+ colleges before matching.
+                 */
+
                 colleges =
-                    getCollegeData();
+                    await waitForCollegeDatabase();
 
 
-                if (
-                    !Array.isArray(colleges) ||
-                    colleges.length === 0
-                ) {
-
-                    throw new Error(
-                        "No colleges were found. Make sure data.js is loading correctly."
-                    );
-                }
+                console.log(
+                    "Matches: college database ready:",
+                    colleges.length
+                );
 
 
                 const profileDoc =
@@ -1430,7 +1554,6 @@ async function startMatches() {
                         : {};
 
 
-                
                 userProfile.preferredLocation =
                     userProfile.preferredLocation ||
                     userProfile.location ||
@@ -1459,14 +1582,18 @@ async function startMatches() {
                     );
 
 
+                console.log(
+                    "Matches found:",
+                    matches.length
+                );
+
+
                 renderMatches(
                     matches,
                     userProfile
                 );
 
-            }
-
-            catch (error) {
+            } catch (error) {
 
                 console.error(
                     "Matches error:",
@@ -1476,7 +1603,8 @@ async function startMatches() {
 
                 hideAllStates();
 
-                errorState.style.display = "block";
+                errorState.style.display =
+                    "block";
 
 
                 document.getElementById(
@@ -1491,7 +1619,9 @@ async function startMatches() {
 }
 
 
-
+/* =====================================================
+   INITIALIZE
+===================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -1504,7 +1634,6 @@ document.addEventListener(
         ) {
 
             startMatches();
-
             return;
         }
 
@@ -1530,7 +1659,6 @@ document.addEventListener(
 );
 
 </script>
-
 
 
 <script
