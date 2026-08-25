@@ -175,6 +175,10 @@
             max-width: 500px;
         }
 
+        .loading-state p {
+            margin-bottom: 0;
+        }
+
         @media (max-width: 650px) {
             .college-row {
                 flex-direction: column;
@@ -221,6 +225,7 @@
     <div class="wrap">
 
         <section class="matches-header">
+
             <p class="eyebrow">YOUR MATCHES</p>
 
             <h1>Ranked for you</h1>
@@ -228,6 +233,7 @@
             <p class="matches-subtitle">
                 Colleges selected using your academic profile, budget, and location preferences.
             </p>
+
         </section>
 
         <div id="profile-summary" class="profile-summary"></div>
@@ -237,16 +243,21 @@
         </div>
 
         <div id="login-state" class="empty-state" style="display:none;">
+
             <h2>Log in to see your matches</h2>
 
             <p>
                 Your matches use the information saved in your CapItNJ profile.
             </p>
 
-            <a href="login.html" class="btn">Log in</a>
+            <a href="login.html" class="btn">
+                Log in
+            </a>
+
         </div>
 
         <div id="error-state" class="error-state" style="display:none;">
+
             <h2>Couldn't load your matches</h2>
 
             <p id="error-message">
@@ -256,18 +267,21 @@
             <button class="btn" onclick="restartMatches()">
                 Try again
             </button>
+
         </div>
 
         <div id="empty-state" class="empty-state" style="display:none;">
+
             <h2>No colleges found yet</h2>
 
             <p id="empty-message">
-                Try updating your profile preferences and then come back here.
+                No colleges matched your current location preference.
             </p>
 
             <a href="profile.html" class="btn">
                 Update profile
             </a>
+
         </div>
 
         <div id="matches-section" style="display:none;">
@@ -293,13 +307,18 @@
     </div>
 </footer>
 
+
+<!-- YOUR DATABASE -->
 <script src="data.js"></script>
 
+
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script src="firebase-init.js"></script>
+
 
 <script>
 
@@ -307,7 +326,9 @@ let currentUser = null;
 let userProfile = {};
 let colleges = [];
 let savedCollegeIds = new Set();
+
 let authListenerStarted = false;
+let databaseReady = false;
 
 
 /* =========================================================
@@ -337,184 +358,163 @@ const profileSummary =
 
 
 /* =========================================================
-   LOCATION LABELS
-========================================================= */
-
-const LOCATION_LABELS = {
-
-    "home-state": "Schools in my state",
-
-    "northeast": "Northeast",
-
-    "midwest": "Midwest",
-
-    "south": "South",
-
-    "west": "West",
-
-    "anywhere": "Anywhere"
-};
-
-
-/* =========================================================
    STATE ALIASES
-   ALL 50 STATES + DC
 ========================================================= */
 
 const STATE_ALIASES = {
 
-    "al": "alabama",
-    "alabama": "alabama",
+    al: "Alabama",
+    alabama: "Alabama",
 
-    "ak": "alaska",
-    "alaska": "alaska",
+    ak: "Alaska",
+    alaska: "Alaska",
 
-    "az": "arizona",
-    "arizona": "arizona",
+    az: "Arizona",
+    arizona: "Arizona",
 
-    "ar": "arkansas",
-    "arkansas": "arkansas",
+    ar: "Arkansas",
+    arkansas: "Arkansas",
 
-    "ca": "california",
-    "california": "california",
+    ca: "California",
+    california: "California",
 
-    "co": "colorado",
-    "colorado": "colorado",
+    co: "Colorado",
+    colorado: "Colorado",
 
-    "ct": "connecticut",
-    "connecticut": "connecticut",
+    ct: "Connecticut",
+    connecticut: "Connecticut",
 
-    "de": "delaware",
-    "delaware": "delaware",
+    de: "Delaware",
+    delaware: "Delaware",
 
-    "fl": "florida",
-    "florida": "florida",
+    fl: "Florida",
+    florida: "Florida",
 
-    "ga": "georgia",
-    "georgia": "georgia",
+    ga: "Georgia",
+    georgia: "Georgia",
 
-    "hi": "hawaii",
-    "hawaii": "hawaii",
+    hi: "Hawaii",
+    hawaii: "Hawaii",
 
-    "id": "idaho",
-    "idaho": "idaho",
+    id: "Idaho",
+    idaho: "Idaho",
 
-    "il": "illinois",
-    "illinois": "illinois",
+    il: "Illinois",
+    illinois: "Illinois",
 
-    "in": "indiana",
-    "indiana": "indiana",
+    in: "Indiana",
+    indiana: "Indiana",
 
-    "ia": "iowa",
-    "iowa": "iowa",
+    ia: "Iowa",
+    iowa: "Iowa",
 
-    "ks": "kansas",
-    "kansas": "kansas",
+    ks: "Kansas",
+    kansas: "Kansas",
 
-    "ky": "kentucky",
-    "kentucky": "kentucky",
+    ky: "Kentucky",
+    kentucky: "Kentucky",
 
-    "la": "louisiana",
-    "louisiana": "louisiana",
+    la: "Louisiana",
+    louisiana: "Louisiana",
 
-    "me": "maine",
-    "maine": "maine",
+    me: "Maine",
+    maine: "Maine",
 
-    "md": "maryland",
-    "maryland": "maryland",
+    md: "Maryland",
+    maryland: "Maryland",
 
-    "ma": "massachusetts",
-    "massachusetts": "massachusetts",
+    ma: "Massachusetts",
+    massachusetts: "Massachusetts",
 
-    "mi": "michigan",
-    "michigan": "michigan",
+    mi: "Michigan",
+    michigan: "Michigan",
 
-    "mn": "minnesota",
-    "minnesota": "minnesota",
+    mn: "Minnesota",
+    minnesota: "Minnesota",
 
-    "ms": "mississippi",
-    "mississippi": "mississippi",
+    ms: "Mississippi",
+    mississippi: "Mississippi",
 
-    "mo": "missouri",
-    "missouri": "missouri",
+    mo: "Missouri",
+    missouri: "Missouri",
 
-    "mt": "montana",
-    "montana": "montana",
+    mt: "Montana",
+    montana: "Montana",
 
-    "ne": "nebraska",
-    "nebraska": "nebraska",
+    ne: "Nebraska",
+    nebraska: "Nebraska",
 
-    "nv": "nevada",
-    "nevada": "nevada",
+    nv: "Nevada",
+    nevada: "Nevada",
 
-    "nh": "new hampshire",
-    "new hampshire": "new hampshire",
+    nh: "New Hampshire",
+    "new hampshire": "New Hampshire",
 
-    "nj": "new jersey",
-    "new jersey": "new jersey",
+    nj: "New Jersey",
+    "new jersey": "New Jersey",
 
-    "nm": "new mexico",
-    "new mexico": "new mexico",
+    nm: "New Mexico",
+    "new mexico": "New Mexico",
 
-    "ny": "new york",
-    "new york": "new york",
+    ny: "New York",
+    "new york": "New York",
 
-    "nc": "north carolina",
-    "north carolina": "north carolina",
+    nc: "North Carolina",
+    "north carolina": "North Carolina",
 
-    "nd": "north dakota",
-    "north dakota": "north dakota",
+    nd: "North Dakota",
+    "north dakota": "North Dakota",
 
-    "oh": "ohio",
-    "ohio": "ohio",
+    oh: "Ohio",
+    ohio: "Ohio",
 
-    "ok": "oklahoma",
-    "oklahoma": "oklahoma",
+    ok: "Oklahoma",
+    oklahoma: "Oklahoma",
 
-    "or": "oregon",
-    "oregon": "oregon",
+    or: "Oregon",
+    oregon: "Oregon",
 
-    "pa": "pennsylvania",
-    "pennsylvania": "pennsylvania",
+    pa: "Pennsylvania",
+    pennsylvania: "Pennsylvania",
 
-    "ri": "rhode island",
-    "rhode island": "rhode island",
+    ri: "Rhode Island",
+    "rhode island": "Rhode Island",
 
-    "sc": "south carolina",
-    "south carolina": "south carolina",
+    sc: "South Carolina",
+    "south carolina": "South Carolina",
 
-    "sd": "south dakota",
-    "south dakota": "south dakota",
+    sd: "South Dakota",
+    "south dakota": "South Dakota",
 
-    "tn": "tennessee",
-    "tennessee": "tennessee",
+    tn: "Tennessee",
+    tennessee: "Tennessee",
 
-    "tx": "texas",
-    "texas": "texas",
+    tx: "Texas",
+    texas: "Texas",
 
-    "ut": "utah",
-    "utah": "utah",
+    ut: "Utah",
+    utah: "Utah",
 
-    "vt": "vermont",
-    "vermont": "vermont",
+    vt: "Vermont",
+    vermont: "Vermont",
 
-    "va": "virginia",
-    "virginia": "virginia",
+    va: "Virginia",
+    virginia: "Virginia",
 
-    "wa": "washington",
-    "washington": "washington",
+    wa: "Washington",
+    washington: "Washington",
 
-    "wv": "west virginia",
-    "west virginia": "west virginia",
+    wv: "West Virginia",
+    "west virginia": "West Virginia",
 
-    "wi": "wisconsin",
-    "wisconsin": "wisconsin",
+    wi: "Wisconsin",
+    wisconsin: "Wisconsin",
 
-    "wy": "wyoming",
-    "wyoming": "wyoming",
+    wy: "Wyoming",
+    wyoming: "Wyoming",
 
-    "dc": "district of columbia",
-    "district of columbia": "district of columbia"
+    dc: "District of Columbia",
+    "district of columbia": "District of Columbia"
 };
 
 
@@ -522,69 +522,69 @@ const STATE_ALIASES = {
    REGIONS
 ========================================================= */
 
-const MATCH_REGIONS = {
+const REGIONS = {
 
-    northeast: [
-        "connecticut",
-        "maine",
-        "massachusetts",
-        "new hampshire",
-        "new jersey",
-        "new york",
-        "pennsylvania",
-        "rhode island",
-        "vermont"
+    Northeast: [
+        "Maine",
+        "New Hampshire",
+        "Vermont",
+        "Massachusetts",
+        "Rhode Island",
+        "Connecticut",
+        "New York",
+        "New Jersey",
+        "Pennsylvania"
     ],
 
-    midwest: [
-        "illinois",
-        "indiana",
-        "iowa",
-        "kansas",
-        "michigan",
-        "minnesota",
-        "missouri",
-        "nebraska",
-        "north dakota",
-        "ohio",
-        "south dakota",
-        "wisconsin"
+    Midwest: [
+        "Ohio",
+        "Michigan",
+        "Indiana",
+        "Illinois",
+        "Wisconsin",
+        "Minnesota",
+        "Iowa",
+        "Missouri",
+        "North Dakota",
+        "South Dakota",
+        "Nebraska",
+        "Kansas"
     ],
 
-    south: [
-        "alabama",
-        "arkansas",
-        "delaware",
-        "district of columbia",
-        "florida",
-        "georgia",
-        "kentucky",
-        "louisiana",
-        "maryland",
-        "mississippi",
-        "north carolina",
-        "oklahoma",
-        "south carolina",
-        "tennessee",
-        "texas",
-        "virginia",
-        "west virginia"
+    South: [
+        "Delaware",
+        "Maryland",
+        "District of Columbia",
+        "Virginia",
+        "West Virginia",
+        "North Carolina",
+        "South Carolina",
+        "Georgia",
+        "Florida",
+        "Kentucky",
+        "Tennessee",
+        "Mississippi",
+        "Alabama",
+        "Oklahoma",
+        "Texas",
+        "Arkansas",
+        "Louisiana"
     ],
 
-    west: [
-        "alaska",
-        "arizona",
-        "california",
-        "colorado",
-        "hawaii",
-        "idaho",
-        "montana",
-        "nevada",
-        "new mexico",
-        "oregon",
-        "utah",
-        "washington",
-        "wyoming"
+    West: [
+        "Montana",
+        "Idaho",
+        "Wyoming",
+        "Colorado",
+        "New Mexico",
+        "Arizona",
+        "Utah",
+        "Nevada",
+        "California",
+        "Oregon",
+        "Washington",
+        "Alaska",
+        "Hawaii"
     ]
 };
 
@@ -602,84 +602,50 @@ function normalizeState(value) {
         return "";
     }
 
-    let text =
+    const text =
         String(value)
             .trim()
             .toLowerCase()
             .replace(/\./g, "")
             .replace(/_/g, " ")
-            .replace(/\s+/g, " ")
-            .trim();
+            .replace(/\s+/g, " ");
 
     if (!text) {
         return "";
     }
 
-
-    /* Direct match */
+    /* Exact state name/code */
 
     if (STATE_ALIASES[text]) {
         return STATE_ALIASES[text];
     }
 
-
-    /*
-       Check comma-separated pieces.
-
-       Examples:
-
-       Anchorage, AK
-       Anchorage, Alaska
-       Juneau, AK, USA
-    */
+    /* Comma-separated addresses */
 
     const pieces =
         text
             .split(",")
-            .map(function(piece) {
-                return piece.trim();
-            })
+            .map(x => x.trim())
             .filter(Boolean);
 
+    for (const piece of pieces) {
 
-    for (
-        let i = pieces.length - 1;
-        i >= 0;
-        i--
-    ) {
-
-        if (
-            STATE_ALIASES[pieces[i]]
-        ) {
-            return STATE_ALIASES[
-                pieces[i]
-            ];
+        if (STATE_ALIASES[piece]) {
+            return STATE_ALIASES[piece];
         }
     }
 
+    /* Full state names embedded in text */
 
-    /*
-       Check full state names anywhere
-       in the location string.
-    */
+    const fullNames =
+        Object.keys(STATE_ALIASES)
+            .filter(x => x.length > 2)
+            .sort((a, b) => b.length - a.length);
 
-    const fullStateNames = Object.keys(
-        STATE_ALIASES
-    )
-    .filter(function(key) {
-        return key.length > 2;
-    })
-    .sort(function(a, b) {
-        return b.length - a.length;
-    });
-
-
-    for (
-        const stateName of fullStateNames
-    ) {
+    for (const name of fullNames) {
 
         const escaped =
-            stateName.replace(
+            name.replace(
                 /[.*+?^${}()|[\]\\]/g,
                 "\\$&"
             );
@@ -694,33 +660,17 @@ function normalizeState(value) {
 
         if (regex.test(text)) {
 
-            return STATE_ALIASES[
-                stateName
-            ];
+            return STATE_ALIASES[name];
         }
     }
 
+    /* Standalone state abbreviations */
 
-    /*
-       Check two-letter state codes only
-       when they appear as standalone tokens.
+    const codes =
+        Object.keys(STATE_ALIASES)
+            .filter(x => x.length === 2);
 
-       This prevents random values like
-       "in" from becoming Indiana.
-    */
-
-    const stateCodes =
-        Object.keys(
-            STATE_ALIASES
-        )
-        .filter(function(key) {
-            return key.length === 2;
-        });
-
-
-    for (
-        const code of stateCodes
-    ) {
+    for (const code of codes) {
 
         const regex =
             new RegExp(
@@ -732,219 +682,9 @@ function normalizeState(value) {
 
         if (regex.test(text)) {
 
-            return STATE_ALIASES[
-                code
-            ];
+            return STATE_ALIASES[code];
         }
     }
-
-
-    return "";
-}
-
-
-/* =========================================================
-   NORMALIZE PREFERENCE
-========================================================= */
-
-function normalizePreference(value) {
-
-    if (!value) {
-        return "anywhere";
-    }
-
-    const v =
-        String(value)
-            .trim()
-            .toLowerCase();
-
-
-    const aliases = {
-
-        "home-state": "home-state",
-        "home state": "home-state",
-        "schools in my state": "home-state",
-        "school in my state": "home-state",
-        "my state": "home-state",
-
-        "nj": "home-state",
-        "new jersey": "home-state",
-
-        "northeast": "northeast",
-        "north east": "northeast",
-
-        "midwest": "midwest",
-        "mid west": "midwest",
-
-        "south": "south",
-
-        "west": "west",
-
-        "anywhere": "anywhere",
-        "any": "anywhere",
-        "all": "anywhere",
-        "no preference": "anywhere"
-    };
-
-
-    return aliases[v] || v;
-}
-
-
-/* =========================================================
-   GET COLLEGE DATA
-========================================================= */
-
-function getCollegeData() {
-
-    const possibleData = [
-
-        window.COLLEGES,
-        window.collegesData,
-        window.colleges,
-        window.COLLEGE_DATA,
-        window.SCHOOLS,
-        window.schools
-    ];
-
-
-    for (
-        const data of possibleData
-    ) {
-
-        if (
-            Array.isArray(data)
-        ) {
-            return data;
-        }
-    }
-
-
-    return [];
-}
-
-
-/* =========================================================
-   FIND STATE IN OBJECT
-========================================================= */
-
-function findStateInObject(
-    object,
-    depth = 0
-) {
-
-    if (
-        !object ||
-        typeof object !== "object" ||
-        depth > 4
-    ) {
-        return "";
-    }
-
-
-    /*
-       First look at keys that clearly describe
-       geographic information.
-    */
-
-    const priorityKeys = [
-
-        "state",
-        "stateCode",
-        "state_code",
-        "stateName",
-        "state_name",
-        "stateAbbreviation",
-        "state_abbreviation",
-        "location",
-        "address",
-        "cityState",
-        "city_state",
-        "fullAddress",
-        "full_address"
-    ];
-
-
-    for (
-        const key of priorityKeys
-    ) {
-
-        if (
-            object[key] !== undefined &&
-            object[key] !== null
-        ) {
-
-            const value =
-                object[key];
-
-
-            if (
-                typeof value === "string" ||
-                typeof value === "number"
-            ) {
-
-                const result =
-                    normalizeState(value);
-
-                if (result) {
-                    return result;
-                }
-            }
-
-
-            if (
-                typeof value === "object"
-            ) {
-
-                const result =
-                    findStateInObject(
-                        value,
-                        depth + 1
-                    );
-
-                if (result) {
-                    return result;
-                }
-            }
-        }
-    }
-
-
-    /*
-       Recursively inspect nested objects.
-       This catches formats like:
-
-       location: {
-           city: "Anchorage",
-           state: "AK"
-       }
-    */
-
-    for (
-        const key of Object.keys(object)
-    ) {
-
-        const value =
-            object[key];
-
-
-        if (
-            value &&
-            typeof value === "object"
-        ) {
-
-            const result =
-                findStateInObject(
-                    value,
-                    depth + 1
-                );
-
-            if (result) {
-                return result;
-            }
-        }
-    }
-
 
     return "";
 }
@@ -963,192 +703,185 @@ function getCollegeState(college) {
         return "";
     }
 
-
-    const state =
-        findStateInObject(
-            college
-        );
-
-
-    if (state) {
-        return state;
-    }
-
-
     /*
-       Last-resort scan of strings.
+       IMPORTANT:
 
-       Only full state names are used here,
-       NOT two-letter codes, because values such
-       as "in", "or", "me", etc. can appear randomly
-       in normal college data.
+       data.js creates each college like:
+
+       {
+           state: state,
+           region: region,
+           country: country
+       }
+
+       So state should normally be right here.
     */
 
-    const fullStateNames =
-        Object.keys(
-            STATE_ALIASES
-        )
-        .filter(function(key) {
-            return key.length > 2;
-        })
-        .sort(function(a, b) {
-            return b.length - a.length;
-        });
+    const directValues = [
 
+        college.state,
 
-    const strings = [];
+        college["state-province"],
 
+        college.stateProvince,
 
-    function collectStrings(
-        object,
-        depth = 0
-    ) {
+        college.state_code,
 
-        if (
-            !object ||
-            typeof object !== "object" ||
-            depth > 4
-        ) {
-            return;
-        }
+        college.stateCode,
 
+        college.stateName,
 
-        for (
-            const value of Object.values(object)
-        ) {
+        college.location,
 
-            if (
-                typeof value === "string"
-            ) {
+        college.address,
 
-                strings.push(value);
+        college.city
+    ];
 
-            } else if (
-                value &&
-                typeof value === "object"
-            ) {
+    for (const value of directValues) {
 
-                collectStrings(
-                    value,
-                    depth + 1
-                );
-            }
+        const state =
+            normalizeState(value);
+
+        if (state) {
+            return state;
         }
     }
 
+    /* Region fallback */
 
-    collectStrings(
-        college
-    );
-
-
-    for (
-        const text of strings
+    if (
+        college.region &&
+        REGIONS[college.region]
     ) {
 
-        const lower =
-            text.toLowerCase();
-
-
-        for (
-            const stateName of fullStateNames
-        ) {
-
-            const escaped =
-                stateName.replace(
-                    /[.*+?^${}()|[\]\\]/g,
-                    "\\$&"
-                );
-
-
-            const regex =
-                new RegExp(
-                    "(^|[^a-z])" +
-                    escaped +
-                    "([^a-z]|$)",
-                    "i"
-                );
-
-
-            if (
-                regex.test(lower)
-            ) {
-
-                return STATE_ALIASES[
-                    stateName
-                ];
-            }
-        }
+        /*
+           We don't know the exact state from region,
+           so don't guess here.
+        */
     }
-
 
     return "";
 }
 
 
 /* =========================================================
-   LOCATION MATCH
+   NORMALIZE LOCATION PREFERENCE
 ========================================================= */
 
-function collegeMatchesLocation(
-    college,
-    preference,
-    userState
-) {
+function normalizeLocationPreference(value) {
 
-    const wanted =
-        normalizePreference(
-            preference
-        );
+    if (!value) {
+        return "anywhere";
+    }
 
-
-    const collegeState =
-        getCollegeState(
-            college
-        );
-
-
-    const normalizedUserState =
-        normalizeState(
-            userState
-        );
-
+    const text =
+        String(value)
+            .trim()
+            .toLowerCase();
 
     if (
-        wanted === "anywhere"
+        text === "home-state" ||
+        text === "home state" ||
+        text === "my state" ||
+        text === "schools in my state"
+    ) {
+        return "home-state";
+    }
+
+    if (
+        text === "northeast" ||
+        text === "north east"
+    ) {
+        return "Northeast";
+    }
+
+    if (
+        text === "midwest" ||
+        text === "mid west"
+    ) {
+        return "Midwest";
+    }
+
+    if (text === "south") {
+        return "South";
+    }
+
+    if (text === "west") {
+        return "West";
+    }
+
+    if (
+        text === "anywhere" ||
+        text === "any" ||
+        text === "all" ||
+        text === "no preference"
+    ) {
+        return "anywhere";
+    }
+
+    return value;
+}
+
+
+/* =========================================================
+   LOCATION MATCHING
+========================================================= */
+
+function matchesLocation(
+    college,
+    profile
+) {
+
+    const preference =
+        normalizeLocationPreference(
+            profile.preferredLocation ||
+            profile.location ||
+            "anywhere"
+        );
+
+    const collegeState =
+        getCollegeState(college);
+
+
+    /* ANYWHERE */
+
+    if (
+        preference === "anywhere"
     ) {
         return true;
     }
 
 
-    if (!collegeState) {
-        return false;
-    }
-
+    /* HOME STATE */
 
     if (
-        wanted === "home-state"
+        preference === "home-state"
     ) {
 
-        if (
-            !normalizedUserState
-        ) {
+        const userState =
+            normalizeState(
+                profile.state
+            );
+
+        if (!userState) {
             return false;
         }
 
-
         return (
             collegeState ===
-            normalizedUserState
+            userState
         );
     }
 
 
+    /* REGION */
+
     if (
-        MATCH_REGIONS[wanted]
+        REGIONS[preference]
     ) {
 
-        return MATCH_REGIONS[wanted]
+        return REGIONS[preference]
             .includes(
                 collegeState
             );
@@ -1160,7 +893,7 @@ function collegeMatchesLocation(
 
 
 /* =========================================================
-   NUMBERS
+   NUMBER HELPERS
 ========================================================= */
 
 function parseNumber(value) {
@@ -1173,18 +906,13 @@ function parseNumber(value) {
         return null;
     }
 
-
-    const cleaned =
-        String(value)
-            .replace(/\$/g, "")
-            .replace(/,/g, "")
-            .replace(/%/g, "")
-            .trim();
-
-
     const number =
-        Number(cleaned);
-
+        Number(
+            String(value)
+                .replace(/[$,%]/g, "")
+                .replace(/,/g, "")
+                .trim()
+        );
 
     return Number.isFinite(number)
         ? number
@@ -1198,195 +926,30 @@ function parseNumber(value) {
 
 function getCollegeCost(college) {
 
-    const values = [
+    const value =
+        parseNumber(
+            college.netPrice ??
+            college.net_price ??
+            college.cost ??
+            college.tuition
+        );
 
-        college.netPrice,
-        college.net_price,
-        college.cost,
-        college.tuition,
-        college.outOfStateTuition,
-        college.out_of_state_tuition,
-        college.totalCost,
-        college.total_cost,
-        college.price
-    ];
-
-
-    for (
-        const value of values
-    ) {
-
-        const number =
-            parseNumber(value);
-
-
-        if (
-            number !== null &&
-            number > 0
-        ) {
-
-            return number;
-        }
-    }
-
-
-    return null;
+    return value;
 }
 
 
 /* =========================================================
-   ACCEPTANCE
+   GPA
 ========================================================= */
 
-function getAcceptanceRate(
-    college
-) {
+function getCollegeGPA(college) {
 
-    const values = [
-
-        college.rate,
-        college.acceptanceRate,
-        college.acceptance_rate,
-        college.acceptance,
-        college.admissionRate
-    ];
-
-
-    for (
-        const value of values
-    ) {
-
-        const number =
-            parseNumber(value);
-
-
-        if (
-            number !== null
-        ) {
-
-            if (
-                number > 0 &&
-                number <= 1
-            ) {
-
-                return number * 100;
-            }
-
-
-            return number;
-        }
-    }
-
-
-    return null;
-}
-
-
-/* =========================================================
-   GPA / SAT / ACT
-========================================================= */
-
-function getCollegeGPA(
-    college
-) {
-
-    const values = [
-
-        college.averageGPA,
-        college.avgGPA,
-        college.avg_gpa,
+    return parseNumber(
+        college.estimatedMinGPA ??
+        college.averageGPA ??
+        college.avgGPA ??
         college.gpa
-    ];
-
-
-    for (
-        const value of values
-    ) {
-
-        const number =
-            parseNumber(value);
-
-
-        if (
-            number !== null
-        ) {
-
-            return number;
-        }
-    }
-
-
-    return null;
-}
-
-
-function getCollegeSAT(
-    college
-) {
-
-    const values = [
-
-        college.averageSAT,
-        college.avgSAT,
-        college.avg_sat,
-        college.sat,
-        college.satAverage
-    ];
-
-
-    for (
-        const value of values
-    ) {
-
-        const number =
-            parseNumber(value);
-
-
-        if (
-            number !== null
-        ) {
-
-            return number;
-        }
-    }
-
-
-    return null;
-}
-
-
-function getCollegeACT(
-    college
-) {
-
-    const values = [
-
-        college.averageACT,
-        college.avgACT,
-        college.avg_act,
-        college.act,
-        college.actAverage
-    ];
-
-
-    for (
-        const value of values
-    ) {
-
-        const number =
-            parseNumber(value);
-
-
-        if (
-            number !== null
-        ) {
-
-            return number;
-        }
-    }
-
-
-    return null;
+    );
 }
 
 
@@ -1396,221 +959,125 @@ function getCollegeACT(
 
 function matchesBudget(
     college,
-    budget
+    profile
 ) {
 
-    const userBudget =
+    const budget =
         parseNumber(
-            budget
+            profile.budget ??
+            profile.maxBudget ??
+            profile.maxTuition
         );
 
-
     if (
-        userBudget === null ||
-        userBudget <= 0
+        budget === null ||
+        budget <= 0
     ) {
-
         return true;
     }
 
+    const cost =
+        getCollegeCost(college);
 
-    const collegeCost =
-        getCollegeCost(
-            college
-        );
-
-
-    if (
-        collegeCost === null
-    ) {
-
+    if (cost === null) {
         return true;
     }
 
+    /*
+       data.js currently estimates US net price
+       at $24,000, so allow a small cushion.
+    */
 
-    return (
-        collegeCost <=
-        userBudget * 1.15
-    );
+    return cost <= budget * 1.15;
 }
 
 
 /* =========================================================
-   RANKING
+   GPA RANKING
 ========================================================= */
 
-function calculateRankingScore(
+function calculateScore(
     college,
     profile
 ) {
 
-    let score = 0;
-    let factors = 0;
-
+    let score = 50;
 
     const userGPA =
         parseNumber(
             profile.gpa
         );
 
-    const userSAT =
-        parseNumber(
-            profile.sat
-        );
-
-    const userACT =
-        parseNumber(
-            profile.act
-        );
-
-
-    const collegeGPA =
+    const requiredGPA =
         getCollegeGPA(
             college
         );
 
-    const collegeSAT =
-        getCollegeSAT(
-            college
-        );
-
-    const collegeACT =
-        getCollegeACT(
-            college
-        );
-
-    const acceptanceRate =
-        getAcceptanceRate(
-            college
-        );
-
 
     if (
-        userGPA !== null
+        userGPA !== null &&
+        requiredGPA !== null
     ) {
 
-        factors++;
+        const difference =
+            userGPA -
+            requiredGPA;
 
 
-        if (
-            collegeGPA !== null
-        ) {
+        if (difference >= 0.5) {
+            score = 100;
+        }
 
-            score += Math.max(
-                0,
-                100 -
-                Math.abs(
-                    userGPA -
-                    collegeGPA
-                ) * 100
-            );
+        else if (difference >= 0.25) {
+            score = 90;
+        }
 
-        } else if (
-            acceptanceRate !== null
-        ) {
+        else if (difference >= 0.10) {
+            score = 80;
+        }
 
-            const expectedRate =
-                userGPA >= 3.9 ? 25 :
-                userGPA >= 3.7 ? 35 :
-                userGPA >= 3.5 ? 50 :
-                userGPA >= 3.2 ? 65 :
-                80;
+        else if (difference >= 0) {
+            score = 70;
+        }
 
+        else if (difference >= -0.15) {
+            score = 55;
+        }
 
-            score += Math.max(
-                0,
-                100 -
-                Math.abs(
-                    acceptanceRate -
-                    expectedRate
-                )
-            );
+        else if (difference >= -0.30) {
+            score = 40;
+        }
 
-        } else {
-
-            score += 55;
+        else {
+            score = 25;
         }
     }
 
 
-    if (
-        userSAT !== null &&
-        userSAT > 0
-    ) {
+    /*
+       Prefer schools closer to the user's state.
+    */
 
-        factors++;
+    const userState =
+        normalizeState(
+            profile.state
+        );
 
-
-        if (
-            collegeSAT !== null
-        ) {
-
-            score += Math.max(
-                0,
-                100 -
-                Math.abs(
-                    userSAT -
-                    collegeSAT
-                ) / 6
-            );
-
-        } else {
-
-            score += 55;
-        }
-    }
+    const collegeState =
+        getCollegeState(
+            college
+        );
 
 
     if (
-        userACT !== null &&
-        userACT > 0
+        userState &&
+        collegeState === userState
     ) {
-
-        factors++;
-
-
-        if (
-            collegeACT !== null
-        ) {
-
-            score += Math.max(
-                0,
-                100 -
-                Math.abs(
-                    userACT -
-                    collegeACT
-                ) * 5
-            );
-
-        } else {
-
-            score += 55;
-        }
+        score += 5;
     }
 
 
-    if (
-        factors === 0
-    ) {
-
-        score =
-            acceptanceRate !== null
-                ? Math.max(
-                    0,
-                    100 -
-                    Math.abs(
-                        acceptanceRate -
-                        55
-                    )
-                )
-                : 50;
-
-
-        factors = 1;
-    }
-
-
-    return score / factors;
+    return score;
 }
 
 
@@ -1622,72 +1089,55 @@ function buildMatches(
     profile
 ) {
 
-    const preference =
-        profile.preferredLocation ||
-        "anywhere";
-
-
-    const budget =
-        profile.budget ||
-        "";
-
-
     const locationMatches =
         colleges.filter(
-            function(college) {
-
-                return collegeMatchesLocation(
+            college =>
+                matchesLocation(
                     college,
-                    preference,
-                    profile.state
-                );
-
-            }
+                    profile
+                )
         );
 
+
+    /*
+       Don't let budget filtering make it look
+       like Alaska has no colleges if the user
+       simply has a lower budget.
+
+       Location is the primary filter.
+    */
 
     const budgetMatches =
         locationMatches.filter(
-            function(college) {
-
-                return matchesBudget(
+            college =>
+                matchesBudget(
                     college,
-                    budget
-                );
-
-            }
+                    profile
+                )
         );
 
 
-    const usableMatches =
+    const finalMatches =
         budgetMatches.length > 0
             ? budgetMatches
             : locationMatches;
 
 
-    return usableMatches
-        .map(function(college) {
+    return finalMatches
+        .map(college => ({
+            ...college,
 
-            return {
-
-                ...college,
-
-                _rankingScore:
-                    calculateRankingScore(
-                        college,
-                        profile
-                    )
-            };
-
-        })
-        .sort(function(a, b) {
-
-            return (
-                b._rankingScore -
-                a._rankingScore
-            );
-
-        });
+            _score:
+                calculateScore(
+                    college,
+                    profile
+                )
+        }))
+        .sort(
+            (a, b) =>
+                b._score -
+                a._score
+        );
 }
 
 
@@ -1703,117 +1153,115 @@ function renderProfileSummary(
 
 
     if (
-        profile.gpa !== "" &&
         profile.gpa !== undefined &&
-        profile.gpa !== null
+        profile.gpa !== null &&
+        profile.gpa !== ""
     ) {
 
         pills.push(
-            `<div class="profile-pill">
+            `
+            <div class="profile-pill">
                 <strong>GPA:</strong>
                 ${escapeHtml(profile.gpa)}
-            </div>`
+            </div>
+            `
         );
     }
 
 
     if (
-        profile.sat !== "" &&
         profile.sat !== undefined &&
-        profile.sat !== null
+        profile.sat !== null &&
+        profile.sat !== ""
     ) {
 
         pills.push(
-            `<div class="profile-pill">
+            `
+            <div class="profile-pill">
                 <strong>SAT:</strong>
                 ${escapeHtml(profile.sat)}
-            </div>`
+            </div>
+            `
         );
     }
 
 
     if (
-        profile.act !== "" &&
         profile.act !== undefined &&
-        profile.act !== null
+        profile.act !== null &&
+        profile.act !== ""
     ) {
 
         pills.push(
-            `<div class="profile-pill">
+            `
+            <div class="profile-pill">
                 <strong>ACT:</strong>
                 ${escapeHtml(profile.act)}
-            </div>`
+            </div>
+            `
         );
     }
 
 
+    const budget =
+        parseNumber(
+            profile.budget ??
+            profile.maxBudget ??
+            profile.maxTuition
+        );
+
+
     if (
-        profile.budget !== "" &&
-        profile.budget !== undefined &&
-        profile.budget !== null
+        budget !== null
     ) {
 
-        const budget =
-            parseNumber(
-                profile.budget
-            );
-
-
         pills.push(
-            `<div class="profile-pill">
+            `
+            <div class="profile-pill">
                 <strong>Budget:</strong>
-                ${
-                    budget !== null
-                        ? "$" +
-                          budget.toLocaleString()
-                        : escapeHtml(
-                            profile.budget
-                        )
-                }
-            </div>`
+                $${budget.toLocaleString()}
+            </div>
+            `
         );
     }
+
+
+    const preference =
+        normalizeLocationPreference(
+            profile.preferredLocation ||
+            profile.location ||
+            "anywhere"
+        );
+
+
+    let locationText =
+        preference;
 
 
     if (
-        profile.preferredLocation
+        preference === "home-state"
     ) {
 
-        const location =
-            normalizePreference(
-                profile.preferredLocation
+        const state =
+            normalizeState(
+                profile.state
             );
 
-
-        let locationText =
-            LOCATION_LABELS[
-                location
-            ] ||
-            profile.preferredLocation;
-
-
-        if (
-            location === "home-state" &&
-            profile.state
-        ) {
-
-            locationText =
-                "Schools in " +
-                titleCase(
-                    normalizeState(
-                        profile.state
-                    )
-                );
-        }
-
-
-        pills.push(
-            `<div class="profile-pill">
-                <strong>Location:</strong>
-                ${escapeHtml(locationText)}
-            </div>`
-        );
+        locationText =
+            state
+                ? "Schools in " + state
+                : "Schools in my state";
     }
+
+
+    pills.push(
+        `
+        <div class="profile-pill">
+            <strong>Location:</strong>
+            ${escapeHtml(locationText)}
+        </div>
+        `
+    );
 
 
     profileSummary.innerHTML =
@@ -1822,7 +1270,7 @@ function renderProfileSummary(
 
 
 /* =========================================================
-   RENDER
+   RENDER MATCHES
 ========================================================= */
 
 function renderMatches(
@@ -1831,17 +1279,48 @@ function renderMatches(
 ) {
 
     if (
-        matches.length === 0
+        !matches.length
     ) {
-
-        document.getElementById(
-            "empty-message"
-        ).textContent =
-            "No colleges in our current data matched this location preference yet. Try another region or update your profile.";
 
         showState(
             emptyState
         );
+
+        const preference =
+            normalizeLocationPreference(
+                profile.preferredLocation ||
+                profile.location ||
+                "anywhere"
+            );
+
+
+        const state =
+            normalizeState(
+                profile.state
+            );
+
+
+        let message =
+            "No colleges matched your current location preference.";
+
+
+        if (
+            preference === "home-state" &&
+            state
+        ) {
+
+            message =
+                "No colleges in " +
+                state +
+                " matched your current profile.";
+        }
+
+
+        document.getElementById(
+            "empty-message"
+        ).textContent =
+            message;
+
 
         return;
     }
@@ -1861,44 +1340,57 @@ function renderMatches(
 
 
     const preference =
-        normalizePreference(
+        normalizeLocationPreference(
             profile.preferredLocation ||
+            profile.location ||
             "anywhere"
         );
 
 
     let locationText =
-        LOCATION_LABELS[
-            preference
-        ] ||
-        profile.preferredLocation ||
-        "Anywhere";
+        preference;
 
 
     if (
-        preference === "home-state" &&
-        profile.state
+        preference === "home-state"
+    ) {
+
+        const state =
+            normalizeState(
+                profile.state
+            );
+
+        locationText =
+            state
+                ? "Location: " + state
+                : "Location: My state";
+    }
+
+    else if (
+        preference === "anywhere"
     ) {
 
         locationText =
-            "Schools in " +
-            titleCase(
-                normalizeState(
-                    profile.state
-                )
-            );
+            "Location: Anywhere";
+    }
+
+    else {
+
+        locationText =
+            "Location: " +
+            preference;
     }
 
 
     document.getElementById(
         "location-label"
     ).textContent =
-        `Location: ${locationText}`;
+        locationText;
 
 
     matchesContainer.innerHTML =
         matches.map(
-            function(college) {
+            college => {
 
                 const id =
                     getCollegeId(
@@ -1918,22 +1410,8 @@ function renderMatches(
                     );
 
 
-                const displayState =
-                    state
-                        ? titleCase(state)
-                        : "Location unavailable";
-
-
-                const country =
-                    college.country ||
-                    "";
-
-
-                const details = [];
-
-
-                const rate =
-                    getAcceptanceRate(
+                const gpa =
+                    getCollegeGPA(
                         college
                     );
 
@@ -1944,12 +1422,24 @@ function renderMatches(
                     );
 
 
+                const details = [];
+
+
+                if (state) {
+
+                    details.push(
+                        state
+                    );
+                }
+
+
                 if (
-                    rate !== null
+                    gpa !== null
                 ) {
 
                     details.push(
-                        `Acceptance rate: ${Math.round(rate)}%`
+                        "Recommended GPA: " +
+                        gpa.toFixed(2)
                     );
                 }
 
@@ -1959,13 +1449,15 @@ function renderMatches(
                 ) {
 
                     details.push(
-                        `Estimated cost: $${Math.round(cost).toLocaleString()}`
+                        "Estimated cost: $" +
+                        Math.round(
+                            cost
+                        ).toLocaleString()
                     );
                 }
 
 
                 return `
-
                     <div class="college-row">
 
                         <div class="college-main">
@@ -1973,20 +1465,15 @@ function renderMatches(
                             <div class="college-name">
                                 ${escapeHtml(
                                     college.name ||
-                                    college.school ||
                                     "Unnamed College"
                                 )}
                             </div>
 
                             <div class="college-meta">
                                 ${escapeHtml(
-                                    displayState
+                                    college.country ||
+                                    "United States"
                                 )}
-                                ${
-                                    country
-                                        ? `, ${escapeHtml(country)}`
-                                        : ""
-                                }
                             </div>
 
                             ${
@@ -1994,20 +1481,15 @@ function renderMatches(
                                     ? `
                                         <div class="college-details">
 
-                                            ${details.map(
-                                                function(detail) {
-
-                                                    return `
-                                                        <span>
-                                                            ${escapeHtml(detail)}
-                                                        </span>
-                                                    `;
-
-                                                }
-                                            ).join("")}
+                                            ${details
+                                                .map(
+                                                    detail =>
+                                                        `<span>${escapeHtml(detail)}</span>`
+                                                )
+                                                .join("")}
 
                                         </div>
-                                    `
+                                      `
                                     : ""
                             }
 
@@ -2022,21 +1504,16 @@ function renderMatches(
                                 onclick="saveCollege('${escapeJs(id)}')"
                                 ${saved ? "disabled" : ""}
                             >
-                                ${
-                                    saved
-                                        ? "Saved"
-                                        : "Save"
-                                }
+                                ${saved ? "Saved" : "Save"}
                             </button>
 
                         </div>
 
                     </div>
-
                 `;
-
             }
-        ).join("");
+        )
+        .join("");
 }
 
 
@@ -2061,18 +1538,17 @@ function getCollegeId(
 
     return String(
         college.name ||
-        college.school ||
         "college"
     )
-    .toLowerCase()
-    .replace(
-        /[^a-z0-9]+/g,
-        "-"
-    )
-    .replace(
-        /^-|-$/g,
-        ""
-    );
+        .toLowerCase()
+        .replace(
+            /[^a-z0-9]+/g,
+            "-"
+        )
+        .replace(
+            /^-|-$/g,
+            ""
+        );
 }
 
 
@@ -2091,28 +1567,39 @@ async function loadSavedCollegeIds() {
         !window.capitnjFirebase ||
         !window.capitnjFirebase.db
     ) {
-
         return;
     }
 
 
-    const snapshot =
-        await window.capitnjFirebase.db
-            .collection("users")
-            .doc(currentUser.uid)
-            .collection("savedColleges")
-            .get();
+    try {
+
+        const snapshot =
+            await window.capitnjFirebase.db
+                .collection("users")
+                .doc(currentUser.uid)
+                .collection("savedColleges")
+                .get();
 
 
-    snapshot.forEach(
-        function(doc) {
+        snapshot.forEach(
+            doc => {
 
-            savedCollegeIds.add(
-                String(doc.id)
-            );
+                savedCollegeIds.add(
+                    String(doc.id)
+                );
 
-        }
-    );
+            }
+        );
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "Could not load saved colleges:",
+            error
+        );
+    }
 }
 
 
@@ -2131,14 +1618,9 @@ async function saveCollege(
 
     const college =
         colleges.find(
-            function(c) {
-
-                return (
-                    getCollegeId(c) ===
-                    String(collegeId)
-                );
-
-            }
+            c =>
+                getCollegeId(c) ===
+                String(collegeId)
         );
 
 
@@ -2149,7 +1631,7 @@ async function saveCollege(
 
     const button =
         document.getElementById(
-            `save-${collegeId}`
+            "save-" + collegeId
         );
 
 
@@ -2177,19 +1659,12 @@ async function saveCollege(
             .collection("savedColleges")
             .doc(safeId)
             .set({
-
                 ...college,
 
                 id: safeId,
 
-                name:
-                    college.name ||
-                    college.school ||
-                    "Unnamed College",
-
                 timestamp:
                     new Date().toISOString()
-
             });
 
 
@@ -2213,7 +1688,7 @@ async function saveCollege(
     catch (error) {
 
         console.error(
-            "Error saving college:",
+            "Save error:",
             error
         );
 
@@ -2226,58 +1701,139 @@ async function saveCollege(
             button.textContent =
                 "Save";
         }
-
-
-        alert(
-            "Couldn't save this college. Please try again."
-        );
     }
 }
 
 
 /* =========================================================
-   HTML SAFETY
+   DATABASE READY
 ========================================================= */
 
-function escapeHtml(
-    value
-) {
+/*
+   THIS IS THE IMPORTANT FIX.
 
-    const div =
-        document.createElement(
-            "div"
-        );
+   data.js starts with:
+
+       window.COLLEGES = [];
+
+   and then fetches the real database.
+
+   We wait for its "database-ready" event before
+   attempting to match anything.
+*/
+
+function waitForDatabase() {
+
+    return new Promise(
+        function(resolve, reject) {
+
+            if (
+                Array.isArray(
+                    window.COLLEGES
+                ) &&
+                window.COLLEGES.length > 0
+            ) {
+
+                databaseReady =
+                    true;
+
+                resolve(
+                    window.COLLEGES
+                );
+
+                return;
+            }
 
 
-    div.textContent =
-        value === undefined ||
-        value === null
-            ? ""
-            : String(value);
+            let finished =
+                false;
 
 
-    return div.innerHTML;
-}
+            function done() {
+
+                if (finished) {
+                    return;
+                }
+
+                finished =
+                    true;
 
 
-function escapeJs(
-    value
-) {
+                window.removeEventListener(
+                    "database-ready",
+                    done
+                );
 
-    return String(value)
-        .replace(
-            /\\/g,
-            "\\\\"
-        )
-        .replace(
-            /'/g,
-            "\\'"
-        );
+
+                if (
+                    Array.isArray(
+                        window.COLLEGES
+                    ) &&
+                    window.COLLEGES.length > 0
+                ) {
+
+                    databaseReady =
+                        true;
+
+                    resolve(
+                        window.COLLEGES
+                    );
+
+                }
+
+                else {
+
+                    reject(
+                        new Error(
+                            "The college database loaded, but no colleges were returned."
+                        )
+                    );
+                }
+            }
+
+
+            window.addEventListener(
+                "database-ready",
+                done
+            );
+
+
+            /*
+               Safety timeout so the page doesn't
+               spin forever if the external database
+               is unavailable.
+            */
+
+            setTimeout(
+                function() {
+
+                    if (!finished) {
+
+                        finished =
+                            true;
+
+                        window.removeEventListener(
+                            "database-ready",
+                            done
+                        );
+
+                        reject(
+                            new Error(
+                                "The college database took too long to load. Please refresh and try again."
+                            )
+                        );
+                    }
+
+                },
+                20000
+            );
+        }
+    );
 }
 
 
 /* =========================================================
-   UI STATES
+   UI HELPERS
 ========================================================= */
 
 function hideAllStates() {
@@ -2316,10 +1872,8 @@ function showError(
 
     hideAllStates();
 
-
     errorState.style.display =
         "block";
-
 
     document.getElementById(
         "error-message"
@@ -2330,15 +1884,194 @@ function showError(
 
 function restartMatches() {
 
-    authListenerStarted =
-        false;
-
-    startMatches();
+    location.reload();
 }
 
 
 /* =========================================================
-   START MATCHES
+   ESCAPE HTML
+========================================================= */
+
+function escapeHtml(
+    value
+) {
+
+    const div =
+        document.createElement(
+            "div"
+        );
+
+    div.textContent =
+        value === undefined ||
+        value === null
+            ? ""
+            : String(value);
+
+    return div.innerHTML;
+}
+
+
+function escapeJs(
+    value
+) {
+
+    return String(value)
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /'/g,
+            "\\'"
+        );
+}
+
+
+/* =========================================================
+   LOAD PROFILE + MATCHES
+========================================================= */
+
+async function loadMatchesForUser(
+    user
+) {
+
+    try {
+
+        showState(
+            loadingState
+        );
+
+
+        /*
+           FIRST wait for data.js.
+
+           This is the fix for the [] problem.
+        */
+
+        colleges =
+            await waitForDatabase();
+
+
+        console.log(
+            "CapItNJ matches: database ready:",
+            colleges.length
+        );
+
+
+        /* Load profile */
+
+        const profileDoc =
+            await window.capitnjFirebase.db
+                .collection("users")
+                .doc(user.uid)
+                .get();
+
+
+        userProfile =
+            profileDoc.exists
+                ? profileDoc.data()
+                : {};
+
+
+        /*
+           Support the likely profile field names.
+        */
+
+        userProfile.gpa =
+            userProfile.gpa ??
+            "";
+
+        userProfile.sat =
+            userProfile.sat ??
+            "";
+
+        userProfile.act =
+            userProfile.act ??
+            "";
+
+        userProfile.budget =
+            userProfile.budget ??
+            userProfile.maxBudget ??
+            userProfile.maxTuition ??
+            "";
+
+        userProfile.state =
+            userProfile.state ??
+            userProfile.homeState ??
+            "";
+
+        userProfile.preferredLocation =
+            userProfile.preferredLocation ??
+            userProfile.locationPreference ??
+            userProfile.location ??
+            "anywhere";
+
+
+        console.log(
+            "CapItNJ profile:",
+            userProfile
+        );
+
+
+        console.log(
+            "CapItNJ user state:",
+            userProfile.state
+        );
+
+
+        renderProfileSummary(
+            userProfile
+        );
+
+
+        await loadSavedCollegeIds();
+
+
+        const matches =
+            buildMatches(
+                userProfile
+            );
+
+
+        console.log(
+            "CapItNJ location:",
+            normalizeLocationPreference(
+                userProfile.preferredLocation
+            )
+        );
+
+
+        console.log(
+            "CapItNJ matches:",
+            matches.length
+        );
+
+
+        renderMatches(
+            matches,
+            userProfile
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "CapItNJ matches error:",
+            error
+        );
+
+
+        showError(
+            error.message ||
+            "Something went wrong while loading your matches."
+        );
+    }
+}
+
+
+/* =========================================================
+   FIREBASE AUTH
 ========================================================= */
 
 function startMatches() {
@@ -2346,7 +2079,6 @@ function startMatches() {
     if (
         authListenerStarted
     ) {
-
         return;
     }
 
@@ -2392,116 +2124,9 @@ function startMatches() {
                 }
 
 
-                try {
-
-                    colleges =
-                        getCollegeData();
-
-
-                    if (
-                        !Array.isArray(
-                            colleges
-                        ) ||
-                        colleges.length === 0
-                    ) {
-
-                        throw new Error(
-                            "No colleges were found. Make sure data.js is loading correctly and contains your college list."
-                        );
-                    }
-
-
-                    const profileDoc =
-                        await window.capitnjFirebase.db
-                            .collection("users")
-                            .doc(user.uid)
-                            .get();
-
-
-                    userProfile =
-                        profileDoc.exists
-                            ? profileDoc.data()
-                            : {};
-
-
-                    userProfile.name =
-                        userProfile.name ||
-                        "";
-
-
-                    userProfile.email =
-                        userProfile.email ||
-                        user.email ||
-                        "";
-
-
-                    userProfile.state =
-                        userProfile.state ||
-                        "";
-
-
-                    userProfile.gpa =
-                        userProfile.gpa ??
-                        "";
-
-
-                    userProfile.sat =
-                        userProfile.sat ??
-                        "";
-
-
-                    userProfile.act =
-                        userProfile.act ??
-                        "";
-
-
-                    userProfile.budget =
-                        userProfile.budget ??
-                        userProfile.maxBudget ??
-                        userProfile.maxTuition ??
-                        "";
-
-
-                    userProfile.preferredLocation =
-                        userProfile.preferredLocation ||
-                        userProfile.location ||
-                        "anywhere";
-
-
-                    renderProfileSummary(
-                        userProfile
-                    );
-
-
-                    await loadSavedCollegeIds();
-
-
-                    const matches =
-                        buildMatches(
-                            userProfile
-                        );
-
-
-                    renderMatches(
-                        matches,
-                        userProfile
-                    );
-
-                }
-
-                catch (error) {
-
-                    console.error(
-                        "Matches error:",
-                        error
-                    );
-
-
-                    showError(
-                        error.message ||
-                        "Something went wrong while loading your matches."
-                    );
-                }
+                await loadMatchesForUser(
+                    user
+                );
 
             }
         );
@@ -2509,12 +2134,16 @@ function startMatches() {
 
 
 /* =========================================================
-   DOM READY
+   START
 ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     function() {
+
+        /*
+           Firebase may already be ready.
+        */
 
         if (
             window.capitnjFirebase &&
@@ -2528,6 +2157,11 @@ document.addEventListener(
         }
 
 
+        /*
+           Wait briefly if firebase-init.js
+           is still initializing.
+        */
+
         window.addEventListener(
             "firebase-ready",
             function() {
@@ -2540,6 +2174,10 @@ document.addEventListener(
             }
         );
 
+
+        /*
+           Fallback.
+        */
 
         setTimeout(
             function() {
@@ -2559,6 +2197,7 @@ document.addEventListener(
 );
 
 </script>
+
 
 <script
     data-goatcounter="https://capitnj.goatcounter.com/count"
