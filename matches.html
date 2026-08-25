@@ -309,13 +309,31 @@ let colleges = [];
 let savedCollegeIds = new Set();
 let authListenerStarted = false;
 
-const loadingState = document.getElementById("loading-state");
-const loginState = document.getElementById("login-state");
-const errorState = document.getElementById("error-state");
-const emptyState = document.getElementById("empty-state");
-const matchesSection = document.getElementById("matches-section");
-const matchesContainer = document.getElementById("matches-container");
-const profileSummary = document.getElementById("profile-summary");
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const loadingState =
+    document.getElementById("loading-state");
+
+const loginState =
+    document.getElementById("login-state");
+
+const errorState =
+    document.getElementById("error-state");
+
+const emptyState =
+    document.getElementById("empty-state");
+
+const matchesSection =
+    document.getElementById("matches-section");
+
+const matchesContainer =
+    document.getElementById("matches-container");
+
+const profileSummary =
+    document.getElementById("profile-summary");
 
 
 /* =========================================================
@@ -323,17 +341,24 @@ const profileSummary = document.getElementById("profile-summary");
 ========================================================= */
 
 const LOCATION_LABELS = {
+
     "home-state": "Schools in my state",
+
     "northeast": "Northeast",
+
     "midwest": "Midwest",
+
     "south": "South",
+
     "west": "West",
+
     "anywhere": "Anywhere"
 };
 
 
 /* =========================================================
-   ALL US STATES
+   STATE ALIASES
+   ALL 50 STATES + DC
 ========================================================= */
 
 const STATE_ALIASES = {
@@ -565,84 +590,161 @@ const MATCH_REGIONS = {
 
 
 /* =========================================================
-   STATE NORMALIZATION
+   NORMALIZE STATE
 ========================================================= */
 
 function normalizeState(value) {
 
-    if (value === undefined || value === null) {
+    if (
+        value === undefined ||
+        value === null
+    ) {
         return "";
     }
 
-    let state = String(value)
-        .trim()
-        .toLowerCase()
-        .replace(/\./g, "")
-        .replace(/_/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+    let text =
+        String(value)
+            .trim()
+            .toLowerCase()
+            .replace(/\./g, "")
+            .replace(/_/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
 
-    if (!state) {
+    if (!text) {
         return "";
     }
+
 
     /* Direct match */
 
-    if (STATE_ALIASES[state]) {
-        return STATE_ALIASES[state];
+    if (STATE_ALIASES[text]) {
+        return STATE_ALIASES[text];
     }
 
-    /*
-       Handles things like:
-
-       "Anchorage, AK"
-       "Fairbanks, Alaska"
-       "Juneau, AK, USA"
-       "New York, NY"
-       "Boston, Massachusetts"
-    */
-
-    const parts = state
-        .split(",")
-        .map(part => part.trim())
-        .filter(Boolean);
-
-    for (let i = parts.length - 1; i >= 0; i--) {
-
-        const part = parts[i];
-
-        if (STATE_ALIASES[part]) {
-            return STATE_ALIASES[part];
-        }
-    }
 
     /*
-       Handles strings where the state isn't separated
-       perfectly by commas.
+       Check comma-separated pieces.
+
+       Examples:
+
+       Anchorage, AK
+       Anchorage, Alaska
+       Juneau, AK, USA
     */
 
-    const entries =
-        Object.entries(STATE_ALIASES)
-            .sort((a, b) => b[0].length - a[0].length);
+    const pieces =
+        text
+            .split(",")
+            .map(function(piece) {
+                return piece.trim();
+            })
+            .filter(Boolean);
 
-    for (const [alias, fullName] of entries) {
+
+    for (
+        let i = pieces.length - 1;
+        i >= 0;
+        i--
+    ) {
 
         if (
-            state === alias ||
-            state.includes(" " + alias + " ") ||
-            state.endsWith(" " + alias) ||
-            state.startsWith(alias + " ")
+            STATE_ALIASES[pieces[i]]
         ) {
-            return fullName;
+            return STATE_ALIASES[
+                pieces[i]
+            ];
         }
     }
+
+
+    /*
+       Check full state names anywhere
+       in the location string.
+    */
+
+    const fullStateNames = Object.keys(
+        STATE_ALIASES
+    )
+    .filter(function(key) {
+        return key.length > 2;
+    })
+    .sort(function(a, b) {
+        return b.length - a.length;
+    });
+
+
+    for (
+        const stateName of fullStateNames
+    ) {
+
+        const escaped =
+            stateName.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                "\\$&"
+            );
+
+        const regex =
+            new RegExp(
+                "(^|[^a-z])" +
+                escaped +
+                "([^a-z]|$)",
+                "i"
+            );
+
+        if (regex.test(text)) {
+
+            return STATE_ALIASES[
+                stateName
+            ];
+        }
+    }
+
+
+    /*
+       Check two-letter state codes only
+       when they appear as standalone tokens.
+
+       This prevents random values like
+       "in" from becoming Indiana.
+    */
+
+    const stateCodes =
+        Object.keys(
+            STATE_ALIASES
+        )
+        .filter(function(key) {
+            return key.length === 2;
+        });
+
+
+    for (
+        const code of stateCodes
+    ) {
+
+        const regex =
+            new RegExp(
+                "(^|[^a-z])" +
+                code +
+                "([^a-z]|$)",
+                "i"
+            );
+
+        if (regex.test(text)) {
+
+            return STATE_ALIASES[
+                code
+            ];
+        }
+    }
+
 
     return "";
 }
 
 
 /* =========================================================
-   PREFERENCE NORMALIZATION
+   NORMALIZE PREFERENCE
 ========================================================= */
 
 function normalizePreference(value) {
@@ -651,9 +753,11 @@ function normalizePreference(value) {
         return "anywhere";
     }
 
-    const v = String(value)
-        .trim()
-        .toLowerCase();
+    const v =
+        String(value)
+            .trim()
+            .toLowerCase();
+
 
     const aliases = {
 
@@ -682,6 +786,7 @@ function normalizePreference(value) {
         "no preference": "anywhere"
     };
 
+
     return aliases[v] || v;
 }
 
@@ -693,6 +798,7 @@ function normalizePreference(value) {
 function getCollegeData() {
 
     const possibleData = [
+
         window.COLLEGES,
         window.collegesData,
         window.colleges,
@@ -701,14 +807,146 @@ function getCollegeData() {
         window.schools
     ];
 
-    for (const data of possibleData) {
 
-        if (Array.isArray(data)) {
+    for (
+        const data of possibleData
+    ) {
+
+        if (
+            Array.isArray(data)
+        ) {
             return data;
         }
     }
 
+
     return [];
+}
+
+
+/* =========================================================
+   FIND STATE IN OBJECT
+========================================================= */
+
+function findStateInObject(
+    object,
+    depth = 0
+) {
+
+    if (
+        !object ||
+        typeof object !== "object" ||
+        depth > 4
+    ) {
+        return "";
+    }
+
+
+    /*
+       First look at keys that clearly describe
+       geographic information.
+    */
+
+    const priorityKeys = [
+
+        "state",
+        "stateCode",
+        "state_code",
+        "stateName",
+        "state_name",
+        "stateAbbreviation",
+        "state_abbreviation",
+        "location",
+        "address",
+        "cityState",
+        "city_state",
+        "fullAddress",
+        "full_address"
+    ];
+
+
+    for (
+        const key of priorityKeys
+    ) {
+
+        if (
+            object[key] !== undefined &&
+            object[key] !== null
+        ) {
+
+            const value =
+                object[key];
+
+
+            if (
+                typeof value === "string" ||
+                typeof value === "number"
+            ) {
+
+                const result =
+                    normalizeState(value);
+
+                if (result) {
+                    return result;
+                }
+            }
+
+
+            if (
+                typeof value === "object"
+            ) {
+
+                const result =
+                    findStateInObject(
+                        value,
+                        depth + 1
+                    );
+
+                if (result) {
+                    return result;
+                }
+            }
+        }
+    }
+
+
+    /*
+       Recursively inspect nested objects.
+       This catches formats like:
+
+       location: {
+           city: "Anchorage",
+           state: "AK"
+       }
+    */
+
+    for (
+        const key of Object.keys(object)
+    ) {
+
+        const value =
+            object[key];
+
+
+        if (
+            value &&
+            typeof value === "object"
+        ) {
+
+            const result =
+                findStateInObject(
+                    value,
+                    depth + 1
+                );
+
+            if (result) {
+                return result;
+            }
+        }
+    }
+
+
+    return "";
 }
 
 
@@ -718,57 +956,138 @@ function getCollegeData() {
 
 function getCollegeState(college) {
 
-    if (!college || typeof college !== "object") {
+    if (
+        !college ||
+        typeof college !== "object"
+    ) {
         return "";
     }
 
+
+    const state =
+        findStateInObject(
+            college
+        );
+
+
+    if (state) {
+        return state;
+    }
+
+
     /*
-       Check basically every common field a dataset
-       might use for location.
+       Last-resort scan of strings.
+
+       Only full state names are used here,
+       NOT two-letter codes, because values such
+       as "in", "or", "me", etc. can appear randomly
+       in normal college data.
     */
 
-    const possibleValues = [
+    const fullStateNames =
+        Object.keys(
+            STATE_ALIASES
+        )
+        .filter(function(key) {
+            return key.length > 2;
+        })
+        .sort(function(a, b) {
+            return b.length - a.length;
+        });
 
-        college.state,
-        college.stateCode,
-        college.state_code,
-        college.stateName,
-        college.state_name,
 
-        college.location,
-        college.address,
-        college.cityState,
-        college.city_state,
+    const strings = [];
 
-        college.city,
-        college.fullAddress,
-        college.full_address
-    ];
 
-    for (const value of possibleValues) {
+    function collectStrings(
+        object,
+        depth = 0
+    ) {
 
         if (
-            value === undefined ||
-            value === null ||
-            value === ""
+            !object ||
+            typeof object !== "object" ||
+            depth > 4
         ) {
-            continue;
+            return;
         }
 
-        const result =
-            normalizeState(value);
 
-        if (result) {
-            return result;
+        for (
+            const value of Object.values(object)
+        ) {
+
+            if (
+                typeof value === "string"
+            ) {
+
+                strings.push(value);
+
+            } else if (
+                value &&
+                typeof value === "object"
+            ) {
+
+                collectStrings(
+                    value,
+                    depth + 1
+                );
+            }
         }
     }
+
+
+    collectStrings(
+        college
+    );
+
+
+    for (
+        const text of strings
+    ) {
+
+        const lower =
+            text.toLowerCase();
+
+
+        for (
+            const stateName of fullStateNames
+        ) {
+
+            const escaped =
+                stateName.replace(
+                    /[.*+?^${}()|[\]\\]/g,
+                    "\\$&"
+                );
+
+
+            const regex =
+                new RegExp(
+                    "(^|[^a-z])" +
+                    escaped +
+                    "([^a-z]|$)",
+                    "i"
+                );
+
+
+            if (
+                regex.test(lower)
+            ) {
+
+                return STATE_ALIASES[
+                    stateName
+                ];
+            }
+        }
+    }
+
 
     return "";
 }
 
 
 /* =========================================================
-   LOCATION MATCHING
+   LOCATION MATCH
 ========================================================= */
 
 function collegeMatchesLocation(
@@ -778,37 +1097,45 @@ function collegeMatchesLocation(
 ) {
 
     const wanted =
-        normalizePreference(preference);
+        normalizePreference(
+            preference
+        );
+
 
     const collegeState =
-        getCollegeState(college);
+        getCollegeState(
+            college
+        );
+
 
     const normalizedUserState =
-        normalizeState(userState);
+        normalizeState(
+            userState
+        );
 
 
-    /* Anywhere = every college */
-
-    if (wanted === "anywhere") {
+    if (
+        wanted === "anywhere"
+    ) {
         return true;
     }
 
-
-    /* If we cannot determine the school's state,
-       it cannot match a specific region. */
 
     if (!collegeState) {
         return false;
     }
 
 
-    /* Home state */
+    if (
+        wanted === "home-state"
+    ) {
 
-    if (wanted === "home-state") {
-
-        if (!normalizedUserState) {
+        if (
+            !normalizedUserState
+        ) {
             return false;
         }
+
 
         return (
             collegeState ===
@@ -817,13 +1144,14 @@ function collegeMatchesLocation(
     }
 
 
-    /* Region */
+    if (
+        MATCH_REGIONS[wanted]
+    ) {
 
-    if (MATCH_REGIONS[wanted]) {
-
-        return MATCH_REGIONS[wanted].includes(
-            collegeState
-        );
+        return MATCH_REGIONS[wanted]
+            .includes(
+                collegeState
+            );
     }
 
 
@@ -832,7 +1160,7 @@ function collegeMatchesLocation(
 
 
 /* =========================================================
-   NUMBER HELPERS
+   NUMBERS
 ========================================================= */
 
 function parseNumber(value) {
@@ -845,6 +1173,7 @@ function parseNumber(value) {
         return null;
     }
 
+
     const cleaned =
         String(value)
             .replace(/\$/g, "")
@@ -852,8 +1181,10 @@ function parseNumber(value) {
             .replace(/%/g, "")
             .trim();
 
+
     const number =
         Number(cleaned);
+
 
     return Number.isFinite(number)
         ? number
@@ -862,12 +1193,12 @@ function parseNumber(value) {
 
 
 /* =========================================================
-   COLLEGE COST
+   COST
 ========================================================= */
 
 function getCollegeCost(college) {
 
-    const possibleValues = [
+    const values = [
 
         college.netPrice,
         college.net_price,
@@ -880,30 +1211,38 @@ function getCollegeCost(college) {
         college.price
     ];
 
-    for (const value of possibleValues) {
+
+    for (
+        const value of values
+    ) {
 
         const number =
             parseNumber(value);
+
 
         if (
             number !== null &&
             number > 0
         ) {
+
             return number;
         }
     }
+
 
     return null;
 }
 
 
 /* =========================================================
-   ACCEPTANCE RATE
+   ACCEPTANCE
 ========================================================= */
 
-function getAcceptanceRate(college) {
+function getAcceptanceRate(
+    college
+) {
 
-    const possibleValues = [
+    const values = [
 
         college.rate,
         college.acceptanceRate,
@@ -912,35 +1251,46 @@ function getAcceptanceRate(college) {
         college.admissionRate
     ];
 
-    for (const value of possibleValues) {
+
+    for (
+        const value of values
+    ) {
 
         const number =
             parseNumber(value);
 
-        if (number !== null) {
+
+        if (
+            number !== null
+        ) {
 
             if (
                 number > 0 &&
                 number <= 1
             ) {
+
                 return number * 100;
             }
+
 
             return number;
         }
     }
+
 
     return null;
 }
 
 
 /* =========================================================
-   GPA
+   GPA / SAT / ACT
 ========================================================= */
 
-function getCollegeGPA(college) {
+function getCollegeGPA(
+    college
+) {
 
-    const possibleValues = [
+    const values = [
 
         college.averageGPA,
         college.avgGPA,
@@ -948,27 +1298,33 @@ function getCollegeGPA(college) {
         college.gpa
     ];
 
-    for (const value of possibleValues) {
+
+    for (
+        const value of values
+    ) {
 
         const number =
             parseNumber(value);
 
-        if (number !== null) {
+
+        if (
+            number !== null
+        ) {
+
             return number;
         }
     }
+
 
     return null;
 }
 
 
-/* =========================================================
-   SAT
-========================================================= */
+function getCollegeSAT(
+    college
+) {
 
-function getCollegeSAT(college) {
-
-    const possibleValues = [
+    const values = [
 
         college.averageSAT,
         college.avgSAT,
@@ -977,27 +1333,33 @@ function getCollegeSAT(college) {
         college.satAverage
     ];
 
-    for (const value of possibleValues) {
+
+    for (
+        const value of values
+    ) {
 
         const number =
             parseNumber(value);
 
-        if (number !== null) {
+
+        if (
+            number !== null
+        ) {
+
             return number;
         }
     }
+
 
     return null;
 }
 
 
-/* =========================================================
-   ACT
-========================================================= */
+function getCollegeACT(
+    college
+) {
 
-function getCollegeACT(college) {
-
-    const possibleValues = [
+    const values = [
 
         college.averageACT,
         college.avgACT,
@@ -1006,15 +1368,23 @@ function getCollegeACT(college) {
         college.actAverage
     ];
 
-    for (const value of possibleValues) {
+
+    for (
+        const value of values
+    ) {
 
         const number =
             parseNumber(value);
 
-        if (number !== null) {
+
+        if (
+            number !== null
+        ) {
+
             return number;
         }
     }
+
 
     return null;
 }
@@ -1024,27 +1394,44 @@ function getCollegeACT(college) {
    BUDGET
 ========================================================= */
 
-function matchesBudget(college, budget) {
+function matchesBudget(
+    college,
+    budget
+) {
 
     const userBudget =
-        parseNumber(budget);
+        parseNumber(
+            budget
+        );
+
 
     if (
         userBudget === null ||
         userBudget <= 0
     ) {
+
         return true;
     }
+
 
     const collegeCost =
-        getCollegeCost(college);
+        getCollegeCost(
+            college
+        );
 
-    if (collegeCost === null) {
+
+    if (
+        collegeCost === null
+    ) {
+
         return true;
     }
 
-    return collegeCost <=
-        userBudget * 1.15;
+
+    return (
+        collegeCost <=
+        userBudget * 1.15
+    );
 }
 
 
@@ -1060,33 +1447,54 @@ function calculateRankingScore(
     let score = 0;
     let factors = 0;
 
+
     const userGPA =
-        parseNumber(profile.gpa);
+        parseNumber(
+            profile.gpa
+        );
 
     const userSAT =
-        parseNumber(profile.sat);
+        parseNumber(
+            profile.sat
+        );
 
     const userACT =
-        parseNumber(profile.act);
+        parseNumber(
+            profile.act
+        );
+
 
     const collegeGPA =
-        getCollegeGPA(college);
+        getCollegeGPA(
+            college
+        );
 
     const collegeSAT =
-        getCollegeSAT(college);
+        getCollegeSAT(
+            college
+        );
 
     const collegeACT =
-        getCollegeACT(college);
+        getCollegeACT(
+            college
+        );
 
     const acceptanceRate =
-        getAcceptanceRate(college);
+        getAcceptanceRate(
+            college
+        );
 
 
-    if (userGPA !== null) {
+    if (
+        userGPA !== null
+    ) {
 
         factors++;
 
-        if (collegeGPA !== null) {
+
+        if (
+            collegeGPA !== null
+        ) {
 
             score += Math.max(
                 0,
@@ -1107,6 +1515,7 @@ function calculateRankingScore(
                 userGPA >= 3.5 ? 50 :
                 userGPA >= 3.2 ? 65 :
                 80;
+
 
             score += Math.max(
                 0,
@@ -1131,7 +1540,10 @@ function calculateRankingScore(
 
         factors++;
 
-        if (collegeSAT !== null) {
+
+        if (
+            collegeSAT !== null
+        ) {
 
             score += Math.max(
                 0,
@@ -1156,7 +1568,10 @@ function calculateRankingScore(
 
         factors++;
 
-        if (collegeACT !== null) {
+
+        if (
+            collegeACT !== null
+        ) {
 
             score += Math.max(
                 0,
@@ -1174,7 +1589,9 @@ function calculateRankingScore(
     }
 
 
-    if (factors === 0) {
+    if (
+        factors === 0
+    ) {
 
         score =
             acceptanceRate !== null
@@ -1188,6 +1605,7 @@ function calculateRankingScore(
                 )
                 : 50;
 
+
         factors = 1;
     }
 
@@ -1200,11 +1618,14 @@ function calculateRankingScore(
    BUILD MATCHES
 ========================================================= */
 
-function buildMatches(profile) {
+function buildMatches(
+    profile
+) {
 
     const preference =
         profile.preferredLocation ||
         "anywhere";
+
 
     const budget =
         profile.budget ||
@@ -1212,26 +1633,30 @@ function buildMatches(profile) {
 
 
     const locationMatches =
-        colleges.filter(function(college) {
+        colleges.filter(
+            function(college) {
 
-            return collegeMatchesLocation(
-                college,
-                preference,
-                profile.state
-            );
+                return collegeMatchesLocation(
+                    college,
+                    preference,
+                    profile.state
+                );
 
-        });
+            }
+        );
 
 
     const budgetMatches =
-        locationMatches.filter(function(college) {
+        locationMatches.filter(
+            function(college) {
 
-            return matchesBudget(
-                college,
-                budget
-            );
+                return matchesBudget(
+                    college,
+                    budget
+                );
 
-        });
+            }
+        );
 
 
     const usableMatches =
@@ -1244,7 +1669,9 @@ function buildMatches(profile) {
         .map(function(college) {
 
             return {
+
                 ...college,
+
                 _rankingScore:
                     calculateRankingScore(
                         college,
@@ -1268,7 +1695,9 @@ function buildMatches(profile) {
    PROFILE SUMMARY
 ========================================================= */
 
-function renderProfileSummary(profile) {
+function renderProfileSummary(
+    profile
+) {
 
     const pills = [];
 
@@ -1290,8 +1719,8 @@ function renderProfileSummary(profile) {
 
     if (
         profile.sat !== "" &&
-        profile.sat !== null &&
-        profile.sat !== undefined
+        profile.sat !== undefined &&
+        profile.sat !== null
     ) {
 
         pills.push(
@@ -1305,8 +1734,8 @@ function renderProfileSummary(profile) {
 
     if (
         profile.act !== "" &&
-        profile.act !== null &&
-        profile.act !== undefined
+        profile.act !== undefined &&
+        profile.act !== null
     ) {
 
         pills.push(
@@ -1320,12 +1749,15 @@ function renderProfileSummary(profile) {
 
     if (
         profile.budget !== "" &&
-        profile.budget !== null &&
-        profile.budget !== undefined
+        profile.budget !== undefined &&
+        profile.budget !== null
     ) {
 
         const budget =
-            parseNumber(profile.budget);
+            parseNumber(
+                profile.budget
+            );
+
 
         pills.push(
             `<div class="profile-pill">
@@ -1336,22 +1768,27 @@ function renderProfileSummary(profile) {
                           budget.toLocaleString()
                         : escapeHtml(
                             profile.budget
-                          )
+                        )
                 }
             </div>`
         );
     }
 
 
-    if (profile.preferredLocation) {
+    if (
+        profile.preferredLocation
+    ) {
 
         const location =
             normalizePreference(
                 profile.preferredLocation
             );
 
+
         let locationText =
-            LOCATION_LABELS[location] ||
+            LOCATION_LABELS[
+                location
+            ] ||
             profile.preferredLocation;
 
 
@@ -1385,7 +1822,7 @@ function renderProfileSummary(profile) {
 
 
 /* =========================================================
-   RENDER MATCHES
+   RENDER
 ========================================================= */
 
 function renderMatches(
@@ -1393,20 +1830,25 @@ function renderMatches(
     profile
 ) {
 
-    if (matches.length === 0) {
+    if (
+        matches.length === 0
+    ) {
 
         document.getElementById(
             "empty-message"
         ).textContent =
             "No colleges in our current data matched this location preference yet. Try another region or update your profile.";
 
-        showState(emptyState);
+        showState(
+            emptyState
+        );
 
         return;
     }
 
 
     hideAllStates();
+
 
     matchesSection.style.display =
         "block";
@@ -1426,7 +1868,9 @@ function renderMatches(
 
 
     let locationText =
-        LOCATION_LABELS[preference] ||
+        LOCATION_LABELS[
+            preference
+        ] ||
         profile.preferredLocation ||
         "Anywhere";
 
@@ -1453,135 +1897,167 @@ function renderMatches(
 
 
     matchesContainer.innerHTML =
-        matches.map(function(college) {
+        matches.map(
+            function(college) {
 
-            const id =
-                getCollegeId(college);
-
-            const saved =
-                savedCollegeIds.has(id);
-
-            const state =
-                getCollegeState(college);
-
-            const displayState =
-                state
-                    ? titleCase(state)
-                    : "Location unavailable";
-
-            const country =
-                college.country ||
-                "";
-
-            const details = [];
-
-            const rate =
-                getAcceptanceRate(college);
-
-            const cost =
-                getCollegeCost(college);
+                const id =
+                    getCollegeId(
+                        college
+                    );
 
 
-            if (rate !== null) {
-
-                details.push(
-                    `Acceptance rate: ${Math.round(rate)}%`
-                );
-            }
+                const saved =
+                    savedCollegeIds.has(
+                        id
+                    );
 
 
-            if (cost !== null) {
-
-                details.push(
-                    `Estimated cost: $${Math.round(cost).toLocaleString()}`
-                );
-            }
+                const state =
+                    getCollegeState(
+                        college
+                    );
 
 
-            return `
-                <div class="college-row">
+                const displayState =
+                    state
+                        ? titleCase(state)
+                        : "Location unavailable";
 
-                    <div class="college-main">
 
-                        <div class="college-name">
-                            ${escapeHtml(
-                                college.name ||
-                                college.school ||
-                                "Unnamed College"
-                            )}
-                        </div>
+                const country =
+                    college.country ||
+                    "";
 
-                        <div class="college-meta">
-                            ${escapeHtml(displayState)}
+
+                const details = [];
+
+
+                const rate =
+                    getAcceptanceRate(
+                        college
+                    );
+
+
+                const cost =
+                    getCollegeCost(
+                        college
+                    );
+
+
+                if (
+                    rate !== null
+                ) {
+
+                    details.push(
+                        `Acceptance rate: ${Math.round(rate)}%`
+                    );
+                }
+
+
+                if (
+                    cost !== null
+                ) {
+
+                    details.push(
+                        `Estimated cost: $${Math.round(cost).toLocaleString()}`
+                    );
+                }
+
+
+                return `
+
+                    <div class="college-row">
+
+                        <div class="college-main">
+
+                            <div class="college-name">
+                                ${escapeHtml(
+                                    college.name ||
+                                    college.school ||
+                                    "Unnamed College"
+                                )}
+                            </div>
+
+                            <div class="college-meta">
+                                ${escapeHtml(
+                                    displayState
+                                )}
+                                ${
+                                    country
+                                        ? `, ${escapeHtml(country)}`
+                                        : ""
+                                }
+                            </div>
+
                             ${
-                                country
-                                    ? `, ${escapeHtml(country)}`
+                                details.length
+                                    ? `
+                                        <div class="college-details">
+
+                                            ${details.map(
+                                                function(detail) {
+
+                                                    return `
+                                                        <span>
+                                                            ${escapeHtml(detail)}
+                                                        </span>
+                                                    `;
+
+                                                }
+                                            ).join("")}
+
+                                        </div>
+                                    `
                                     : ""
                             }
+
                         </div>
 
-                        ${
-                            details.length
-                                ? `
-                                    <div class="college-details">
-                                        ${details.map(function(detail) {
-                                            return `<span>${escapeHtml(detail)}</span>`;
-                                        }).join("")}
-                                    </div>
-                                  `
-                                : ""
-                        }
+
+                        <div class="college-actions">
+
+                            <button
+                                class="save-btn ${saved ? "saved" : ""}"
+                                id="save-${escapeHtml(id)}"
+                                onclick="saveCollege('${escapeJs(id)}')"
+                                ${saved ? "disabled" : ""}
+                            >
+                                ${
+                                    saved
+                                        ? "Saved"
+                                        : "Save"
+                                }
+                            </button>
+
+                        </div>
 
                     </div>
 
-                    <div class="college-actions">
+                `;
 
-                        <button
-                            class="save-btn ${saved ? "saved" : ""}"
-                            id="save-${escapeHtml(id)}"
-                            onclick="saveCollege('${escapeJs(id)}')"
-                            ${saved ? "disabled" : ""}
-                        >
-                            ${saved ? "Saved" : "Save"}
-                        </button>
-
-                    </div>
-
-                </div>
-            `;
-
-        }).join("");
+            }
+        ).join("");
 }
 
 
 /* =========================================================
-   HELPERS
+   COLLEGE ID
 ========================================================= */
 
-function titleCase(value) {
-
-    return String(value)
-        .split(" ")
-        .map(function(word) {
-
-            return (
-                word.charAt(0).toUpperCase() +
-                word.slice(1)
-            );
-
-        })
-        .join(" ");
-}
-
-
-function getCollegeId(college) {
+function getCollegeId(
+    college
+) {
 
     if (
         college.id !== undefined &&
         college.id !== null
     ) {
-        return String(college.id);
+
+        return String(
+            college.id
+        );
     }
+
 
     return String(
         college.name ||
@@ -1589,20 +2065,33 @@ function getCollegeId(college) {
         "college"
     )
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+    .replace(
+        /[^a-z0-9]+/g,
+        "-"
+    )
+    .replace(
+        /^-|-$/g,
+        ""
+    );
 }
 
 
+/* =========================================================
+   SAVED COLLEGES
+========================================================= */
+
 async function loadSavedCollegeIds() {
 
-    savedCollegeIds = new Set();
+    savedCollegeIds =
+        new Set();
+
 
     if (
         !currentUser ||
         !window.capitnjFirebase ||
         !window.capitnjFirebase.db
     ) {
+
         return;
     }
 
@@ -1615,17 +2104,21 @@ async function loadSavedCollegeIds() {
             .get();
 
 
-    snapshot.forEach(function(doc) {
+    snapshot.forEach(
+        function(doc) {
 
-        savedCollegeIds.add(
-            String(doc.id)
-        );
+            savedCollegeIds.add(
+                String(doc.id)
+            );
 
-    });
+        }
+    );
 }
 
 
-async function saveCollege(collegeId) {
+async function saveCollege(
+    collegeId
+) {
 
     if (!currentUser) {
 
@@ -1637,12 +2130,16 @@ async function saveCollege(collegeId) {
 
 
     const college =
-        colleges.find(function(c) {
+        colleges.find(
+            function(c) {
 
-            return getCollegeId(c) ===
-                String(collegeId);
+                return (
+                    getCollegeId(c) ===
+                    String(collegeId)
+                );
 
-        });
+            }
+        );
 
 
     if (!college) {
@@ -1660,14 +2157,18 @@ async function saveCollege(collegeId) {
 
         if (button) {
 
-            button.disabled = true;
+            button.disabled =
+                true;
+
             button.textContent =
                 "Saving...";
         }
 
 
         const safeId =
-            getCollegeId(college);
+            getCollegeId(
+                college
+            );
 
 
         await window.capitnjFirebase.db
@@ -1688,6 +2189,7 @@ async function saveCollege(collegeId) {
 
                 timestamp:
                     new Date().toISOString()
+
             });
 
 
@@ -1733,10 +2235,19 @@ async function saveCollege(collegeId) {
 }
 
 
-function escapeHtml(value) {
+/* =========================================================
+   HTML SAFETY
+========================================================= */
+
+function escapeHtml(
+    value
+) {
 
     const div =
-        document.createElement("div");
+        document.createElement(
+            "div"
+        );
+
 
     div.textContent =
         value === undefined ||
@@ -1744,20 +2255,29 @@ function escapeHtml(value) {
             ? ""
             : String(value);
 
+
     return div.innerHTML;
 }
 
 
-function escapeJs(value) {
+function escapeJs(
+    value
+) {
 
     return String(value)
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'");
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /'/g,
+            "\\'"
+        );
 }
 
 
 /* =========================================================
-   STATES
+   UI STATES
 ========================================================= */
 
 function hideAllStates() {
@@ -1779,7 +2299,9 @@ function hideAllStates() {
 }
 
 
-function showState(element) {
+function showState(
+    element
+) {
 
     hideAllStates();
 
@@ -1788,12 +2310,16 @@ function showState(element) {
 }
 
 
-function showError(message) {
+function showError(
+    message
+) {
 
     hideAllStates();
 
+
     errorState.style.display =
         "block";
+
 
     document.getElementById(
         "error-message"
@@ -1812,12 +2338,15 @@ function restartMatches() {
 
 
 /* =========================================================
-   START
+   START MATCHES
 ========================================================= */
 
 function startMatches() {
 
-    if (authListenerStarted) {
+    if (
+        authListenerStarted
+    ) {
+
         return;
     }
 
@@ -1839,132 +2368,143 @@ function startMatches() {
     authListenerStarted =
         true;
 
+
     showState(
         loadingState
     );
 
 
-    window.capitnjFirebase.auth.onAuthStateChanged(
-        async function(user) {
+    window.capitnjFirebase.auth
+        .onAuthStateChanged(
+            async function(user) {
 
-            currentUser =
-                user;
-
-
-            if (!user) {
-
-                showState(
-                    loginState
-                );
-
-                return;
-            }
+                currentUser =
+                    user;
 
 
-            try {
+                if (!user) {
 
-                colleges =
-                    getCollegeData();
-
-
-                if (
-                    !Array.isArray(colleges) ||
-                    colleges.length === 0
-                ) {
-
-                    throw new Error(
-                        "No colleges were found. Make sure data.js is loading correctly and contains your college list."
+                    showState(
+                        loginState
                     );
+
+                    return;
                 }
 
 
-                const profileDoc =
-                    await window.capitnjFirebase.db
-                        .collection("users")
-                        .doc(user.uid)
-                        .get();
+                try {
+
+                    colleges =
+                        getCollegeData();
 
 
-                userProfile =
-                    profileDoc.exists
-                        ? profileDoc.data()
-                        : {};
+                    if (
+                        !Array.isArray(
+                            colleges
+                        ) ||
+                        colleges.length === 0
+                    ) {
+
+                        throw new Error(
+                            "No colleges were found. Make sure data.js is loading correctly and contains your college list."
+                        );
+                    }
 
 
-                userProfile.name =
-                    userProfile.name ||
-                    "";
-
-                userProfile.email =
-                    userProfile.email ||
-                    user.email ||
-                    "";
-
-                userProfile.state =
-                    userProfile.state ||
-                    "";
-
-                userProfile.gpa =
-                    userProfile.gpa ??
-                    "";
-
-                userProfile.sat =
-                    userProfile.sat ??
-                    "";
-
-                userProfile.act =
-                    userProfile.act ??
-                    "";
-
-                userProfile.budget =
-                    userProfile.budget ??
-                    userProfile.maxBudget ??
-                    userProfile.maxTuition ??
-                    "";
-
-                userProfile.preferredLocation =
-                    userProfile.preferredLocation ||
-                    userProfile.location ||
-                    "anywhere";
+                    const profileDoc =
+                        await window.capitnjFirebase.db
+                            .collection("users")
+                            .doc(user.uid)
+                            .get();
 
 
-                renderProfileSummary(
-                    userProfile
-                );
+                    userProfile =
+                        profileDoc.exists
+                            ? profileDoc.data()
+                            : {};
 
 
-                await loadSavedCollegeIds();
+                    userProfile.name =
+                        userProfile.name ||
+                        "";
 
 
-                const matches =
-                    buildMatches(
+                    userProfile.email =
+                        userProfile.email ||
+                        user.email ||
+                        "";
+
+
+                    userProfile.state =
+                        userProfile.state ||
+                        "";
+
+
+                    userProfile.gpa =
+                        userProfile.gpa ??
+                        "";
+
+
+                    userProfile.sat =
+                        userProfile.sat ??
+                        "";
+
+
+                    userProfile.act =
+                        userProfile.act ??
+                        "";
+
+
+                    userProfile.budget =
+                        userProfile.budget ??
+                        userProfile.maxBudget ??
+                        userProfile.maxTuition ??
+                        "";
+
+
+                    userProfile.preferredLocation =
+                        userProfile.preferredLocation ||
+                        userProfile.location ||
+                        "anywhere";
+
+
+                    renderProfileSummary(
                         userProfile
                     );
 
 
-                renderMatches(
-                    matches,
-                    userProfile
-                );
+                    await loadSavedCollegeIds();
+
+
+                    const matches =
+                        buildMatches(
+                            userProfile
+                        );
+
+
+                    renderMatches(
+                        matches,
+                        userProfile
+                    );
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Matches error:",
+                        error
+                    );
+
+
+                    showError(
+                        error.message ||
+                        "Something went wrong while loading your matches."
+                    );
+                }
 
             }
-
-            catch (error) {
-
-                console.error(
-                    "Matches error:",
-                    error
-                );
-
-
-                showError(
-                    error.message ||
-                    "Something went wrong while loading your matches."
-                );
-            }
-
-        }
-    );
+        );
 }
 
 
@@ -1995,17 +2535,25 @@ document.addEventListener(
                 startMatches();
 
             },
-            { once: true }
+            {
+                once: true
+            }
         );
 
 
-        setTimeout(function() {
+        setTimeout(
+            function() {
 
-            if (!authListenerStarted) {
-                startMatches();
-            }
+                if (
+                    !authListenerStarted
+                ) {
 
-        }, 1500);
+                    startMatches();
+                }
+
+            },
+            1500
+        );
 
     }
 );
