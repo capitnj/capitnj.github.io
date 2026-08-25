@@ -268,7 +268,7 @@
                 Something went wrong while loading your matches.
             </p>
 
-            <button class="btn" onclick="startMatches()">
+            <button class="btn" onclick="restartMatches()">
                 Try again
             </button>
         </div>
@@ -335,67 +335,87 @@ const loginState = document.getElementById("login-state");
 const errorState = document.getElementById("error-state");
 const emptyState = document.getElementById("empty-state");
 const matchesSection = document.getElementById("matches-section");
-
 const matchesContainer = document.getElementById("matches-container");
 const profileSummary = document.getElementById("profile-summary");
 
 
-/* =====================================================
-   WAIT FOR DATA.JS
-   IMPORTANT: DO NOT MATCH UNTIL ALL COLLEGES LOAD
-===================================================== */
-
-function waitForCollegeDatabase() {
-
-    return new Promise(function(resolve, reject) {
-
-        if (
-            Array.isArray(window.COLLEGES) &&
-            window.COLLEGES.length > 0
-        ) {
-            resolve(window.COLLEGES);
-            return;
-        }
-
-        const timeout = setTimeout(function() {
-            reject(
-                new Error(
-                    "The college database took too long to load. Please refresh and try again."
-                )
-            );
-        }, 20000);
+const LOCATION_LABELS = {
+    "home-state": "Schools in my state",
+    "northeast": "Northeast",
+    "midwest": "Midwest",
+    "south": "South",
+    "west": "West",
+    "anywhere": "Anywhere"
+};
 
 
-        window.addEventListener(
-            "database-ready",
-            function() {
+const REGIONS = {
 
-                clearTimeout(timeout);
+    northeast: [
+        "connecticut",
+        "maine",
+        "massachusetts",
+        "new hampshire",
+        "new jersey",
+        "new york",
+        "pennsylvania",
+        "rhode island",
+        "vermont"
+    ],
 
-                if (
-                    Array.isArray(window.COLLEGES) &&
-                    window.COLLEGES.length > 0
-                ) {
-                    resolve(window.COLLEGES);
-                } else {
-                    reject(
-                        new Error(
-                            "The college database could not be loaded."
-                        )
-                    );
-                }
+    midwest: [
+        "illinois",
+        "indiana",
+        "iowa",
+        "kansas",
+        "michigan",
+        "minnesota",
+        "missouri",
+        "nebraska",
+        "north dakota",
+        "ohio",
+        "south dakota",
+        "wisconsin"
+    ],
 
-            },
-            { once: true }
-        );
+    south: [
+        "alabama",
+        "arkansas",
+        "delaware",
+        "district of columbia",
+        "florida",
+        "georgia",
+        "kentucky",
+        "louisiana",
+        "maryland",
+        "mississippi",
+        "north carolina",
+        "oklahoma",
+        "south carolina",
+        "tennessee",
+        "texas",
+        "virginia",
+        "west virginia"
+    ],
 
-    });
-}
+    west: [
+        "alaska",
+        "arizona",
+        "california",
+        "colorado",
+        "hawaii",
+        "idaho",
+        "montana",
+        "nevada",
+        "new mexico",
+        "oregon",
+        "utah",
+        "washington",
+        "wyoming"
+    ]
 
+};
 
-/* =====================================================
-   PAGE STATES
-===================================================== */
 
 function hideAllStates() {
     loadingState.style.display = "none";
@@ -412,34 +432,31 @@ function showState(element) {
 }
 
 
-/* =====================================================
-   COLLEGE DATA
-===================================================== */
+function restartMatches() {
+    authListenerStarted = false;
+    startMatches();
+}
+
 
 function getCollegeData() {
 
-    if (
-        Array.isArray(window.COLLEGES) &&
-        window.COLLEGES.length > 0
-    ) {
-        return window.COLLEGES;
+    const possibleData = [
+        window.COLLEGES,
+        window.collegesData,
+        window.colleges,
+        window.COLLEGE_DATA,
+        window.SCHOOLS,
+        window.schools
+    ];
+
+    for (const data of possibleData) {
+        if (Array.isArray(data)) {
+            return data;
+        }
     }
 
     return [];
 }
-
-
-/* =====================================================
-   LOCATION
-===================================================== */
-
-const LOCATION_LABELS = {
-    local: "Near home",
-    regional: "Nearby states",
-    far: "Elsewhere in the US",
-    international: "Out of country",
-    anywhere: "Anywhere"
-};
 
 
 function normalizePreference(value) {
@@ -451,31 +468,27 @@ function normalizePreference(value) {
         .toLowerCase();
 
     const aliases = {
+        "home-state": "home-state",
+        "home state": "home-state",
+        "schools in my state": "home-state",
+        "school in my state": "home-state",
+        "my state": "home-state",
 
-        "local": "local",
-        "near home": "local",
-        "near home (nj)": "local",
-        "new jersey": "local",
-        "nj": "local",
+        "nj": "home-state",
+        "new jersey": "home-state",
 
-        "regional": "regional",
-        "nearby": "regional",
-        "nearby state": "regional",
-        "nearby states": "regional",
+        "northeast": "northeast",
+        "north east": "northeast",
 
-        "far": "far",
-        "elsewhere": "far",
-        "elsewhere in us": "far",
-        "elsewhere in the us": "far",
-        "elsewhere in the united states": "far",
+        "midwest": "midwest",
+        "mid west": "midwest",
 
-        "international": "international",
-        "out of country": "international",
-        "outside the us": "international",
+        "south": "south",
+        "west": "west",
 
-        "all": "anywhere",
-        "any": "anywhere",
         "anywhere": "anywhere",
+        "any": "anywhere",
+        "all": "anywhere",
         "no preference": "anywhere"
     };
 
@@ -487,174 +500,258 @@ function normalizeState(value) {
 
     if (!value) return "";
 
-    const state = String(value)
+    let state = String(value)
         .trim()
         .toLowerCase()
-        .replace(/\./g, "");
+        .replace(/\./g, "")
+        .replace(/_/g, " ")
+        .replace(/\s+/g, " ");
+
 
     const aliases = {
-        nj: "new jersey",
-        ny: "new york",
-        pa: "pennsylvania",
-        ct: "connecticut",
-        de: "delaware",
-        md: "maryland",
-        ma: "massachusetts",
-        ri: "rhode island",
-        nh: "new hampshire",
-        vt: "vermont",
-        me: "maine",
 
-        ca: "california",
-        tx: "texas",
-        fl: "florida",
-        il: "illinois",
-        oh: "ohio",
-        mi: "michigan",
-        va: "virginia",
-        nc: "north carolina",
-        ga: "georgia",
-        wa: "washington",
-        az: "arizona",
-        co: "colorado",
-        in: "indiana",
-        mo: "missouri",
-        tn: "tennessee",
-        wi: "wisconsin",
-        mn: "minnesota",
-        ia: "iowa",
-        ks: "kansas",
-        ne: "nebraska",
-        nd: "north dakota",
-        sd: "south dakota",
-        al: "alabama",
-        ar: "arkansas",
-        ky: "kentucky",
-        la: "louisiana",
-        ms: "mississippi",
-        ok: "oklahoma",
-        sc: "south carolina",
-        wv: "west virginia",
-        dc: "district of columbia",
-        ak: "alaska",
-        hi: "hawaii",
-        id: "idaho",
-        mt: "montana",
-        nv: "nevada",
-        nm: "new mexico",
-        or: "oregon",
-        ut: "utah",
-        wy: "wyoming"
+        "al": "alabama",
+        "alabama": "alabama",
+
+        "ak": "alaska",
+        "alaska": "alaska",
+
+        "az": "arizona",
+        "arizona": "arizona",
+
+        "ar": "arkansas",
+        "arkansas": "arkansas",
+
+        "ca": "california",
+        "california": "california",
+
+        "co": "colorado",
+        "colorado": "colorado",
+
+        "ct": "connecticut",
+        "connecticut": "connecticut",
+
+        "de": "delaware",
+        "delaware": "delaware",
+
+        "fl": "florida",
+        "florida": "florida",
+
+        "ga": "georgia",
+        "georgia": "georgia",
+
+        "hi": "hawaii",
+        "hawaii": "hawaii",
+
+        "id": "idaho",
+        "idaho": "idaho",
+
+        "il": "illinois",
+        "illinois": "illinois",
+
+        "in": "indiana",
+        "indiana": "indiana",
+
+        "ia": "iowa",
+        "iowa": "iowa",
+
+        "ks": "kansas",
+        "kansas": "kansas",
+
+        "ky": "kentucky",
+        "kentucky": "kentucky",
+
+        "la": "louisiana",
+        "louisiana": "louisiana",
+
+        "me": "maine",
+        "maine": "maine",
+
+        "md": "maryland",
+        "maryland": "maryland",
+
+        "ma": "massachusetts",
+        "massachusetts": "massachusetts",
+
+        "mi": "michigan",
+        "michigan": "michigan",
+
+        "mn": "minnesota",
+        "minnesota": "minnesota",
+
+        "ms": "mississippi",
+        "mississippi": "mississippi",
+
+        "mo": "missouri",
+        "missouri": "missouri",
+
+        "mt": "montana",
+        "montana": "montana",
+
+        "ne": "nebraska",
+        "nebraska": "nebraska",
+
+        "nv": "nevada",
+        "nevada": "nevada",
+
+        "nh": "new hampshire",
+        "new hampshire": "new hampshire",
+
+        "nj": "new jersey",
+        "new jersey": "new jersey",
+
+        "nm": "new mexico",
+        "new mexico": "new mexico",
+
+        "ny": "new york",
+        "new york": "new york",
+
+        "nc": "north carolina",
+        "north carolina": "north carolina",
+
+        "nd": "north dakota",
+        "north dakota": "north dakota",
+
+        "oh": "ohio",
+        "ohio": "ohio",
+
+        "ok": "oklahoma",
+        "oklahoma": "oklahoma",
+
+        "or": "oregon",
+        "oregon": "oregon",
+
+        "pa": "pennsylvania",
+        "pennsylvania": "pennsylvania",
+
+        "ri": "rhode island",
+        "rhode island": "rhode island",
+
+        "sc": "south carolina",
+        "south carolina": "south carolina",
+
+        "sd": "south dakota",
+        "south dakota": "south dakota",
+
+        "tn": "tennessee",
+        "tennessee": "tennessee",
+
+        "tx": "texas",
+        "texas": "texas",
+
+        "ut": "utah",
+        "utah": "utah",
+
+        "vt": "vermont",
+        "vermont": "vermont",
+
+        "va": "virginia",
+        "virginia": "virginia",
+
+        "wa": "washington",
+        "washington": "washington",
+
+        "wv": "west virginia",
+        "west virginia": "west virginia",
+
+        "wi": "wisconsin",
+        "wisconsin": "wisconsin",
+
+        "wy": "wyoming",
+        "wyoming": "wyoming",
+
+        "dc": "district of columbia",
+        "district of columbia": "district of columbia"
     };
 
     return aliases[state] || state;
 }
 
 
-function collegeMatchesLocation(college, preference) {
+function titleCase(value) {
 
-    const wanted = normalizePreference(preference);
+    return String(value)
+        .split(" ")
+        .map(function(word) {
+            return word.charAt(0).toUpperCase() + word.slice(1);
+        })
+        .join(" ");
+}
+
+
+function getCollegeState(college) {
+
+    const possibleStates = [
+        college.state,
+        college.location,
+        college.stateName,
+        college.state_name
+    ];
+
+    for (const value of possibleStates) {
+
+        if (value) {
+
+            const normalized =
+                normalizeState(value);
+
+            if (normalized) {
+                return normalized;
+            }
+        }
+    }
+
+    return "";
+}
+
+
+function collegeMatchesLocation(
+    college,
+    preference,
+    userState
+) {
+
+    const wanted =
+        normalizePreference(preference);
+
+    const collegeState =
+        getCollegeState(college);
+
+    const normalizedUserState =
+        normalizeState(userState);
+
 
     if (wanted === "anywhere") {
         return true;
     }
 
 
-    const tier = String(
-        college.distanceTier ||
-        college.distance_tier ||
-        ""
-    )
-    .trim()
-    .toLowerCase();
-
-
-    if (
-        ["local", "regional", "far", "international"]
-            .includes(wanted)
-    ) {
-
-        if (tier) {
-            return tier === wanted;
-        }
-
-
-        const state = normalizeState(
-            college.state ||
-            college.location ||
-            ""
-        );
-
-        const country = String(
-            college.country || ""
-        )
-        .trim()
-        .toLowerCase();
-
-
-        if (wanted === "local") {
-            return state === "new jersey";
-        }
-
-
-        if (wanted === "regional") {
-
-            const nearbyStates = [
-                "new york",
-                "pennsylvania",
-                "connecticut",
-                "delaware",
-                "maryland"
-            ];
-
-            return nearbyStates.includes(state);
-        }
-
-
-        if (wanted === "far") {
-
-            const isUS =
-                country === "us" ||
-                country === "usa" ||
-                country === "united states" ||
-                country === "united states of america";
-
-            return isUS &&
-                state !== "new jersey" &&
-                state !== "new york" &&
-                state !== "pennsylvania" &&
-                state !== "connecticut" &&
-                state !== "delaware" &&
-                state !== "maryland";
-        }
-
-
-        if (wanted === "international") {
-
-            const isUS =
-                country === "us" ||
-                country === "usa" ||
-                country === "united states" ||
-                country === "united states of america";
-
-            return !isUS;
-        }
+    if (!collegeState) {
+        return false;
     }
 
 
-    const collegeState = normalizeState(
-        college.state ||
-        college.location ||
-        ""
-    );
+    if (wanted === "home-state") {
 
-    return collegeState === normalizeState(wanted);
+        if (!normalizedUserState) {
+            return false;
+        }
+
+        return collegeState === normalizedUserState;
+    }
+
+
+    if (REGIONS[wanted]) {
+
+        return REGIONS[wanted].includes(
+            collegeState
+        );
+    }
+
+
+    return false;
 }
 
-
-/* =====================================================
-   NUMBER HELPERS
-===================================================== */
 
 function parseNumber(value) {
 
@@ -741,8 +838,7 @@ function getCollegeGPA(college) {
         college.averageGPA,
         college.avgGPA,
         college.avg_gpa,
-        college.gpa,
-        college.estimatedMinGPA
+        college.gpa
     ];
 
     for (const value of possibleValues) {
@@ -804,10 +900,6 @@ function getCollegeACT(college) {
 }
 
 
-/* =====================================================
-   BUDGET
-===================================================== */
-
 function matchesBudget(college, budget) {
 
     const userBudget = parseNumber(budget);
@@ -819,7 +911,8 @@ function matchesBudget(college, budget) {
         return true;
     }
 
-    const collegeCost = getCollegeCost(college);
+    const collegeCost =
+        getCollegeCost(college);
 
     if (collegeCost === null) {
         return true;
@@ -829,23 +922,31 @@ function matchesBudget(college, budget) {
 }
 
 
-/* =====================================================
-   RANKING
-===================================================== */
-
 function calculateRankingScore(college, profile) {
 
     let score = 0;
     let factors = 0;
 
-    const userGPA = parseNumber(profile.gpa);
-    const userSAT = parseNumber(profile.sat);
-    const userACT = parseNumber(profile.act);
+    const userGPA =
+        parseNumber(profile.gpa);
 
-    const collegeGPA = getCollegeGPA(college);
-    const collegeSAT = getCollegeSAT(college);
-    const collegeACT = getCollegeACT(college);
-    const acceptanceRate = getAcceptanceRate(college);
+    const userSAT =
+        parseNumber(profile.sat);
+
+    const userACT =
+        parseNumber(profile.act);
+
+    const collegeGPA =
+        getCollegeGPA(college);
+
+    const collegeSAT =
+        getCollegeSAT(college);
+
+    const collegeACT =
+        getCollegeACT(college);
+
+    const acceptanceRate =
+        getAcceptanceRate(college);
 
 
     if (userGPA !== null) {
@@ -856,10 +957,14 @@ function calculateRankingScore(college, profile) {
 
             score += Math.max(
                 0,
-                100 - Math.abs(userGPA - collegeGPA) * 100
+                100 - Math.abs(
+                    userGPA - collegeGPA
+                ) * 100
             );
 
-        } else if (acceptanceRate !== null) {
+        }
+
+        else if (acceptanceRate !== null) {
 
             const expectedRate =
                 userGPA >= 3.9 ? 25 :
@@ -875,14 +980,18 @@ function calculateRankingScore(college, profile) {
                 )
             );
 
-        } else {
+        }
 
+        else {
             score += 55;
         }
     }
 
 
-    if (userSAT !== null && userSAT > 0) {
+    if (
+        userSAT !== null &&
+        userSAT > 0
+    ) {
 
         factors++;
 
@@ -895,14 +1004,18 @@ function calculateRankingScore(college, profile) {
                 ) / 6
             );
 
-        } else {
+        }
 
+        else {
             score += 55;
         }
     }
 
 
-    if (userACT !== null && userACT > 0) {
+    if (
+        userACT !== null &&
+        userACT > 0
+    ) {
 
         factors++;
 
@@ -915,8 +1028,9 @@ function calculateRankingScore(college, profile) {
                 ) * 5
             );
 
-        } else {
+        }
 
+        else {
             score += 55;
         }
     }
@@ -942,41 +1056,37 @@ function calculateRankingScore(college, profile) {
 }
 
 
-/* =====================================================
-   BUILD MATCHES
-===================================================== */
-
 function buildMatches(profile) {
 
     const preference =
         profile.preferredLocation ||
-        profile.location ||
-        profile.region ||
         "anywhere";
-
 
     const budget =
         profile.budget ||
-        profile.maxBudget ||
-        profile.maxTuition ||
         "";
 
 
     const locationMatches =
         colleges.filter(function(college) {
+
             return collegeMatchesLocation(
                 college,
-                preference
+                preference,
+                profile.state
             );
+
         });
 
 
     const budgetMatches =
         locationMatches.filter(function(college) {
+
             return matchesBudget(
                 college,
                 budget
             );
+
         });
 
 
@@ -991,7 +1101,6 @@ function buildMatches(profile) {
 
             return {
                 ...college,
-
                 _rankingScore:
                     calculateRankingScore(
                         college,
@@ -1001,14 +1110,15 @@ function buildMatches(profile) {
 
         })
         .sort(function(a, b) {
-            return b._rankingScore - a._rankingScore;
+
+            return (
+                b._rankingScore -
+                a._rankingScore
+            );
+
         });
 }
 
-
-/* =====================================================
-   PROFILE SUMMARY
-===================================================== */
 
 function renderProfileSummary(profile) {
 
@@ -1023,36 +1133,45 @@ function renderProfileSummary(profile) {
 
         pills.push(
             `<div class="profile-pill">
-                <strong>GPA:</strong>
-                ${escapeHtml(profile.gpa)}
+                <strong>GPA:</strong> ${escapeHtml(profile.gpa)}
             </div>`
         );
     }
 
 
-    if (profile.sat) {
+    if (
+        profile.sat !== "" &&
+        profile.sat !== null &&
+        profile.sat !== undefined
+    ) {
 
         pills.push(
             `<div class="profile-pill">
-                <strong>SAT:</strong>
-                ${escapeHtml(profile.sat)}
+                <strong>SAT:</strong> ${escapeHtml(profile.sat)}
             </div>`
         );
     }
 
 
-    if (profile.act) {
+    if (
+        profile.act !== "" &&
+        profile.act !== null &&
+        profile.act !== undefined
+    ) {
 
         pills.push(
             `<div class="profile-pill">
-                <strong>ACT:</strong>
-                ${escapeHtml(profile.act)}
+                <strong>ACT:</strong> ${escapeHtml(profile.act)}
             </div>`
         );
     }
 
 
-    if (profile.budget) {
+    if (
+        profile.budget !== "" &&
+        profile.budget !== null &&
+        profile.budget !== undefined
+    ) {
 
         const budget =
             parseNumber(profile.budget);
@@ -1060,11 +1179,9 @@ function renderProfileSummary(profile) {
         pills.push(
             `<div class="profile-pill">
                 <strong>Budget:</strong>
-                ${
-                    budget !== null
-                        ? "$" + budget.toLocaleString()
-                        : escapeHtml(profile.budget)
-                }
+                ${budget !== null
+                    ? "$" + budget.toLocaleString()
+                    : escapeHtml(profile.budget)}
             </div>`
         );
     }
@@ -1077,13 +1194,28 @@ function renderProfileSummary(profile) {
                 profile.preferredLocation
             );
 
+        let locationText =
+            LOCATION_LABELS[location] ||
+            profile.preferredLocation;
+
+
+        if (
+            location === "home-state" &&
+            profile.state
+        ) {
+
+            locationText =
+                "Schools in " +
+                titleCase(
+                    normalizeState(profile.state)
+                );
+        }
+
+
         pills.push(
             `<div class="profile-pill">
                 <strong>Location:</strong>
-                ${escapeHtml(
-                    LOCATION_LABELS[location] ||
-                    profile.preferredLocation
-                )}
+                ${escapeHtml(locationText)}
             </div>`
         );
     }
@@ -1094,10 +1226,6 @@ function renderProfileSummary(profile) {
 }
 
 
-/* =====================================================
-   RENDER MATCHES
-===================================================== */
-
 function renderMatches(matches, profile) {
 
     if (matches.length === 0) {
@@ -1105,7 +1233,7 @@ function renderMatches(matches, profile) {
         document.getElementById(
             "empty-message"
         ).textContent =
-            "No colleges matched this location preference yet. Try choosing a different location preference.";
+            "No colleges in our current data matched this location preference yet. Try another region or update your profile.";
 
         showState(emptyState);
 
@@ -1115,36 +1243,46 @@ function renderMatches(matches, profile) {
 
     hideAllStates();
 
-    matchesSection.style.display = "block";
+    matchesSection.style.display =
+        "block";
 
 
     document.getElementById(
         "matches-count"
     ).textContent =
-        `${matches.length} college${
-            matches.length === 1
-                ? ""
-                : "s"
-        } selected for your profile`;
+        `${matches.length} college${matches.length === 1 ? "" : "s"} selected for your profile`;
 
 
     const preference =
         normalizePreference(
             profile.preferredLocation ||
-            profile.location ||
-            profile.region ||
             "anywhere"
         );
+
+
+    let locationText =
+        LOCATION_LABELS[preference] ||
+        profile.preferredLocation ||
+        "Anywhere";
+
+
+    if (
+        preference === "home-state" &&
+        profile.state
+    ) {
+
+        locationText =
+            "Schools in " +
+            titleCase(
+                normalizeState(profile.state)
+            );
+    }
 
 
     document.getElementById(
         "location-label"
     ).textContent =
-        `Location: ${
-            LOCATION_LABELS[preference] ||
-            profile.preferredLocation ||
-            "Anywhere"
-        }`;
+        `Location: ${locationText}`;
 
 
     matchesContainer.innerHTML =
@@ -1158,9 +1296,12 @@ function renderMatches(matches, profile) {
 
 
             const state =
-                college.state ||
-                college.location ||
-                "Location unavailable";
+                getCollegeState(college);
+
+            const displayState =
+                state
+                    ? titleCase(state)
+                    : "Location unavailable";
 
 
             const country =
@@ -1181,9 +1322,7 @@ function renderMatches(matches, profile) {
             if (rate !== null) {
 
                 details.push(
-                    `Acceptance rate: ${
-                        Math.round(rate)
-                    }%`
+                    `Acceptance rate: ${Math.round(rate)}%`
                 );
             }
 
@@ -1191,19 +1330,9 @@ function renderMatches(matches, profile) {
             if (cost !== null) {
 
                 details.push(
-                    `Estimated cost: $${
-                        Math.round(cost)
-                            .toLocaleString()
-                    }`
+                    `Estimated cost: $${Math.round(cost).toLocaleString()}`
                 );
             }
-
-
-            const tier =
-                normalizePreference(
-                    college.distanceTier ||
-                    ""
-                );
 
 
             return `
@@ -1221,44 +1350,18 @@ function renderMatches(matches, profile) {
 
 
                         <div class="college-meta">
-                            ${escapeHtml(state)}
-                            ${
-                                country
-                                    ? `, ${
-                                        escapeHtml(country)
-                                    }`
-                                    : ""
-                            }
+                            ${escapeHtml(displayState)}
+                            ${country ? `, ${escapeHtml(country)}` : ""}
                         </div>
-
-
-                        ${
-                            tier &&
-                            LOCATION_LABELS[tier]
-                                ? `
-                                    <div class="college-tag">
-                                        ${escapeHtml(
-                                            LOCATION_LABELS[tier]
-                                        )}
-                                    </div>
-                                  `
-                                : ""
-                        }
 
 
                         ${
                             details.length
                                 ? `
                                     <div class="college-details">
-                                        ${
-                                            details.map(
-                                                function(detail) {
-                                                    return `<span>${
-                                                        escapeHtml(detail)
-                                                    }</span>`;
-                                                }
-                                            ).join("")
-                                        }
+                                        ${details.map(function(detail) {
+                                            return `<span>${escapeHtml(detail)}</span>`;
+                                        }).join("")}
                                     </div>
                                   `
                                 : ""
@@ -1270,24 +1373,12 @@ function renderMatches(matches, profile) {
                     <div class="college-actions">
 
                         <button
-                            class="save-btn ${
-                                saved
-                                    ? "saved"
-                                    : ""
-                            }"
-                            id="save-${id}"
+                            class="save-btn ${saved ? "saved" : ""}"
+                            id="save-${escapeHtml(id)}"
                             onclick="saveCollege('${escapeJs(id)}')"
-                            ${
-                                saved
-                                    ? "disabled"
-                                    : ""
-                            }
+                            ${saved ? "disabled" : ""}
                         >
-                            ${
-                                saved
-                                    ? "Saved"
-                                    : "Save"
-                            }
+                            ${saved ? "Saved" : "Save"}
                         </button>
 
                     </div>
@@ -1298,10 +1389,6 @@ function renderMatches(matches, profile) {
         }).join("");
 }
 
-
-/* =====================================================
-   COLLEGE ID
-===================================================== */
 
 function getCollegeId(college) {
 
@@ -1322,10 +1409,6 @@ function getCollegeId(college) {
     .replace(/^-|-$/g, "");
 }
 
-
-/* =====================================================
-   SAVED COLLEGES
-===================================================== */
 
 async function loadSavedCollegeIds() {
 
@@ -1350,13 +1433,9 @@ async function loadSavedCollegeIds() {
 
     snapshot.forEach(function(doc) {
 
-        const data = doc.data();
-
-        if (data.id) {
-            savedCollegeIds.add(
-                String(data.id)
-            );
-        }
+        savedCollegeIds.add(
+            String(doc.id)
+        );
 
     });
 }
@@ -1365,15 +1444,20 @@ async function loadSavedCollegeIds() {
 async function saveCollege(collegeId) {
 
     if (!currentUser) {
-        window.location.href = "login.html";
+
+        window.location.href =
+            "login.html";
+
         return;
     }
 
 
     const college =
         colleges.find(function(c) {
+
             return getCollegeId(c) ===
                 String(collegeId);
+
         });
 
 
@@ -1407,28 +1491,34 @@ async function saveCollege(collegeId) {
             .doc(safeId)
             .set({
                 ...college,
-
                 id: safeId,
-
                 name:
                     college.name ||
                     college.school ||
                     "Unnamed College",
-
                 timestamp:
                     new Date().toISOString()
             });
 
 
-        savedCollegeIds.add(safeId);
+        savedCollegeIds.add(
+            safeId
+        );
 
 
         if (button) {
-            button.textContent = "Saved";
-            button.classList.add("saved");
+
+            button.textContent =
+                "Saved";
+
+            button.classList.add(
+                "saved"
+            );
         }
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "Error saving college:",
@@ -1437,8 +1527,12 @@ async function saveCollege(collegeId) {
 
 
         if (button) {
-            button.disabled = false;
-            button.textContent = "Save";
+
+            button.disabled =
+                false;
+
+            button.textContent =
+                "Save";
         }
 
 
@@ -1448,10 +1542,6 @@ async function saveCollege(collegeId) {
     }
 }
 
-
-/* =====================================================
-   ESCAPING
-===================================================== */
 
 function escapeHtml(value) {
 
@@ -1476,11 +1566,20 @@ function escapeJs(value) {
 }
 
 
-/* =====================================================
-   START MATCHES
-===================================================== */
+function showError(message) {
 
-async function startMatches() {
+    hideAllStates();
+
+    errorState.style.display =
+        "block";
+
+    document.getElementById(
+        "error-message"
+    ).textContent = message;
+}
+
+
+function startMatches() {
 
     if (authListenerStarted) {
         return;
@@ -1493,12 +1592,9 @@ async function startMatches() {
         !window.capitnjFirebase.db
     ) {
 
-        showState(errorState);
-
-        document.getElementById(
-            "error-message"
-        ).textContent =
-            "Firebase could not load. Please refresh the page.";
+        showError(
+            "Firebase could not load. Please refresh the page."
+        );
 
         return;
     }
@@ -1525,20 +1621,19 @@ async function startMatches() {
 
             try {
 
-                /*
-                 * THIS IS THE IMPORTANT FIX.
-                 * Wait until data.js has completely loaded
-                 * the 10,000+ colleges before matching.
-                 */
-
                 colleges =
-                    await waitForCollegeDatabase();
+                    getCollegeData();
 
 
-                console.log(
-                    "Matches: college database ready:",
-                    colleges.length
-                );
+                if (
+                    !Array.isArray(colleges) ||
+                    colleges.length === 0
+                ) {
+
+                    throw new Error(
+                        "No colleges were found. Make sure data.js is loading correctly and contains your college list."
+                    );
+                }
 
 
                 const profileDoc =
@@ -1554,18 +1649,47 @@ async function startMatches() {
                         : {};
 
 
-                userProfile.preferredLocation =
-                    userProfile.preferredLocation ||
-                    userProfile.location ||
-                    userProfile.region ||
-                    "anywhere";
+                userProfile.name =
+                    userProfile.name || "";
+
+
+                userProfile.email =
+                    userProfile.email ||
+                    user.email ||
+                    "";
+
+
+                userProfile.state =
+                    userProfile.state ||
+                    "";
+
+
+                userProfile.gpa =
+                    userProfile.gpa ??
+                    "";
+
+
+                userProfile.sat =
+                    userProfile.sat ??
+                    "";
+
+
+                userProfile.act =
+                    userProfile.act ??
+                    "";
 
 
                 userProfile.budget =
-                    userProfile.budget ||
-                    userProfile.maxBudget ||
-                    userProfile.maxTuition ||
+                    userProfile.budget ??
+                    userProfile.maxBudget ??
+                    userProfile.maxTuition ??
                     "";
+
+
+                userProfile.preferredLocation =
+                    userProfile.preferredLocation ||
+                    userProfile.location ||
+                    "anywhere";
 
 
                 renderProfileSummary(
@@ -1582,18 +1706,14 @@ async function startMatches() {
                     );
 
 
-                console.log(
-                    "Matches found:",
-                    matches.length
-                );
-
-
                 renderMatches(
                     matches,
                     userProfile
                 );
 
-            } catch (error) {
+            }
+
+            catch (error) {
 
                 console.error(
                     "Matches error:",
@@ -1601,27 +1721,16 @@ async function startMatches() {
                 );
 
 
-                hideAllStates();
-
-                errorState.style.display =
-                    "block";
-
-
-                document.getElementById(
-                    "error-message"
-                ).textContent =
+                showError(
                     error.message ||
-                    "Something went wrong while loading your matches.";
+                    "Something went wrong while loading your matches."
+                );
             }
 
         }
     );
 }
 
-
-/* =====================================================
-   INITIALIZE
-===================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -1634,6 +1743,7 @@ document.addEventListener(
         ) {
 
             startMatches();
+
             return;
         }
 
