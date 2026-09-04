@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CapItNJ - Find colleges you can actually afford</title>
-    <link rel="preconnect" href="https://googleapis.com">
-    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <style>
         .privacy-note {
@@ -36,24 +36,8 @@
         .privacy-note strong { color: var(--ink); }
     </style>
 </head>
-<body>
-    <header class="nav">
-        <div class="nav-inner">
-            <a href="index.html" class="wordmark">CapItNJ</a>
-            <div class="nav-links">
-                <a href="index.html" class="active">Home</a>
-                <a href="improve.html">Improve</a>
-                <a href="explore.html">Explore</a>
-                <a href="gpa-calculator.html">GPA Calculator</a>
-                <a href="matches.html">Matches</a>
-                <a href="mylist.html">My List</a>
-                <a href="profile.html">Profile</a>
-                <a href="askcapi.html">Ask Capi</a>
-                <a href="support.html">Support</a>
-                <a href="login.html" id="nav-login-btn">Log in</a>
-            </div>
-        </div>
-    </header>
+<body class="page-enter">
+    <div id="site-header" data-active="home"></div>
     <main>
         <div class="wrap">
             
@@ -142,6 +126,19 @@
 </section>
 
             
+            
+            <section class="block">
+                <p class="eyebrow">Planning suite</p>
+                <h2>From research to decision day</h2>
+                <p class="lede">CapItNJ now covers the full student workflow — aid estimates, deadlines, recommendations, net cost, and side-by-side comparisons.</p>
+                <div class="suite-grid" style="margin-top:18px;">
+                    <a class="suite-card" href="planning.html"><span class="suite-kicker">Start here</span><h2>Open Planning Suite</h2><p>Jump into every tool in one place.</p></a>
+                    <a class="suite-card" href="district.html"><span class="suite-kicker">Aid</span><h2>Pell Estimator</h2><p>See federal and state aid likelihood in seconds.</p></a>
+                    <a class="suite-card" href="compare.html"><span class="suite-kicker">Decide</span><h2>Compare colleges</h2><p>Line up net costs and academic fit.</p></a>
+                    <a class="suite-card" href="deadlines.html"><span class="suite-kicker">Apps</span><h2>Track deadlines</h2><p>EA, ED, RD, FAFSA, and scholarships.</p></a>
+                </div>
+            </section>
+
             <section class="block tint">
                 <p class="eyebrow">How it helps</p>
                 <h2>One profile. A realistic shortlist.</h2>
@@ -246,5 +243,6 @@
     <script data-goatcounter="https://capitnj.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
+  <script src="site-nav.js"></script>
 </body>
 </html>

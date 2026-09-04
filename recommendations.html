@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recommendation Hub — CapItNJ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-enter">
+  <div id="site-header" data-active="recommendations"></div>
+  <main>
+    <div class="wrap wrap-wide">
+      <section class="suite-hero">
+        <p class="eyebrow">Letters of recommendation</p>
+        <h1>Recommendation request hub</h1>
+        <p class="suite-sub">Track who you asked, what you still owe them, and whether each letter is pending, submitted, or done.</p>
+      </section>
+
+      <section class="tool-panel">
+        <form id="lor-form" class="tool-form">
+          <div class="tool-form-row">
+            <div class="field"><label for="lor-name">Recommender</label><input id="lor-name" required placeholder="Ms. Patel"></div>
+            <div class="field"><label for="lor-role">Role</label>
+              <select id="lor-role">
+                <option>Teacher</option>
+                <option>Counselor</option>
+                <option>Coach / Mentor</option>
+                <option>Employer</option>
+              </select>
+            </div>
+          </div>
+          <div class="tool-form-row">
+            <div class="field"><label for="lor-school">For college / program</label><input id="lor-school" placeholder="All Common App schools"></div>
+            <div class="field"><label for="lor-due">Needed by</label><input id="lor-due" type="date" required></div>
+          </div>
+          <div class="field"><label for="lor-status">Status</label>
+            <select id="lor-status">
+              <option>Not asked yet</option>
+              <option selected>Asked — waiting</option>
+              <option>Packet sent</option>
+              <option>Submitted</option>
+            </select>
+          </div>
+          <div class="field"><label for="lor-notes">Notes / brag sheet reminder</label><input id="lor-notes" placeholder="Send activities list by Friday"></div>
+          <button class="btn" type="submit">Save request</button>
+        </form>
+      </section>
+
+      <div id="lor-list" class="stack-list"></div>
+    </div>
+  </main>
+  <footer class="home-footer"><div class="wrap"><p>© 2026 CapItNJ — universal college planning suite.</p></div></footer>
+  <script src="site-nav.js"></script>
+  <script>
+    (function () {
+      var KEY = "capitnj_recommendations";
+      var form = document.getElementById("lor-form");
+      var list = document.getElementById("lor-list");
+
+      function load() {
+        try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+        catch (e) { return []; }
+      }
+      function save(items) { localStorage.setItem(KEY, JSON.stringify(items)); }
+      function escapeHtml(v) {
+        return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      }
+
+      function render() {
+        var items = load();
+        if (!items.length) {
+          list.innerHTML = '<div class="empty-panel"><h2>No recommendation requests yet</h2><p>Add teachers and counselors so follow-ups stay organized.</p></div>';
+          return;
+        }
+        list.innerHTML = items.map(function (item, index) {
+          return (
+            '<article class="stack-item">' +
+              '<div><span class="pill ok">' + escapeHtml(item.status) + '</span>' +
+              '<h3>' + escapeHtml(item.name) + ' · ' + escapeHtml(item.role) + '</h3>' +
+              '<p>' + escapeHtml(item.school || "General") + ' · due ' + escapeHtml(item.due) +
+              (item.notes ? ' · ' + escapeHtml(item.notes) : '') + '</p></div>' +
+              '<button type="button" class="btn-outline danger-btn" data-index="' + index + '">Delete</button>' +
+            '</article>'
+          );
+        }).join("");
+      }
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var items = load();
+        items.push({
+          name: document.getElementById("lor-name").value.trim(),
+          role: document.getElementById("lor-role").value,
+          school: document.getElementById("lor-school").value.trim(),
+          due: document.getElementById("lor-due").value,
+          status: document.getElementById("lor-status").value,
+          notes: document.getElementById("lor-notes").value.trim()
+        });
+        save(items);
+        form.reset();
+        document.getElementById("lor-status").value = "Asked — waiting";
+        render();
+      });
+
+      list.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-index]");
+        if (!btn) return;
+        var items = load();
+        items.splice(Number(btn.getAttribute("data-index")), 1);
+        save(items);
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

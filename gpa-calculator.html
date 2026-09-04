@@ -6,6 +6,9 @@
 
   <title>GPA Calculator — CapItNJ</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 
   <style>
@@ -47,13 +50,10 @@
     .grade-row select {
       width: 100%;
       padding: 11px 12px;
-
       border: 1px solid var(--line);
       border-radius: 2px;
-
       background: var(--bg);
       color: var(--ink);
-
       outline: none;
     }
 
@@ -66,11 +66,9 @@
     .remove-grade {
       width: 42px;
       height: 42px;
-
       border: 1px solid var(--line);
       background: var(--bg);
       color: var(--ink-soft);
-
       border-radius: 2px;
       font-size: 18px;
     }
@@ -117,6 +115,69 @@
       line-height: 1.5;
     }
 
+    .save-status {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+
+    .saved-panel {
+      margin-top: 22px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .saved-panel h2 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      margin: 0 0 8px;
+    }
+
+    .saved-panel-desc {
+      color: var(--ink-soft);
+      font-size: 13px;
+      margin: 0 0 14px;
+    }
+
+    .saved-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .saved-entry strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .saved-entry span {
+      color: var(--ink-soft);
+      font-size: 12.5px;
+      line-height: 1.45;
+    }
+
+    .clear-entry {
+      flex-shrink: 0;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      color: var(--ink-soft);
+      border-radius: 2px;
+      padding: 8px 10px;
+      font-size: 12px;
+    }
+
+    .clear-entry:hover {
+      color: #B3413A;
+      border-color: #B3413A;
+    }
+
     @media (max-width: 560px) {
       .calculator-shell {
         padding-left: 18px;
@@ -130,29 +191,17 @@
       .calculator-card {
         padding: 20px;
       }
+
+      .saved-entry {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 
-<body>
+<body class="page-enter">
 
-  
-  <nav class="nav">
-    <div class="nav-inner">
-
-      <a href="index.html" class="wordmark">
-        CapItNJ
-      </a>
-
-      <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="explore.html">Explore</a>
-        <a href="askcapi.html">Ask Capi
-        <a href="login.html">Log in</a>
-      </div>
-
-    </div>
-  </nav>
+  <div id="site-header" data-active="gpa"></div>
 
 
   <main>
@@ -160,11 +209,9 @@
 
       <div class="calculator-header">
         <p class="eyebrow">CapItNJ Tool</p>
-
         <h1>GPA Calculator</h1>
-
         <p>
-          Add your classes and grades to estimate your unweighted GPA.
+          Add your classes and grades to estimate your unweighted GPA. Your entries are saved automatically in this browser.
         </p>
       </div>
 
@@ -173,190 +220,340 @@
 
         <div id="gradeRows"></div>
 
-
         <div class="calculator-actions">
-
-          <button class="btn" id="addGrade">
-            + Add class
-          </button>
-
-          <button class="btn btn-outline" id="calculateGPA">
-            Calculate GPA
-          </button>
-
+          <button class="btn" id="addGrade" type="button">+ Add class</button>
+          <button class="btn btn-outline" id="calculateGPA" type="button">Calculate GPA</button>
+          <button class="btn-outline" id="clearAllData" type="button">Clear saved data</button>
         </div>
-
 
         <div class="gpa-result">
-
-          <div class="gpa-label">
-            Estimated unweighted GPA
-          </div>
-
-          <div class="gpa-number" id="gpaResult">
-            —
-          </div>
-
+          <div class="gpa-label">Estimated unweighted GPA</div>
+          <div class="gpa-number" id="gpaResult">—</div>
         </div>
 
+        <p class="save-status" id="saveStatus">No saved calculator data yet.</p>
 
         <p class="calculator-note">
           This is an estimate using a standard 4.0 unweighted scale.
           Your school's GPA calculation may differ.
         </p>
 
+        <div class="saved-panel" id="savedPanel" hidden>
+          <h2>Saved entries</h2>
+          <p class="saved-panel-desc">
+            Classes restored from this browser. Remove one class or clear everything.
+          </p>
+          <div id="savedEntries"></div>
+        </div>
+
       </div>
 
     </div>
   </main>
 
+  <footer class="home-footer">
+    <div class="wrap">
+      <p>© 2024 CapItNJ. Built for the Congressional App Challenge.</p>
+    </div>
+  </footer>
+
 
   <script>
+
+    const STORAGE_KEY = "capitnj_gpa_calculator";
 
     const gradeRows = document.getElementById("gradeRows");
     const addGradeButton = document.getElementById("addGrade");
     const calculateButton = document.getElementById("calculateGPA");
+    const clearAllButton = document.getElementById("clearAllData");
     const gpaResult = document.getElementById("gpaResult");
-
+    const saveStatus = document.getElementById("saveStatus");
+    const savedPanel = document.getElementById("savedPanel");
+    const savedEntries = document.getElementById("savedEntries");
 
     const gradePoints = {
       "A+": 4.0,
       "A": 4.0,
       "A-": 3.7,
-
       "B+": 3.3,
       "B": 3.0,
       "B-": 2.7,
-
       "C+": 2.3,
       "C": 2.0,
       "C-": 1.7,
-
       "D+": 1.3,
       "D": 1.0,
       "D-": 0.7,
-
       "F": 0.0
     };
 
-
-    function addGradeRow() {
-
-      const row = document.createElement("div");
-
-      row.className = "grade-row";
-
-      row.innerHTML = `
-
-        <input
-          type="text"
-          placeholder="Class name"
-          aria-label="Class name"
-        >
-
-        <select aria-label="Grade">
-
-          <option value="">Grade</option>
-
-          <option value="A+">A+</option>
-          <option value="A">A</option>
-          <option value="A-">A-</option>
-
-          <option value="B+">B+</option>
-          <option value="B">B</option>
-          <option value="B-">B-</option>
-
-          <option value="C+">C+</option>
-          <option value="C">C</option>
-          <option value="C-">C-</option>
-
-          <option value="D+">D+</option>
-          <option value="D">D</option>
-          <option value="D-">D-</option>
-
-          <option value="F">F</option>
-
-        </select>
-
-        <button
-          type="button"
-          class="remove-grade"
-          aria-label="Remove class"
-        >
-          ×
-        </button>
-
-      `;
+    const gradeOptions = Object.keys(gradePoints);
 
 
-      const removeButton = row.querySelector(".remove-grade");
+    function buildGradeSelect(selected) {
+      let html = '<option value="">Grade</option>';
 
-      removeButton.addEventListener("click", () => {
-
-        row.remove();
-
-        calculateGPA();
-
+      gradeOptions.forEach(function (grade) {
+        const isSelected = grade === selected ? " selected" : "";
+        html += '<option value="' + grade + '"' + isSelected + '>' + grade + '</option>';
       });
 
-
-      gradeRows.appendChild(row);
-
+      return html;
     }
 
 
-    function calculateGPA() {
+    function readRowsFromDom() {
+      return Array.from(gradeRows.querySelectorAll(".grade-row")).map(function (row) {
+        return {
+          className: row.querySelector("input").value.trim(),
+          grade: row.querySelector("select").value
+        };
+      });
+    }
 
-      const rows = gradeRows.querySelectorAll(".grade-row");
 
+    function computeGpa(rows) {
       let totalPoints = 0;
       let totalClasses = 0;
 
-
-      rows.forEach(row => {
-
-        const grade = row.querySelector("select").value;
-
-        if (!grade) {
+      rows.forEach(function (row) {
+        if (!row.grade || gradePoints[row.grade] === undefined) {
           return;
         }
-
-
-        totalPoints += gradePoints[grade];
-
-        totalClasses++;
-
+        totalPoints += gradePoints[row.grade];
+        totalClasses += 1;
       });
 
-
       if (totalClasses === 0) {
-
-        gpaResult.textContent = "—";
-
-        return;
-
+        return null;
       }
 
-
-      const gpa = totalPoints / totalClasses;
-
-      gpaResult.textContent = gpa.toFixed(2);
-
+      return totalPoints / totalClasses;
     }
 
 
-    addGradeButton.addEventListener("click", addGradeRow);
+    function updateSavedEntriesPanel(rows) {
+      const filled = rows.filter(function (row) {
+        return row.className || row.grade;
+      });
 
-    calculateButton.addEventListener("click", calculateGPA);
+      if (filled.length === 0) {
+        savedPanel.hidden = true;
+        savedEntries.innerHTML = "";
+        return;
+      }
+
+      savedPanel.hidden = false;
+      savedEntries.innerHTML = filled.map(function (row, index) {
+        const label = row.className || ("Class " + (index + 1));
+        const gradeLabel = row.grade || "No grade yet";
+
+        return (
+          '<div class="saved-entry" data-index="' + index + '">' +
+            '<div>' +
+              '<strong>' + escapeHtml(label) + '</strong>' +
+              '<span>Grade: ' + escapeHtml(gradeLabel) + '</span>' +
+            '</div>' +
+            '<button type="button" class="clear-entry" data-clear-index="' + index + '">Delete</button>' +
+          '</div>'
+        );
+      }).join("");
+    }
 
 
-    
-    addGradeRow();
-    addGradeRow();
-    addGradeRow();
-    addGradeRow();
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+
+    function persistCalculator() {
+      const rows = readRowsFromDom();
+      const gpa = computeGpa(rows);
+
+      const payload = {
+        rows: rows,
+        gpa: gpa,
+        updatedAt: new Date().toISOString()
+      };
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+
+      if (gpa === null) {
+        gpaResult.textContent = "—";
+      } else {
+        gpaResult.textContent = gpa.toFixed(2);
+      }
+
+      const filledCount = rows.filter(function (row) {
+        return row.className || row.grade;
+      }).length;
+
+      if (filledCount === 0) {
+        saveStatus.textContent = "No saved calculator data yet.";
+      } else {
+        const stamp = new Date(payload.updatedAt);
+        saveStatus.textContent =
+          "Saved " + filledCount + " class" + (filledCount === 1 ? "" : "es") +
+          " locally · last updated " + stamp.toLocaleString();
+      }
+
+      updateSavedEntriesPanel(rows);
+    }
+
+
+    function addGradeRow(className, grade) {
+      const row = document.createElement("div");
+      row.className = "grade-row";
+
+      row.innerHTML =
+        '<input type="text" placeholder="Class name" aria-label="Class name" value="' +
+        escapeHtml(className || "") +
+        '">' +
+        '<select aria-label="Grade">' +
+        buildGradeSelect(grade || "") +
+        "</select>" +
+        '<button type="button" class="remove-grade" aria-label="Remove class">×</button>';
+
+      const input = row.querySelector("input");
+      const select = row.querySelector("select");
+      const removeButton = row.querySelector(".remove-grade");
+
+      input.addEventListener("input", persistCalculator);
+      select.addEventListener("change", persistCalculator);
+
+      removeButton.addEventListener("click", function () {
+        row.remove();
+
+        if (gradeRows.children.length === 0) {
+          addGradeRow("", "");
+        }
+
+        persistCalculator();
+      });
+
+      gradeRows.appendChild(row);
+    }
+
+
+    function loadSavedCalculator() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+
+      if (!raw) {
+        addGradeRow("", "");
+        addGradeRow("", "");
+        addGradeRow("", "");
+        addGradeRow("", "");
+        persistCalculator();
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        const rows = Array.isArray(parsed.rows) ? parsed.rows : [];
+
+        if (rows.length === 0) {
+          addGradeRow("", "");
+          addGradeRow("", "");
+          addGradeRow("", "");
+          addGradeRow("", "");
+        } else {
+          rows.forEach(function (row) {
+            addGradeRow(row.className || "", row.grade || "");
+          });
+        }
+
+        if (parsed.gpa !== null && parsed.gpa !== undefined && !Number.isNaN(Number(parsed.gpa))) {
+          gpaResult.textContent = Number(parsed.gpa).toFixed(2);
+        }
+
+        persistCalculator();
+      } catch (error) {
+        console.error("Could not restore GPA calculator data:", error);
+        addGradeRow("", "");
+        addGradeRow("", "");
+        addGradeRow("", "");
+        addGradeRow("", "");
+        persistCalculator();
+      }
+    }
+
+
+    function clearAllSavedData() {
+      const confirmed = window.confirm("Clear all saved GPA calculator classes and grades from this browser?");
+
+      if (!confirmed) {
+        return;
+      }
+
+      localStorage.removeItem(STORAGE_KEY);
+      gradeRows.innerHTML = "";
+      addGradeRow("", "");
+      addGradeRow("", "");
+      addGradeRow("", "");
+      addGradeRow("", "");
+      gpaResult.textContent = "—";
+      persistCalculator();
+    }
+
+
+    savedEntries.addEventListener("click", function (event) {
+      const button = event.target.closest("[data-clear-index]");
+
+      if (!button) {
+        return;
+      }
+
+      const index = Number(button.getAttribute("data-clear-index"));
+      const rows = readRowsFromDom().filter(function (row) {
+        return row.className || row.grade;
+      });
+
+      const target = rows[index];
+
+      if (!target) {
+        return;
+      }
+
+      // Remove the matching DOM row (first exact match)
+      const domRows = Array.from(gradeRows.querySelectorAll(".grade-row"));
+
+      for (let i = 0; i < domRows.length; i++) {
+        const input = domRows[i].querySelector("input");
+        const select = domRows[i].querySelector("select");
+
+        if (
+          input.value.trim() === (target.className || "") &&
+          select.value === (target.grade || "")
+        ) {
+          domRows[i].remove();
+          break;
+        }
+      }
+
+      if (gradeRows.children.length === 0) {
+        addGradeRow("", "");
+      }
+
+      persistCalculator();
+    });
+
+
+    addGradeButton.addEventListener("click", function () {
+      addGradeRow("", "");
+      persistCalculator();
+    });
+
+    calculateButton.addEventListener("click", persistCalculator);
+    clearAllButton.addEventListener("click", clearAllSavedData);
+
+    loadSavedCalculator();
 
   </script>
 
+  <script src="site-nav.js"></script>
 </body>
 </html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deadline Tracker — CapItNJ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-enter">
+  <div id="site-header" data-active="deadlines"></div>
+  <main>
+    <div class="wrap wrap-wide">
+      <section class="suite-hero">
+        <p class="eyebrow">Application workflow</p>
+        <h1>Deadline tracker</h1>
+        <p class="suite-sub">Capture every EA, ED, Regular Decision, FAFSA, and scholarship date. Saved in this browser.</p>
+      </section>
+
+      <section class="tool-panel">
+        <form id="deadline-form" class="tool-form">
+          <div class="field">
+            <label for="dl-title">Item</label>
+            <input id="dl-title" type="text" placeholder="e.g. State U — Early Action" required>
+          </div>
+          <div class="tool-form-row">
+            <div class="field">
+              <label for="dl-type">Type</label>
+              <select id="dl-type">
+                <option>Early Action</option>
+                <option>Early Decision</option>
+                <option>Regular Decision</option>
+                <option>FAFSA / Aid</option>
+                <option>Scholarship</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="dl-date">Due date</label>
+              <input id="dl-date" type="date" required>
+            </div>
+          </div>
+          <div class="field">
+            <label for="dl-notes">Notes</label>
+            <input id="dl-notes" type="text" placeholder="Portal link, counselor reminder, etc.">
+          </div>
+          <button class="btn" type="submit">Add deadline</button>
+        </form>
+      </section>
+
+      <div id="deadline-list" class="stack-list"></div>
+    </div>
+  </main>
+  <footer class="home-footer"><div class="wrap"><p>© 2026 CapItNJ — universal college planning suite.</p></div></footer>
+  <script src="site-nav.js"></script>
+  <script>
+    (function () {
+      var KEY = "capitnj_deadlines";
+      var form = document.getElementById("deadline-form");
+      var list = document.getElementById("deadline-list");
+
+      function load() {
+        try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+        catch (e) { return []; }
+      }
+
+      function save(items) {
+        localStorage.setItem(KEY, JSON.stringify(items));
+      }
+
+      function daysUntil(dateStr) {
+        var today = new Date();
+        today.setHours(0,0,0,0);
+        var due = new Date(dateStr + "T00:00:00");
+        return Math.round((due - today) / 86400000);
+      }
+
+      function render() {
+        var items = load().sort(function (a, b) { return a.date.localeCompare(b.date); });
+        if (!items.length) {
+          list.innerHTML = '<div class="empty-panel"><h2>No deadlines yet</h2><p>Add your first application or aid date above.</p></div>';
+          return;
+        }
+        list.innerHTML = items.map(function (item, index) {
+          var d = daysUntil(item.date);
+          var urgency = d < 0 ? "Overdue" : d === 0 ? "Due today" : d + " day" + (d === 1 ? "" : "s") + " left";
+          var tone = d < 0 ? "bad" : d <= 14 ? "warn" : "ok";
+          return (
+            '<article class="stack-item">' +
+              '<div><span class="pill ' + tone + '">' + urgency + '</span>' +
+              '<h3>' + escapeHtml(item.title) + '</h3>' +
+              '<p>' + escapeHtml(item.type) + ' · ' + escapeHtml(item.date) +
+              (item.notes ? ' · ' + escapeHtml(item.notes) : '') + '</p></div>' +
+              '<button type="button" class="btn-outline danger-btn" data-index="' + index + '">Delete</button>' +
+            '</article>'
+          );
+        }).join("");
+      }
+
+      function escapeHtml(v) {
+        return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      }
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var items = load();
+        items.push({
+          title: document.getElementById("dl-title").value.trim(),
+          type: document.getElementById("dl-type").value,
+          date: document.getElementById("dl-date").value,
+          notes: document.getElementById("dl-notes").value.trim()
+        });
+        save(items);
+        form.reset();
+        render();
+      });
+
+      list.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-index]");
+        if (!btn) return;
+        var items = load();
+        items.splice(Number(btn.getAttribute("data-index")), 1);
+        save(items);
+        render();
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

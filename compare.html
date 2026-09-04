@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>College Compare — CapItNJ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-enter">
+  <div id="site-header" data-active="compare"></div>
+  <main>
+    <div class="wrap wrap-wide">
+      <section class="suite-hero">
+        <p class="eyebrow">Decision dashboard</p>
+        <h1>College comparison</h1>
+        <p class="suite-sub">Compare up to four schools on sticker price, gift aid, and estimated net cost. Pull from Net Cost or add schools manually.</p>
+      </section>
+
+      <section class="tool-panel">
+        <form id="compare-form" class="tool-form">
+          <div class="tool-form-row">
+            <div class="field"><label for="c-name">College</label><input id="c-name" required placeholder="College name"></div>
+            <div class="field"><label for="c-sticker">Sticker / COA</label><input id="c-sticker" type="number" min="0" step="500" required></div>
+            <div class="field"><label for="c-net">Est. net cost</label><input id="c-net" type="number" min="0" step="500" required></div>
+          </div>
+          <div class="tool-form-row">
+            <div class="field"><label for="c-fit">Academic fit</label>
+              <select id="c-fit"><option>Safety</option><option selected>Match</option><option>Reach</option></select>
+            </div>
+            <div class="field"><label for="c-notes">Notes</label><input id="c-notes" placeholder="Program strength, distance, vibe"></div>
+          </div>
+          <button class="btn" type="submit">Add to compare</button>
+        </form>
+      </section>
+
+      <div id="compare-board" class="compare-board"></div>
+      <div style="margin-top:14px;">
+        <button type="button" class="btn-outline" id="clear-compare">Clear comparison board</button>
+      </div>
+    </div>
+  </main>
+  <footer class="home-footer"><div class="wrap"><p>© 2026 CapItNJ — universal college planning suite.</p></div></footer>
+  <script src="site-nav.js"></script>
+  <script>
+    (function () {
+      var KEY = "capitnj_compare";
+      var form = document.getElementById("compare-form");
+      var board = document.getElementById("compare-board");
+
+      function load() {
+        try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+        catch (e) { return []; }
+      }
+      function save(items) { localStorage.setItem(KEY, JSON.stringify(items.slice(0, 4))); }
+      function money(n) { return "$" + Math.round(Number(n) || 0).toLocaleString(); }
+      function escapeHtml(v) {
+        return String(v || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      }
+
+      function render() {
+        var items = load();
+        if (!items.length) {
+          board.innerHTML = '<div class="empty-panel"><h2>No schools on the board</h2><p>Add colleges here or save them from the Net Cost calculator.</p><p><a class="btn" href="net-cost.html">Open net cost</a></p></div>';
+          return;
+        }
+
+        var lowestNet = Math.min.apply(null, items.map(function (i) { return Number(i.net) || 0; }));
+
+        board.innerHTML = items.map(function (item, index) {
+          var isBest = Number(item.net) === lowestNet;
+          return (
+            '<article class="compare-card' + (isBest ? ' best' : '') + '">' +
+              (isBest ? '<span class="pill ok">Lowest net</span>' : '<span class="pill">Option</span>') +
+              '<h3>' + escapeHtml(item.name) + '</h3>' +
+              '<p class="compare-stat"><span>Sticker</span><strong>' + money(item.sticker) + '</strong></p>' +
+              '<p class="compare-stat"><span>Est. net</span><strong>' + money(item.net) + '</strong></p>' +
+              '<p class="compare-stat"><span>Fit</span><strong>' + escapeHtml(item.fit || "—") + '</strong></p>' +
+              '<p class="muted">' + escapeHtml(item.notes || "") + '</p>' +
+              '<button type="button" class="btn-outline danger-btn" data-index="' + index + '">Remove</button>' +
+            '</article>'
+          );
+        }).join("");
+      }
+
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var items = load();
+        items.push({
+          name: document.getElementById("c-name").value.trim(),
+          sticker: Number(document.getElementById("c-sticker").value) || 0,
+          net: Number(document.getElementById("c-net").value) || 0,
+          fit: document.getElementById("c-fit").value,
+          notes: document.getElementById("c-notes").value.trim()
+        });
+        save(items);
+        form.reset();
+        document.getElementById("c-fit").value = "Match";
+        render();
+      });
+
+      board.addEventListener("click", function (e) {
+        var btn = e.target.closest("[data-index]");
+        if (!btn) return;
+        var items = load();
+        items.splice(Number(btn.getAttribute("data-index")), 1);
+        save(items);
+        render();
+      });
+
+      document.getElementById("clear-compare").addEventListener("click", function () {
+        if (confirm("Clear the comparison board?")) {
+          localStorage.removeItem(KEY);
+          render();
+        }
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

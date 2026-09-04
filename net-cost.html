@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Net Cost Calculator — CapItNJ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="page-enter">
+  <div id="site-header" data-active="net-cost"></div>
+  <main>
+    <div class="wrap wrap-wide">
+      <section class="suite-hero">
+        <p class="eyebrow">True cost of attendance</p>
+        <h1>Net cost calculator</h1>
+        <p class="suite-sub">Start from sticker price, subtract grants and scholarships, and see an estimated yearly net cost — not just tuition marketing.</p>
+      </section>
+
+      <section class="tool-panel estimator-split">
+        <div>
+          <div class="field"><label for="nc-name">College name</label><input id="nc-name" type="text" placeholder="e.g. State University" value="Sample College"></div>
+          <div class="field"><label for="nc-sticker">Sticker / COA (tuition + fees + living)</label><input id="nc-sticker" type="number" min="0" step="500" value="58000"></div>
+          <div class="field"><label for="nc-pell">Estimated Pell Grant</label><input id="nc-pell" type="number" min="0" step="100" value="0"></div>
+          <div class="field"><label for="nc-state">Estimated state grant</label><input id="nc-state" type="number" min="0" step="100" value="0"></div>
+          <div class="field"><label for="nc-school">School merit / need grant</label><input id="nc-school" type="number" min="0" step="100" value="12000"></div>
+          <div class="field"><label for="nc-other">Other scholarships</label><input id="nc-other" type="number" min="0" step="100" value="1000"></div>
+          <div class="field"><label for="nc-work">Work-study / student income (optional)</label><input id="nc-work" type="number" min="0" step="100" value="0"></div>
+          <button class="btn" type="button" id="nc-import">Import Pell estimate from Aid Hub</button>
+        </div>
+        <aside class="result-panel" aria-live="polite">
+          <p class="eyebrow">Estimated net cost / year</p>
+          <div class="big-number" id="nc-net">$0</div>
+          <p class="muted" id="nc-summary">Enter aid amounts to see what remains.</p>
+          <div class="breakdown" id="nc-breakdown"></div>
+          <button class="btn-outline" type="button" id="nc-save" style="margin-top:16px;">Save to Compare</button>
+        </aside>
+      </section>
+    </div>
+  </main>
+  <footer class="home-footer"><div class="wrap"><p>© 2026 CapItNJ — universal college planning suite.</p></div></footer>
+  <script src="site-nav.js"></script>
+  <script>
+    (function () {
+      var fields = ["nc-name","nc-sticker","nc-pell","nc-state","nc-school","nc-other","nc-work"];
+
+      function num(id) { return Number(document.getElementById(id).value) || 0; }
+
+      function money(n) { return "$" + Math.max(0, Math.round(n)).toLocaleString(); }
+
+      function update() {
+        var sticker = num("nc-sticker");
+        var grants = num("nc-pell") + num("nc-state") + num("nc-school") + num("nc-other");
+        var work = num("nc-work");
+        var net = Math.max(0, sticker - grants);
+        var family = Math.max(0, net - work);
+
+        document.getElementById("nc-net").textContent = money(net);
+        document.getElementById("nc-summary").textContent =
+          "After grants, about " + money(net) + "/year remains. Family share after work-study: " + money(family) + ".";
+
+        document.getElementById("nc-breakdown").innerHTML =
+          '<div class="break-row"><span>Sticker / COA</span><strong>' + money(sticker) + '</strong></div>' +
+          '<div class="break-row"><span>Total gift aid</span><strong>− ' + money(grants) + '</strong></div>' +
+          '<div class="break-row"><span>Net cost</span><strong>' + money(net) + '</strong></div>' +
+          '<div class="break-row"><span>After work-study</span><strong>' + money(family) + '</strong></div>';
+      }
+
+      fields.forEach(function (id) {
+        document.getElementById(id).addEventListener("input", update);
+      });
+
+      document.getElementById("nc-import").addEventListener("click", function () {
+        try {
+          var data = JSON.parse(localStorage.getItem("capitnj_aid_estimator") || "{}");
+          if (data.pell != null) document.getElementById("nc-pell").value = data.pell;
+          update();
+        } catch (e) {
+          alert("No saved Pell estimate found. Visit the Aid Hub first.");
+        }
+      });
+
+      document.getElementById("nc-save").addEventListener("click", function () {
+        var payload = {
+          name: document.getElementById("nc-name").value.trim() || "College",
+          sticker: num("nc-sticker"),
+          pell: num("nc-pell"),
+          stateGrant: num("nc-state"),
+          schoolGrant: num("nc-school"),
+          other: num("nc-other"),
+          net: Math.max(0, num("nc-sticker") - (num("nc-pell") + num("nc-state") + num("nc-school") + num("nc-other"))),
+          updatedAt: new Date().toISOString()
+        };
+        var list = [];
+        try { list = JSON.parse(localStorage.getItem("capitnj_compare") || "[]"); } catch (e) {}
+        list = list.filter(function (c) { return c.name !== payload.name; });
+        list.push(payload);
+        localStorage.setItem("capitnj_compare", JSON.stringify(list.slice(-6)));
+        alert("Saved to Compare dashboard.");
+      });
+
+      try {
+        var aid = JSON.parse(localStorage.getItem("capitnj_aid_estimator") || "{}");
+        if (aid.pell != null) document.getElementById("nc-pell").value = aid.pell;
+      } catch (e) {}
+
+      update();
+    })();
+  </script>
+</body>
+</html>

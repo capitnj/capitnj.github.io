@@ -88,7 +88,10 @@ const SCHOOL_STATE_KEYWORDS = {
         "fairleigh dickinson",
         "monmouth university",
         "saint peter",
-        "new jersey institute"
+        "new jersey institute",
+        "new jersey",
+        "njit",
+        "stevens institute"
     ],
 
     "New York": [
@@ -100,7 +103,37 @@ const SCHOOL_STATE_KEYWORDS = {
         "columbia university",
         "fordham university",
         "pace university",
-        "hofstra university"
+        "hofstra university",
+        "new york",
+        "cuny",
+        "suny",
+        "rochester institute",
+        "vassar college",
+        "bard college",
+        "colgate university",
+        "hamilton college"
+    ],
+
+    "Connecticut": [
+        "yale",
+        "university of connecticut",
+        "uconn",
+        "connecticut college",
+        "connecticut state",
+        "southern connecticut",
+        "central connecticut",
+        "eastern connecticut",
+        "western connecticut",
+        "fairfield university",
+        "quinnipiac",
+        "sacred heart university",
+        "university of hartford",
+        "university of new haven",
+        "trinity college",
+        "wesleyan university",
+        "university of bridgeport",
+        "albertus magnus",
+        "connecticut"
     ],
 
     "Pennsylvania": [
@@ -110,7 +143,14 @@ const SCHOOL_STATE_KEYWORDS = {
         "drexel university",
         "carnegie mellon",
         "lehigh university",
-        "villanova university"
+        "villanova university",
+        "pennsylvania",
+        "pittsburgh",
+        "bucknell",
+        "swarthmore",
+        "haverford",
+        "lafayette college",
+        "dickinson college"
     ],
 
     "Massachusetts": [
@@ -120,7 +160,63 @@ const SCHOOL_STATE_KEYWORDS = {
         "boston university",
         "northeastern university",
         "tufts university",
-        "university of massachusetts"
+        "university of massachusetts",
+        "massachusetts",
+        "boston college",
+        "brandeis",
+        "amherst college",
+        "williams college",
+        "wellesley",
+        "smith college",
+        "mount holyoke",
+        "babson",
+        "bentley university"
+    ],
+
+    "Maine": [
+        "university of maine",
+        "bowdoin",
+        "colby college",
+        "bates college",
+        "maine"
+    ],
+
+    "New Hampshire": [
+        "university of new hampshire",
+        "dartmouth",
+        "new hampshire"
+    ],
+
+    "Vermont": [
+        "university of vermont",
+        "middlebury",
+        "vermont"
+    ],
+
+    "Rhode Island": [
+        "university of rhode island",
+        "brown university",
+        "rhode island school of design",
+        "providence college",
+        "rhode island"
+    ],
+
+    "Maryland": [
+        "university of maryland",
+        "johns hopkins",
+        "towson university",
+        "loyola university maryland",
+        "maryland"
+    ],
+
+    "Virginia": [
+        "university of virginia",
+        "virginia tech",
+        "virginia commonwealth",
+        "george mason",
+        "college of william",
+        "james madison university",
+        "virginia"
     ],
 
     "California": [
@@ -196,27 +292,139 @@ const SCHOOL_STATE_KEYWORDS = {
 };
 
 
+const STATE_ABBREVIATIONS = {
+    "al": "Alabama",
+    "ak": "Alaska",
+    "az": "Arizona",
+    "ar": "Arkansas",
+    "ca": "California",
+    "co": "Colorado",
+    "ct": "Connecticut",
+    "de": "Delaware",
+    "fl": "Florida",
+    "ga": "Georgia",
+    "hi": "Hawaii",
+    "id": "Idaho",
+    "il": "Illinois",
+    "in": "Indiana",
+    "ia": "Iowa",
+    "ks": "Kansas",
+    "ky": "Kentucky",
+    "la": "Louisiana",
+    "me": "Maine",
+    "md": "Maryland",
+    "ma": "Massachusetts",
+    "mi": "Michigan",
+    "mn": "Minnesota",
+    "ms": "Mississippi",
+    "mo": "Missouri",
+    "mt": "Montana",
+    "ne": "Nebraska",
+    "nv": "Nevada",
+    "nh": "New Hampshire",
+    "nj": "New Jersey",
+    "nm": "New Mexico",
+    "ny": "New York",
+    "nc": "North Carolina",
+    "nd": "North Dakota",
+    "oh": "Ohio",
+    "ok": "Oklahoma",
+    "or": "Oregon",
+    "pa": "Pennsylvania",
+    "ri": "Rhode Island",
+    "sc": "South Carolina",
+    "sd": "South Dakota",
+    "tn": "Tennessee",
+    "tx": "Texas",
+    "ut": "Utah",
+    "vt": "Vermont",
+    "va": "Virginia",
+    "wa": "Washington",
+    "wv": "West Virginia",
+    "wi": "Wisconsin",
+    "wy": "Wyoming",
+    "dc": "District of Columbia"
+};
+
+
+function expandStateName(value) {
+
+    if (!value) return "";
+
+    const cleaned = String(value)
+        .trim()
+        .replace(/\./g, "")
+        .replace(/_/g, " ")
+        .replace(/\s+/g, " ");
+
+    const lower = cleaned.toLowerCase();
+
+    if (STATE_ABBREVIATIONS[lower]) {
+        return STATE_ABBREVIATIONS[lower];
+    }
+
+    for (const fullName of Object.values(STATE_ABBREVIATIONS)) {
+        if (fullName.toLowerCase() === lower) {
+            return fullName;
+        }
+    }
+
+    for (const fullName of Object.keys(SCHOOL_STATE_KEYWORDS)) {
+        if (fullName.toLowerCase() === lower) {
+            return fullName;
+        }
+    }
+
+    return cleaned;
+}
+
+
 function getSchoolState(school) {
 
     const apiState =
         (school["state-province"] || "").trim();
 
     if (apiState) {
-        return apiState;
+        return expandStateName(apiState);
     }
 
     const name =
         String(school.name || "").toLowerCase();
 
-    for (const state in SCHOOL_STATE_KEYWORDS) {
+    // Avoid tagging D.C.'s George Washington University as Washington state
+    if (
+        name.includes("george washington") &&
+        !name.includes("washington state")
+    ) {
+        return "District of Columbia";
+    }
 
-        const keywords =
-            SCHOOL_STATE_KEYWORDS[state];
+    // Prefer longer / more specific keyword hits first
+    const rankedStates = Object.keys(SCHOOL_STATE_KEYWORDS)
+        .sort(function (a, b) {
+            const aMax = Math.max.apply(
+                null,
+                SCHOOL_STATE_KEYWORDS[a].map(function (k) {
+                    return k.length;
+                })
+            );
+            const bMax = Math.max.apply(
+                null,
+                SCHOOL_STATE_KEYWORDS[b].map(function (k) {
+                    return k.length;
+                })
+            );
+            return bMax - aMax;
+        });
+
+    for (let i = 0; i < rankedStates.length; i++) {
+        const state = rankedStates[i];
+        const keywords = SCHOOL_STATE_KEYWORDS[state];
 
         if (
-            keywords.some(keyword =>
-                name.includes(keyword)
-            )
+            keywords.some(function (keyword) {
+                return name.includes(keyword);
+            })
         ) {
             return state;
         }

@@ -205,27 +205,9 @@
     </style>
 </head>
 
-<body>
+<body class="page-enter">
 
-<header class="nav">
-    <div class="nav-inner">
-
-        <a href="index.html" class="wordmark">CapItNJ</a>
-
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-            <a href="improve.html">Improve</a>
-            <a href="explore.html">Explore</a>
-            <a href="gpa-calculator.html">GPA Calculator</a>
-            <a href="matches.html" class="active">Matches</a>
-            <a href="mylist.html">My List</a>
-            <a href="profile.html">Profile</a>
-            <a href="askcapi.html">Ask Capi</a>
-            <a href="support.html">Support</a>
-        </div>
-
-    </div>
-</header>
+<div id="site-header" data-active="matches"></div>
 
 
 <main>
@@ -246,6 +228,7 @@
 
 
         <div id="loading-state" class="loading-state">
+            <div class="loading-spinner" aria-hidden="true"></div>
             <p>Loading your profile and finding colleges for you...</p>
         </div>
 
@@ -474,9 +457,6 @@ function normalizePreference(value) {
         "school in my state": "home-state",
         "my state": "home-state",
 
-        "nj": "home-state",
-        "new jersey": "home-state",
-
         "northeast": "northeast",
         "north east": "northeast",
 
@@ -492,7 +472,29 @@ function normalizePreference(value) {
         "no preference": "anywhere"
     };
 
-    return aliases[v] || v;
+    if (aliases[v]) {
+        return aliases[v];
+    }
+
+    const asState = normalizeState(v);
+
+    if (asState && asState !== v.replace(/\s+/g, " ")) {
+        return "state:" + asState;
+    }
+
+    const probe = normalizeState(asState || v);
+    const allStates = [].concat(
+        MATCH_REGIONS.northeast,
+        MATCH_REGIONS.midwest,
+        MATCH_REGIONS.south,
+        MATCH_REGIONS.west
+    );
+
+    if (probe && allStates.includes(probe)) {
+        return "state:" + probe;
+    }
+
+    return v;
 }
 
 
@@ -679,13 +681,119 @@ function titleCase(value) {
 }
 
 
+function inferStateFromName(name) {
+
+    const lower = String(name || "").toLowerCase();
+
+    if (!lower) return "";
+
+    if (
+        lower.includes("george washington") &&
+        !lower.includes("washington state")
+    ) {
+        return "district of columbia";
+    }
+
+    const stateNames = [
+        "district of columbia",
+        "new hampshire",
+        "new jersey",
+        "new mexico",
+        "new york",
+        "north carolina",
+        "north dakota",
+        "rhode island",
+        "south carolina",
+        "south dakota",
+        "west virginia",
+        "connecticut",
+        "massachusetts",
+        "pennsylvania",
+        "california",
+        "washington",
+        "wisconsin",
+        "minnesota",
+        "mississippi",
+        "tennessee",
+        "kentucky",
+        "louisiana",
+        "maryland",
+        "missouri",
+        "oklahoma",
+        "arkansas",
+        "colorado",
+        "illinois",
+        "indiana",
+        "michigan",
+        "nebraska",
+        "virginia",
+        "alabama",
+        "arizona",
+        "florida",
+        "georgia",
+        "montana",
+        "nevada",
+        "oregon",
+        "vermont",
+        "alaska",
+        "hawaii",
+        "kansas",
+        "maine",
+        "texas",
+        "idaho",
+        "iowa",
+        "ohio",
+        "utah"
+    ];
+
+    for (let i = 0; i < stateNames.length; i++) {
+        if (lower.includes(stateNames[i])) {
+            return stateNames[i];
+        }
+    }
+
+    const nicknames = {
+        "yale": "connecticut",
+        "uconn": "connecticut",
+        "quinnipiac": "connecticut",
+        "wesleyan university": "connecticut",
+        "fairfield university": "connecticut",
+        "sacred heart university": "connecticut",
+        "rutgers": "new jersey",
+        "princeton": "new jersey",
+        "rowan": "new jersey",
+        "montclair": "new jersey",
+        "seton hall": "new jersey",
+        "harvard": "massachusetts",
+        "mit": "massachusetts",
+        "brown university": "rhode island",
+        "dartmouth": "new hampshire",
+        "cornell": "new york",
+        "columbia university": "new york",
+        "nyu": "new york",
+        "penn state": "pennsylvania",
+        "cmu": "pennsylvania",
+        "carnegie mellon": "pennsylvania"
+    };
+
+    for (const key in nicknames) {
+        if (lower.includes(key)) {
+            return nicknames[key];
+        }
+    }
+
+    return "";
+}
+
+
 function getCollegeState(college) {
 
     const possibleStates = [
         college.state,
-        college.location,
         college.stateName,
-        college.state_name
+        college.state_name,
+        college.state_province,
+        college["state-province"]
     ];
 
     for (const value of possibleStates) {
@@ -695,13 +803,21 @@ function getCollegeState(college) {
             const normalized =
                 normalizeState(value);
 
-            if (normalized) {
+            if (
+                normalized &&
+                normalized !== "home-state" &&
+                normalized !== "northeast" &&
+                normalized !== "midwest" &&
+                normalized !== "south" &&
+                normalized !== "west" &&
+                normalized !== "anywhere"
+            ) {
                 return normalized;
             }
         }
     }
 
-    return "";
+    return inferStateFromName(college.name);
 }
 
 
@@ -720,14 +836,13 @@ function collegeMatchesLocation(
     const normalizedUserState =
         normalizeState(userState);
 
+    const collegeRegion = String(college.region || "")
+        .trim()
+        .toLowerCase();
+
 
     if (wanted === "anywhere") {
         return true;
-    }
-
-
-    if (!collegeState) {
-        return false;
     }
 
 
@@ -737,15 +852,53 @@ function collegeMatchesLocation(
             return false;
         }
 
-        return collegeState === normalizedUserState;
+        if (collegeState) {
+            return collegeState === normalizedUserState;
+        }
+
+        return inferStateFromName(college.name) === normalizedUserState;
     }
 
 
-   if (MATCH_REGIONS[wanted]) {
+    if (wanted.indexOf("state:") === 0) {
 
-    return MATCH_REGIONS[wanted].includes(
-        collegeState
-    );
+        const targetState = wanted.slice(6);
+
+        if (!targetState) {
+            return false;
+        }
+
+        if (collegeState) {
+            return collegeState === targetState;
+        }
+
+        return inferStateFromName(college.name) === targetState;
+    }
+
+
+    if (MATCH_REGIONS[wanted]) {
+
+        if (
+            collegeState &&
+            MATCH_REGIONS[wanted].includes(collegeState)
+        ) {
+            return true;
+        }
+
+        if (collegeRegion === wanted) {
+            return true;
+        }
+
+        const inferred = inferStateFromName(college.name);
+
+        return (
+            inferred &&
+            MATCH_REGIONS[wanted].includes(inferred)
+        );
+    }
+
+
+    return false;
 }
 
 
@@ -1212,6 +1365,13 @@ function renderProfileSummary(profile) {
         }
 
 
+        if (location.indexOf("state:") === 0) {
+            locationText =
+                "Schools in " +
+                titleCase(location.slice(6));
+        }
+
+
         pills.push(
             `<div class="profile-pill">
                 <strong>Location:</strong>
@@ -1276,6 +1436,13 @@ function renderMatches(matches, profile) {
             titleCase(
                 normalizeState(profile.state)
             );
+    }
+
+
+    if (preference.indexOf("state:") === 0) {
+        locationText =
+            "Schools in " +
+            titleCase(preference.slice(6));
     }
 
 
@@ -1777,5 +1944,6 @@ document.addEventListener(
     src="//gc.zgo.at/count.js">
 </script>
 
+  <script src="site-nav.js"></script>
 </body>
 </html>
