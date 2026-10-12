@@ -902,7 +902,7 @@ async function showDetails(key) {
         ).innerHTML = `
             <p>
                 Federal data couldn't be
-                loaded right now.
+                loaded: ${escapeHTML(error.message)}
             </p>
         `;
 
